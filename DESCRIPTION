@@ -1,0 +1,30 @@
+Package: easystafe
+Title: Processamento de Extractos do e-SISTAFE
+Version: 0.0.0.9000
+Authors@R: 
+    person(
+        given = "Joseph",
+        family = "Lara",
+        role = c("aut", "cre"),
+        email = "joseph.lara@giz.de"
+    )
+Description: Ferramentas para processar extractos do e-SISTAFE,
+    incluindo deduplicação hierárquica e extração automática de metadados.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    dplyr,
+    stringr,
+    tibble,
+    readxl,
+    janitor,
+    lubridate,
+    purrr,
+    progress,
+    tidyselect
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
