@@ -48,44 +48,35 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="easystafe">easystafe<a class="anchor" aria-label="anchor" href="#easystafe"></a>
 </h1></div>
-<p>Ferramentas para processamento, consolidação e análise de extractos do e-SISTAFE em Moçambique.<br>
-O pacote facilita a limpeza, padronização e deduplicação de ficheiros de execução orçamental, permitindo uma análise mais rápida, transparente e reprodutível.</p>
-<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></p>
-<hr>
+<!-- Badge strip -->
+<p><a href="https://github.com/moz-gpe/easystafe/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/moz-gpe/easystafe/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a></p>
 <div class="section level2">
-<h2 id="id_-resumo">📘 Resumo<a class="anchor" aria-label="anchor" href="#id_-resumo"></a>
+<h2 id="id_-resumo">📌 Resumo<a class="anchor" aria-label="anchor" href="#id_-resumo"></a>
 </h2>
-<p>O pacote <strong>easystafe</strong> foi desenvolvido para apoiar equipas técnicas que trabalham com dados extraídos do sistema e-SISTAFE, fornecendo funções robustas para:</p>
+<p>O <strong>easystafe</strong> é um pacote em desenvolvimento para facilitar o processamento, deduplicação e análise de extractos exportados do <strong>e-SISTAFE</strong> (Sistema de Administração Financeira do Estado de Moçambique).</p>
+<p>O pacote oferece:</p>
 <ul>
-<li>Processamento hierárquico e consolidação automática de extractos;</li>
-<li>Remoção de duplicações entre níveis CED (A, B, C, D);</li>
-<li>Extração estruturada de metadados (datas, tipo de reporte, ano, mês) diretamente do nome dos ficheiros;</li>
-<li>Processamento em lote de múltiplos extractos com anexação de metadados;</li>
-<li>Fluxos consistentes e reproduzíveis para integração em pipelines analíticos.</li>
+<li>funções robustas para normalizar extractos financeiros;</li>
+<li>regras automáticas de priorização entre níveis de CED (A, B, C, D);</li>
+<li>deduplicação inteligente entre ficheiros múltiplos;</li>
+<li>extração automática de metadados (datas, tipo de reporte, ano, mês);</li>
+<li>preparação das variáveis orçamentais principais para uso analítico.</li>
 </ul>
-<p>As funções principais incluem:</p>
-<ul>
-<li><p><strong><code><a href="reference/processar_esistafe_extracto_unico.html">processar_esistafe_extracto_unico()</a></code></strong><br>
-Processamento completo de um único extracto e eliminação de duplicações entre níveis CED.</p></li>
-<li><p><strong><code>processo_esistafe_extracto()</code></strong><br>
-Processamento em massa de múltiplos extractos, incluindo gestão de erros e unificação dos resultados.</p></li>
-<li><p><strong><code><a href="reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code></strong><br>
-Extração automática de metadados a partir do nome dos ficheiros do e-SISTAFE.</p></li>
-</ul>
-<p>Este pacote apoia análises orçamentais, promovendo maior transparência e rigor nos processos de gestão financeira pública.</p>
+<blockquote>
+<p><strong>Estado:</strong> <em>experimental</em> — a API poderá mudar nas próximas versões.</p>
+</blockquote>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-instalação">🔧 Instalação<a class="anchor" aria-label="anchor" href="#id_-instala%C3%A7%C3%A3o"></a>
+<h2 id="id_-instalação">📦 Instalação<a class="anchor" aria-label="anchor" href="#id_-instala%C3%A7%C3%A3o"></a>
 </h2>
-<p>O pacote ainda não se encontra no CRAN. Para instalar a versão de desenvolvimento diretamente do GitHub, utilize:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Instalar easystafe a partir do repositório GitHub</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"moz-gpe/easystafe"</span><span class="op">)</span></span>
-<span>    </span></code></pre></div>
+<div class="section level3">
+<h3 id="versão-de-desenvolvimento-github">Versão de desenvolvimento (GitHub)<a class="anchor" aria-label="anchor" href="#vers%C3%A3o-de-desenvolvimento-github"></a>
+</h3>
+<p>```r # install.packages(“devtools”) devtools::install_github(“moz-gpe/easystafe”)</p>
 <hr>
-<p>*Disclaimer: As conclusões, interpretações e opiniões expressas neste pacote são de responsabilidade exclusiva dos autores e não refletem necessariamente as posições da Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH, do Global Partnership for Education (GPE), do Ministério da Educação e Desenvolvimento Humano (MINEDH), ou da United States Agency for International Development (USAID). Quaisquer erros ou omissões são de inteira responsabilidade dos autores.</p>
+<p>*Disclaimer: As conclusões, interpretações e opiniões expressas neste pacote são de responsabilidade exclusiva dos autores e não refletem necessariamente as posições da GIZ. Quaisquer erros ou omissões são de inteira responsabilidade dos autores.</p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
