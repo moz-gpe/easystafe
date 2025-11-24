@@ -1,4 +1,4 @@
-# Extrair metadados a partir do nome de um ficheiro de extracto e-SISTAFE
+# Extrair metadados do nome do ficheiro e-SISTAFE
 
 Esta função lê o nome de um ficheiro do e-SISTAFE e extrai metadados
 estruturados, incluindo:

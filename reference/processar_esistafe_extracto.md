@@ -1,4 +1,4 @@
-# Deduplicação de múltiplos extractos do e-SISTAFE com inclusão automática de metadados
+# Processar ficheiros extraidos do e-SISTAFE
 
 Esta função aplica
 [`processar_esistafe_extracto_unico()`](https://moz-gpe.github.io/easystafe/reference/processar_esistafe_extracto_unico.md)

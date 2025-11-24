@@ -18,4 +18,8 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Joseph Lara <joseph.lara@giz.de>
+**Maintainer**: Joe Lara <joseph.lara@giz.de>
+
+Authors:
+
+- Damiano Stella <damiano.stella@giz.de>
