@@ -3,6 +3,9 @@
 Ferramentas para processamento, consolidação e análise de extractos do e-SISTAFE em Moçambique.  
 O pacote facilita a limpeza, padronização e deduplicação de ficheiros de execução orçamental, permitindo uma análise mais rápida, transparente e reprodutível.
 
+
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
 ---
 
 ## 📘 Resumo
