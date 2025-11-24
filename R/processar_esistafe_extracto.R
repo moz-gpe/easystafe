@@ -1,4 +1,4 @@
-#' Deduplicação de múltiplos extractos do e-SISTAFE com inclusão automática de metadados
+#' Processar ficheiros extraidos do e-SISTAFE
 #'
 #' Esta função aplica \code{processar_esistafe_extracto_unico()} a vários
 #' ficheiros de extracto do e-SISTAFE, elimina duplicações ao combinar

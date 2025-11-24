@@ -1,4 +1,10 @@
 url: https://moz-gpe.github.io/easystafe/
 template:
   bootstrap: 5
+  bslib:
+    base_font: {google: "Montserrat"}
+    heading_font: {google: "Lato"}
+    code_font: {google: "Source Code Pro"}
+    primary: "#306cc9"
 
+lang: pt

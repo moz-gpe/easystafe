@@ -1,4 +1,4 @@
-#' Processamento hierárquico e consolidação de um único extracto do e-SISTAFE
+#' Processar um ficheiro extraido do e-SISTAFE
 #'
 #' Esta função processa um ficheiro individual do e-SISTAFE, executando
 #' um conjunto estruturado de operações para produzir um extracto

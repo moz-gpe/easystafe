@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_esistafe_extracto.R
 \name{processar_esistafe_extracto}
 \alias{processar_esistafe_extracto}
-\title{Deduplicação de múltiplos extractos do e-SISTAFE com inclusão automática de metadados}
+\title{Processar ficheiros extraidos do e-SISTAFE}
 \usage{
 processar_esistafe_extracto(caminhos, lista_ugb)
 }

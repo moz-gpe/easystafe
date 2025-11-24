@@ -23,7 +23,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Joseph Lara \email{joseph.lara@giz.de}
+\strong{Maintainer}: Joe Lara \email{joseph.lara@giz.de}
+
+Authors:
+\itemize{
+  \item Damiano Stella \email{damiano.stella@giz.de}
+}
 
 }
 \keyword{internal}

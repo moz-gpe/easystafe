@@ -1,13 +1,9 @@
 Package: easystafe
 Title: Processamento de Extractos do e-SISTAFE
 Version: 0.1.0
-Authors@R: 
-    person(
-        given = "Joseph",
-        family = "Lara",
-        role = c("aut", "cre"),
-        email = "joseph.lara@giz.de"
-    )
+Authors@R:  c(
+    person("Joe", "Lara", email = "joseph.lara@giz.de", role = c("aut", "cre")),
+    person("Damiano", "Stella", email = "damiano.stella@giz.de", role = ("aut")))
 Description: Ferramentas para processar extractos do e-SISTAFE,
     incluindo deduplicação hierárquica e extração automática de metadados.
 License: MIT + file LICENSE
