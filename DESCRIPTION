@@ -1,6 +1,6 @@
 Package: easystafe
 Title: Processamento de Extractos do e-SISTAFE
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person(
         given = "Joseph",
