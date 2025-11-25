@@ -10,11 +10,17 @@ integração com workflows baseados em R.
 
 Este pacote encontra-se atualmente em fase **experimental**.
 
+## Logo
+
+![easystafe logo](figures/logo.png)
+
 ## See also
 
 Useful links:
 
 - <https://moz-gpe.github.io/easystafe/>
+
+- Report bugs at <https://github.com/moz-gpe/easystafe/issues>
 
 ## Author
 

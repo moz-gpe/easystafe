@@ -1,4 +1,4 @@
-# Processar ficheiros extraidos do e-SISTAFE
+# Processar ficheiros extraídos do e-SISTAFE
 
 Esta função aplica
 [`processar_esistafe_extracto_unico()`](https://moz-gpe.github.io/easystafe/reference/processar_esistafe_extracto_unico.md)
@@ -31,7 +31,7 @@ ficheiros, incluindo metadados adicionais.
 
 ## Details
 
-O processo inclui:
+O fluxo inclui:
 
 - deduplicação após o processamento dos extractos individuais;
 
@@ -43,48 +43,48 @@ O processo inclui:
 
 ### Variáveis financeiras disponíveis no dataframe final
 
-O dataframe final contém um conjunto de métricas orçamentais
-padronizadas do e-SISTAFE, incluindo:
+O dataframe final contém métricas orçamentais padronizadas do e-SISTAFE.
+Cada variável representa uma etapa do ciclo orçamental: dotação →
+disponibilização → cabimentação → liquidação → pagamento.
 
-- **Dotação Inicial (dotacao_inicial)** — Alocação inicial aprovada no
+#### Lista de variáveis financeiras
+
+- **dotacao_inicial** (*Dotação Inicial*) — Alocação inicial aprovada no
   Orçamento do Estado.
 
-- **Dotação Revista (dotacao_revista)** — Alocação revista formalmente
+- **dotacao_revista** (*Dotação Revista*) — Alocação revista formalmente
   pelo Parlamento.
 
-- **Dotação Actualizada – DA (dotacao_actualizada)** — Atualizações
-  efetuadas pelo MEF dentro dos limites legais, sem revisão parlamentar.
+- **dotacao_actualizada** (*Dotação Actualizada – DA*) — Atualizações
+  feitas pelo MEF dentro dos limites legais, sem revisão parlamentar.
 
-- **Dotação Disponível (dotacao_disponivel)** — Liquidez efetivamente
-  disponibilizada.
+- **dotacao_disponivel** (*Dotação Disponível*) — Liquidez efetivamente
+  disponibilizada para execução.
 
-- **Dotação Cabimentada – DC (dotacao_cabimentada)** — Montante
-  cabimentado/comprometido.
+- **dotacao_cabimentada** (*Dotação Cabimentada – DC*) — Montante
+  cabimentado/comprometido com base na liquidez disponível.
 
-- **Adiantamento de Fundos – AF (ad_fundos)** — Montantes adiantados
-  antes da execução; inclui, por exemplo, o ADE para escolas.
+- **ad_fundos** (*Adiantamento de Fundos – AF*) — Valores adiantados
+  antes da execução; inclui, por exemplo, o mecanismo ADE para escolas.
 
-- **Despesa Paga Via Directa – DP (despesa_paga_via_directa)** —
-  Pagamentos feitos diretamente ao fornecedor via e-SISTAFE.
+- **despesa_paga_via_directa** (*Despesa Paga Via Directa – DP*) —
+  Pagamentos efetuados diretamente ao fornecedor via e-SISTAFE.
 
-- **Adiantamento de Fundos + Despesa Paga VD – AFDP
-  (ad_fundos_mais_dpvd)** — Soma dos adiantamentos e das despesas pagas
-  via direta.
+- **ad_fundos_mais_dpvd** (*AFDP – Adiantamento de Fundos + Despesa Paga
+  VD*) — Soma dos adiantamentos de fundos e das despesas pagas via
+  direta.
 
-- **Adiantamentos de Fundos Liquidados – LAF (liq_ad_fundos)** —
-  Adiantamentos para os quais o governo já recebeu e aceitou a fatura
-  (aguardando pagamento).
+- **liq_ad_fundos** (*LAF – Adiantamentos de Fundos Liquidados*) —
+  Adiantamentos para os quais já existe fatura aceite, pendentes de
+  pagamento.
 
-- **Despesa Liquidada Via Directa – LVD
-  (despesa_liquidada_via_directa)** — Despesas liquidadas diretamente no
-  e-SISTAFE, ou seja, com documento de liquidação emitido.
+- **despesa_liquidada_via_directa** (*LVD – Despesa Liquidada Via
+  Directa*) — Despesas liquidadas diretamente no e-SISTAFE, com
+  documento de liquidação emitido.
 
-- **Liq. Adiantamento de Fundos + Via Directa – LAFVD
-  (liq_ad_fundos_via_directa_lafvd)** — Total de liquidações combinando
-  adiantamentos liquidados e despesas liquidadas via direta.
-
-Estas variáveis refletem todo o ciclo orçamental: dotação,
-disponibilização de fundos, compromisso, liquidação e pagamento.
+- **liq_ad_fundos_via_directa_lafvd** (*LAFVD – Liquidação de AF + Via
+  Directa*) — Total de liquidações combinando adiantamentos liquidados e
+  despesas liquidadas via direta.
 
 ## Examples
 
