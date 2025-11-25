@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_esistafe_extracto.R
 \name{processar_esistafe_extracto}
 \alias{processar_esistafe_extracto}
-\title{Processar ficheiros extraidos do e-SISTAFE}
+\title{Processar ficheiros extraídos do e-SISTAFE}
 \usage{
 processar_esistafe_extracto(caminhos, lista_ugb)
 }
@@ -17,12 +17,12 @@ ficheiros, incluindo metadados adicionais.
 }
 \description{
 Esta função aplica \code{processar_esistafe_extracto_unico()} a vários
-ficheiros de extracto do e-SISTAFE, elimina duplicações ao combinar
-os resultados e acrescenta metadados extraídos automaticamente
-do nome de cada ficheiro através de \code{extrair_meta_extracto()}.
+ficheiros de extracto do e-SISTAFE, elimina duplicações ao combinar os
+resultados e acrescenta metadados extraídos automaticamente do nome de cada
+ficheiro através de \code{extrair_meta_extracto()}.
 }
 \details{
-O processo inclui:
+O fluxo inclui:
 \itemize{
 \item deduplicação após o processamento dos extractos individuais;
 \item extração e anexação automática de metadados (tipo de reporte, datas, mês, ano);
@@ -30,31 +30,36 @@ O processo inclui:
 }
 \subsection{Variáveis financeiras disponíveis no dataframe final}{
 
-O dataframe final contém um conjunto de métricas orçamentais padronizadas do
-e-SISTAFE, incluindo:
+O dataframe final contém métricas orçamentais padronizadas do e-SISTAFE.
+Cada variável representa uma etapa do ciclo orçamental:
+dotação → disponibilização → cabimentação → liquidação → pagamento.
+\subsection{Lista de variáveis financeiras}{
 \itemize{
-\item \strong{Dotação Inicial (dotacao_inicial)} — Alocação inicial aprovada no Orçamento do Estado.
-\item \strong{Dotação Revista (dotacao_revista)} — Alocação revista formalmente pelo Parlamento.
-\item \strong{Dotação Actualizada – DA (dotacao_actualizada)} —
-Atualizações efetuadas pelo MEF dentro dos limites legais, sem revisão parlamentar.
-\item \strong{Dotação Disponível (dotacao_disponivel)} — Liquidez efetivamente disponibilizada.
-\item \strong{Dotação Cabimentada – DC (dotacao_cabimentada)} — Montante cabimentado/comprometido.
-\item \strong{Adiantamento de Fundos – AF (ad_fundos)} —
-Montantes adiantados antes da execução; inclui, por exemplo, o ADE para escolas.
-\item \strong{Despesa Paga Via Directa – DP (despesa_paga_via_directa)} —
-Pagamentos feitos diretamente ao fornecedor via e-SISTAFE.
-\item \strong{Adiantamento de Fundos + Despesa Paga VD – AFDP (ad_fundos_mais_dpvd)} —
-Soma dos adiantamentos e das despesas pagas via direta.
-\item \strong{Adiantamentos de Fundos Liquidados – LAF (liq_ad_fundos)} —
-Adiantamentos para os quais o governo já recebeu e aceitou a fatura (aguardando pagamento).
-\item \strong{Despesa Liquidada Via Directa – LVD (despesa_liquidada_via_directa)} —
-Despesas liquidadas diretamente no e-SISTAFE, ou seja, com documento de liquidação emitido.
-\item \strong{Liq. Adiantamento de Fundos + Via Directa – LAFVD (liq_ad_fundos_via_directa_lafvd)} —
+\item \strong{dotacao_inicial} (\emph{Dotação Inicial}) —
+Alocação inicial aprovada no Orçamento do Estado.
+\item \strong{dotacao_revista} (\emph{Dotação Revista}) —
+Alocação revista formalmente pelo Parlamento.
+\item \strong{dotacao_actualizada} (\emph{Dotação Actualizada – DA}) —
+Atualizações feitas pelo MEF dentro dos limites legais, sem revisão parlamentar.
+\item \strong{dotacao_disponivel} (\emph{Dotação Disponível}) —
+Liquidez efetivamente disponibilizada para execução.
+\item \strong{dotacao_cabimentada} (\emph{Dotação Cabimentada – DC}) —
+Montante cabimentado/comprometido com base na liquidez disponível.
+\item \strong{ad_fundos} (\emph{Adiantamento de Fundos – AF}) —
+Valores adiantados antes da execução; inclui, por exemplo, o mecanismo ADE para escolas.
+\item \strong{despesa_paga_via_directa} (\emph{Despesa Paga Via Directa – DP}) —
+Pagamentos efetuados diretamente ao fornecedor via e-SISTAFE.
+\item \strong{ad_fundos_mais_dpvd} (\emph{AFDP – Adiantamento de Fundos + Despesa Paga VD}) —
+Soma dos adiantamentos de fundos e das despesas pagas via direta.
+\item \strong{liq_ad_fundos} (\emph{LAF – Adiantamentos de Fundos Liquidados}) —
+Adiantamentos para os quais já existe fatura aceite, pendentes de pagamento.
+\item \strong{despesa_liquidada_via_directa} (\emph{LVD – Despesa Liquidada Via Directa}) —
+Despesas liquidadas diretamente no e-SISTAFE, com documento de liquidação emitido.
+\item \strong{liq_ad_fundos_via_directa_lafvd} (\emph{LAFVD – Liquidação de AF + Via Directa}) —
 Total de liquidações combinando adiantamentos liquidados e despesas liquidadas via direta.
 }
+}
 
-Estas variáveis refletem todo o ciclo orçamental: dotação, disponibilização de fundos,
-compromisso, liquidação e pagamento.
 }
 }
 \examples{
