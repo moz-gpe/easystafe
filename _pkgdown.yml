@@ -8,3 +8,10 @@ template:
     primary: "#306cc9"
 
 lang: pt
+
+  home:
+  links:
+    - text: Source code
+      href: https://moz-gpe.github.io/easystafe/reference
+    - text: Report bug
+      href: https://github.com/moz-gpe/easystafe/issues

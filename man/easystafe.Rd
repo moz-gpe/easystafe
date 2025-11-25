@@ -19,6 +19,7 @@ Este pacote encontra-se atualmente em fase \strong{experimental}.
 Useful links:
 \itemize{
   \item \url{https://moz-gpe.github.io/easystafe/}
+  \item Report bugs at \url{https://github.com/moz-gpe/easystafe/issues}
 }
 
 }
