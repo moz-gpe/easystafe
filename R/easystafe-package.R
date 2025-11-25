@@ -12,6 +12,9 @@
 #' @name easystafe
 #' @keywords internal
 #'
+#' @section Logo:
+#' \if{html}{\figure{logo.png}{options: width=120px alt="easystafe logo"}}
+#' \if{latex}{\figure{logo.png}{options: width=2in}}
 "_PACKAGE"
 
 ## usethis namespace: start

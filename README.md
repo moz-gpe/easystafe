@@ -1,4 +1,4 @@
-# easystafe
+# easystafe <img src="man/figures/logo.png" align="right" width="120" />
 
 > **Estado:** *experimental* — a estado poderá mudar nas próximas versões.
 

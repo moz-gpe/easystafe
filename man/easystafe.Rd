@@ -15,6 +15,12 @@ baseados em R.
 \details{
 Este pacote encontra-se atualmente em fase \strong{experimental}.
 }
+\section{Logo}{
+
+\if{html}{\figure{logo.png}{options: width=120px alt="easystafe logo"}}
+\if{latex}{\figure{logo.png}{options: width=2in}}
+}
+
 \seealso{
 Useful links:
 \itemize{

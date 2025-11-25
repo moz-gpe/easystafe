@@ -1,17 +1,24 @@
 url: https://moz-gpe.github.io/easystafe/
+
 template:
   bootstrap: 5
   bslib:
-    base_font: {google: "Montserrat"}
-    heading_font: {google: "Lato"}
-    code_font: {google: "Source Code Pro"}
+    base_font: { google: "Montserrat" }
+    heading_font: { google: "Lato" }
+    code_font: { google: "Source Code Pro" }
     primary: "#306cc9"
+  package: easystafe
 
 lang: pt
 
-  home:
+# Logo goes inside navbar
+navbar:
+  structure:
+    left: [reference, articles]
+    right: [github]
+  logo: man/figures/logo.png
   links:
-    - text: Source code
+    - text: "Código-fonte"
       href: https://moz-gpe.github.io/easystafe/reference
-    - text: Report bug
+    - text: "Reportar erro"
       href: https://github.com/moz-gpe/easystafe/issues
