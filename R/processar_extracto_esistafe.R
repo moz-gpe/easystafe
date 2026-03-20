@@ -1,55 +1,54 @@
-
-#' Processar extractos de exportação e-SISTAFE
+#' Processar extractos de exportacao e-SISTAFE
 #'
-#' Carrega, limpa e processa um ou mais ficheiros de exportação do e-SISTAFE
-#' no formato Excel, aplicando uma sequência de transformações que inclui
-#' renomeação de colunas, filtragem de UGBs de educação, classificação e
-#' subtracção hierárquica de códigos CED, e restauração da estrutura original
-#' de colunas. Devolve um dataframe final desduplicado e pronto para análise.
+#' Carrega, limpa e processa um ou mais ficheiros de exportacao do e-SISTAFE
+#' no formato Excel, aplicando uma sequencia de transformacoes que inclui
+#' renomeacao de colunas, filtragem de UGBs de educacao, classificacao e
+#' subtraccao hierarquica de codigos CED, e restauracao da estrutura original
+#' de colunas. Devolve um dataframe final desduplicado e pronto para analise.
 #'
 #' @param source_path Um vector de caracteres com um ou mais caminhos para
-#'   ficheiros de exportação e-SISTAFE no formato \code{.xlsx}.
-#' @param ugb_lookup Um dataframe com a tabela de referência de UGBs de
-#'   educação, carregado a partir do ficheiro Excel de códigos UGB (folha
+#'   ficheiros de exportacao e-SISTAFE no formato \code{.xlsx}.
+#' @param ugb_lookup Um dataframe com a tabela de referencia de UGBs de
+#'   educacao, carregado a partir do ficheiro Excel de codigos UGB (folha
 #'   \code{"UGBS"}). Deve conter uma coluna \code{ugb_3} com os nomes
-#'   completos dos UGBs válidos.
-#' @param include_percent Lógico. Se \code{TRUE} (padrão), as colunas
-#'   \code{percent} são incluídas no output (preenchidas com \code{NA}).
-#'   Se \code{FALSE}, essas colunas são removidas do resultado final.
-#' @param include_meta Lógico. Se \code{TRUE} (padrão), os metadados
-#'   extraídos do nome do ficheiro (tipo de relatório, ano, mês, datas) são
-#'   adicionados ao dataframe imediatamente após a coluna \code{file_name}.
-#'   Se \code{FALSE}, os metadados não são adicionados e a coluna
-#'   \code{file_name} é também removida do resultado final.
-#' @param quiet Lógico. Se \code{TRUE} (padrão), as mensagens de progresso
-#'   são suprimidas. Se \code{FALSE}, é emitida uma mensagem por cada etapa
-#'   do processamento. Independentemente deste parâmetro, é sempre emitida
-#'   uma mensagem final com o número de ficheiros processados.
+#'   completos dos UGBs validos.
+#' @param include_percent Logico. Se \code{TRUE} (padrao), as colunas
+#'   \code{percent} sao incluidas no output (preenchidas com \code{NA}).
+#'   Se \code{FALSE}, essas colunas sao removidas do resultado final.
+#' @param include_meta Logico. Se \code{TRUE} (padrao), os metadados
+#'   extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
+#'   adicionados ao dataframe imediatamente apos a coluna \code{file_name}.
+#'   Se \code{FALSE}, os metadados nao sao adicionados e a coluna
+#'   \code{file_name} e tambem removida do resultado final.
+#' @param quiet Logico. Se \code{TRUE} (padrao), as mensagens de progresso
+#'   sao suprimidas. Se \code{FALSE}, e emitida uma mensagem por cada etapa
+#'   do processamento. Independentemente deste parametro, e sempre emitida
+#'   uma mensagem final com o numero de ficheiros processados.
 #'
 #' @return Um tibble com uma linha por entrada CED deduplificada, contendo
-#'   as colunas originais do extracto e-SISTAFE após limpeza e subtracção
-#'   hierárquica. As colunas de percentagem são sempre incluídas na estrutura
+#'   as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
+#'   hierarquica. As colunas de percentagem sao sempre incluidas na estrutura
 #'   original (preenchidas com \code{NA}) salvo se \code{include_percent = FALSE}.
 #'
 #' @details
 #' O processamento segue as seguintes etapas principais:
 #' \enumerate{
-#'   \item Carregamento e combinação de todos os ficheiros em \code{source_path}.
-#'   \item Adição opcional de metadados via \code{extrair_meta_extracto()}.
+#'   \item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
+#'   \item Adicao opcional de metadados via \code{extrair_meta_extracto()}.
 #'   \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
-#'   \item Remoção de colunas \code{percent}.
-#'   \item Conversão de colunas numéricas e extracção do código \code{ugb_id}.
-#'   \item Filtragem de UGBs válidos de educação a partir de \code{ugb_lookup}.
-#'   \item Remoção de linhas com CED e campos-chave em branco.
-#'   \item Classificação de grupos CED (A, B, C, D) e remoção do grupo D.
-#'   \item Criação de variáveis hierárquicas auxiliares.
-#'   \item Subtracção hierárquica em três passos para eliminar dupla contagem:
+#'   \item Remocao de colunas \code{percent}.
+#'   \item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
+#'   \item Filtragem de UGBs validos de educacao a partir de \code{ugb_lookup}.
+#'   \item Remocao de linhas com CED e campos-chave em branco.
+#'   \item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
+#'   \item Criacao de variaveis hierarquicas auxiliares.
+#'   \item Subtraccao hierarquica em tres passos para eliminar dupla contagem:
 #'     \itemize{
 #'       \item Passo 1: Subtrair grupo A do grupo B (dentro de \code{ced_b4}).
 #'       \item Passo 2: Subtrair grupo B ajustado do grupo C (dentro de \code{ced_b3}).
 #'       \item Passo 3: Subtrair grupo A directamente do grupo C (dentro de \code{ced_b3}).
 #'     }
-#'   \item Restauração da estrutura original de colunas.
+#'   \item Restauracao da estrutura original de colunas.
 #' }
 #'
 #' @examples
@@ -57,7 +56,7 @@
 #' ugb_raw    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 #' path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
 #'
-#' # Padrão — com metadados e colunas percent
+#' # Padrao -- com metadados e colunas percent
 #' df <- processar_extracto_sistafe(
 #'   source_path = path_files,
 #'   ugb_lookup  = ugb_raw
@@ -136,7 +135,7 @@ processar_extracto_esistafe <- function(
     dplyr::select(!dplyr::ends_with("percent"))
 
   # --- 5. Extrair código UGB ---
-  msg("A extrair código UGB...")
+  msg("A extrair c\u00f3digo UGB...")
 
   df_limpeza_3 <- df_limpeza_2 |>
     dplyr::mutate(
@@ -146,7 +145,7 @@ processar_extracto_esistafe <- function(
     dplyr::relocate(ugb_id, .after = ugb)
 
   # --- 6. Filtrar UGBs de educação ---
-  msg("A filtrar UGBs de educação...")
+  msg("A filtrar UGBs de educa\u00e7\u00e3o...")
 
   vec_ugb <- ugb_lookup |>
     janitor::clean_names() |>
@@ -183,7 +182,7 @@ processar_extracto_esistafe <- function(
     dplyr::filter(base::is.na(ced_group) | ced_group != "D")
 
   # --- 9. Criar variáveis hierárquicas ---
-  msg("A criar variáveis hierárquicas...")
+  msg("A criar vari\u00e1veis hier\u00e1rquicas...")
 
   df_limpeza_7 <- df_limpeza_6 |>
     dplyr::mutate(
@@ -204,7 +203,7 @@ processar_extracto_esistafe <- function(
     base::names()
 
   # --- 11. Subtração hierárquica: Passo 1 (A -> B dentro de ced_b4) ---
-  msg("A executar subtração hierárquica — Passo 1 (A → B)...")
+  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 1 (A \u2192 B)...")
 
   df_step1 <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Valor") |>
@@ -218,7 +217,7 @@ processar_extracto_esistafe <- function(
     dplyr::ungroup()
 
   # --- 12. Subtração hierárquica: Passo 2 (B ajustado -> C dentro de ced_b3) ---
-  msg("A executar subtração hierárquica — Passo 2 (B → C)...")
+  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 2 (B \u2192 C)...")
 
   df_step2 <- df_step1 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
@@ -231,7 +230,7 @@ processar_extracto_esistafe <- function(
     dplyr::ungroup()
 
   # --- 13. Subtração hierárquica: Passo 3 (A directo -> C dentro de ced_b3) ---
-  msg("A executar subtração hierárquica — Passo 3 (A directo → C)...")
+  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 3 (A directo \u2192 C)...")
 
   df_limpeza_9 <- df_step2 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
@@ -261,17 +260,17 @@ processar_extracto_esistafe <- function(
       dplyr::select(!dplyr::ends_with("percent"))
   }
 
-  # --- 16. Remover file_name se metadados não incluídos ---
+  # --- 16. Remover file_name se metadados não incluidos ---
   if (!include_meta) {
     df_limpeza_final <- df_limpeza_final |>
       dplyr::select(-file_name)
   }
 
-  msg("Concluído.")
+  msg("Conclu\u00eddo.")
 
   # --- Resumo final ---
   n_files <- dplyr::n_distinct(df$file_name)
-  message(glue::glue("Processamento concluído: {n_files} ficheiro(s) processado(s) com sucesso."))
+  message(glue::glue("Processamento conclu\u00eddo: {n_files} ficheiro(s) processado(s) com sucesso."))
 
   return(df_limpeza_final)
 

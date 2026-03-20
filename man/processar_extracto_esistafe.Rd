@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_extracto_esistafe.R
 \name{processar_extracto_esistafe}
 \alias{processar_extracto_esistafe}
-\title{Processar extractos de exportação e-SISTAFE}
+\title{Processar extractos de exportacao e-SISTAFE}
 \usage{
 processar_extracto_esistafe(
   source_path,
@@ -14,60 +14,60 @@ processar_extracto_esistafe(
 }
 \arguments{
 \item{source_path}{Um vector de caracteres com um ou mais caminhos para
-ficheiros de exportação e-SISTAFE no formato \code{.xlsx}.}
+ficheiros de exportacao e-SISTAFE no formato \code{.xlsx}.}
 
-\item{ugb_lookup}{Um dataframe com a tabela de referência de UGBs de
-educação, carregado a partir do ficheiro Excel de códigos UGB (folha
+\item{ugb_lookup}{Um dataframe com a tabela de referencia de UGBs de
+educacao, carregado a partir do ficheiro Excel de codigos UGB (folha
 \code{"UGBS"}). Deve conter uma coluna \code{ugb_3} com os nomes
-completos dos UGBs válidos.}
+completos dos UGBs validos.}
 
-\item{include_percent}{Lógico. Se \code{TRUE} (padrão), as colunas
-\code{percent} são incluídas no output (preenchidas com \code{NA}).
-Se \code{FALSE}, essas colunas são removidas do resultado final.}
+\item{include_percent}{Logico. Se \code{TRUE} (padrao), as colunas
+\code{percent} sao incluidas no output (preenchidas com \code{NA}).
+Se \code{FALSE}, essas colunas sao removidas do resultado final.}
 
-\item{include_meta}{Lógico. Se \code{TRUE} (padrão), os metadados
-extraídos do nome do ficheiro (tipo de relatório, ano, mês, datas) são
-adicionados ao dataframe imediatamente após a coluna \code{file_name}.
-Se \code{FALSE}, os metadados não são adicionados e a coluna
-\code{file_name} é também removida do resultado final.}
+\item{include_meta}{Logico. Se \code{TRUE} (padrao), os metadados
+extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
+adicionados ao dataframe imediatamente apos a coluna \code{file_name}.
+Se \code{FALSE}, os metadados nao sao adicionados e a coluna
+\code{file_name} e tambem removida do resultado final.}
 
-\item{quiet}{Lógico. Se \code{TRUE} (padrão), as mensagens de progresso
-são suprimidas. Se \code{FALSE}, é emitida uma mensagem por cada etapa
-do processamento. Independentemente deste parâmetro, é sempre emitida
-uma mensagem final com o número de ficheiros processados.}
+\item{quiet}{Logico. Se \code{TRUE} (padrao), as mensagens de progresso
+sao suprimidas. Se \code{FALSE}, e emitida uma mensagem por cada etapa
+do processamento. Independentemente deste parametro, e sempre emitida
+uma mensagem final com o numero de ficheiros processados.}
 }
 \value{
 Um tibble com uma linha por entrada CED deduplificada, contendo
-as colunas originais do extracto e-SISTAFE após limpeza e subtracção
-hierárquica. As colunas de percentagem são sempre incluídas na estrutura
+as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
+hierarquica. As colunas de percentagem sao sempre incluidas na estrutura
 original (preenchidas com \code{NA}) salvo se \code{include_percent = FALSE}.
 }
 \description{
-Carrega, limpa e processa um ou mais ficheiros de exportação do e-SISTAFE
-no formato Excel, aplicando uma sequência de transformações que inclui
-renomeação de colunas, filtragem de UGBs de educação, classificação e
-subtracção hierárquica de códigos CED, e restauração da estrutura original
-de colunas. Devolve um dataframe final desduplicado e pronto para análise.
+Carrega, limpa e processa um ou mais ficheiros de exportacao do e-SISTAFE
+no formato Excel, aplicando uma sequencia de transformacoes que inclui
+renomeacao de colunas, filtragem de UGBs de educacao, classificacao e
+subtraccao hierarquica de codigos CED, e restauracao da estrutura original
+de colunas. Devolve um dataframe final desduplicado e pronto para analise.
 }
 \details{
 O processamento segue as seguintes etapas principais:
 \enumerate{
-\item Carregamento e combinação de todos os ficheiros em \code{source_path}.
-\item Adição opcional de metadados via \code{extrair_meta_extracto()}.
+\item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
+\item Adicao opcional de metadados via \code{extrair_meta_extracto()}.
 \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
-\item Remoção de colunas \code{percent}.
-\item Conversão de colunas numéricas e extracção do código \code{ugb_id}.
-\item Filtragem de UGBs válidos de educação a partir de \code{ugb_lookup}.
-\item Remoção de linhas com CED e campos-chave em branco.
-\item Classificação de grupos CED (A, B, C, D) e remoção do grupo D.
-\item Criação de variáveis hierárquicas auxiliares.
-\item Subtracção hierárquica em três passos para eliminar dupla contagem:
+\item Remocao de colunas \code{percent}.
+\item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
+\item Filtragem de UGBs validos de educacao a partir de \code{ugb_lookup}.
+\item Remocao de linhas com CED e campos-chave em branco.
+\item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
+\item Criacao de variaveis hierarquicas auxiliares.
+\item Subtraccao hierarquica em tres passos para eliminar dupla contagem:
 \itemize{
 \item Passo 1: Subtrair grupo A do grupo B (dentro de \code{ced_b4}).
 \item Passo 2: Subtrair grupo B ajustado do grupo C (dentro de \code{ced_b3}).
 \item Passo 3: Subtrair grupo A directamente do grupo C (dentro de \code{ced_b3}).
 }
-\item Restauração da estrutura original de colunas.
+\item Restauracao da estrutura original de colunas.
 }
 }
 \examples{
@@ -75,7 +75,7 @@ O processamento segue as seguintes etapas principais:
 ugb_raw    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 path_files <- list.files("Data/", pattern = "\\\\.xlsx$", full.names = TRUE)
 
-# Padrão — com metadados e colunas percent
+# Padrao -- com metadados e colunas percent
 df <- processar_extracto_sistafe(
   source_path = path_files,
   ugb_lookup  = ugb_raw
