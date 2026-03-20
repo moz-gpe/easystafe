@@ -1,4 +1,4 @@
-#' Processar ficheiros extraídos do e-SISTAFE
+#' Processar Extrações e-SISTAFE
 #'
 #' Esta função aplica \code{processar_esistafe_extracto_unico()} a vários
 #' ficheiros de extracto do e-SISTAFE, elimina duplicações ao combinar os

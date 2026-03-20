@@ -1,4 +1,4 @@
-#' Extrair metadados do nome do ficheiro e-SISTAFE
+#' Extrair metadados do ficheiro e-SISTAFE
 #'
 #' Esta função lê o nome de um ficheiro do e-SISTAFE e extrai metadados
 #' estruturados, incluindo:
@@ -56,7 +56,7 @@ extrair_meta_extracto <- function(caminho) {
   # ------------------------------------------------------------
   # Extract dates (YYYYMMDD patterns)
   # ------------------------------------------------------------
-  dates <- stringr::str_extract_all(fname, "\\\\d{8}")[[1]]
+  dates <- stringr::str_extract_all(fname, "\\d{8}")[[1]]
 
   ref_date     <- dplyr::coalesce(dates[1], NA_character_)
   extract_date <- dplyr::coalesce(dates[2], NA_character_)

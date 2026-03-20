@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_esistafe_extracto_unico.R
 \name{processar_esistafe_extracto_unico}
 \alias{processar_esistafe_extracto_unico}
-\title{Processar um ficheiro extraido do e-SISTAFE}
+\title{Processar Extração Única do e-SISTAFE}
 \usage{
 processar_esistafe_extracto_unico(caminho, lista_ugb)
 }
