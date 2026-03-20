@@ -4,9 +4,7 @@
 
 ### Novas funcionalidades
 
-- Adicionada a funcção
-  **[`processar_esistafe_extracto_unico()`](https://moz-gpe.github.io/easystafe/reference/processar_esistafe_extracto_unico.md)**
-  para:
+- Adicionada a funcção **`processar_esistafe_extracto_unico()`** para:
   - processar extractos individuais do e-SISTAFE;
   - aplicar lógica hierárquica de subtração entre níveis CED (A, B, C,
     D);

@@ -1,7 +1,9 @@
-# Extrair metadados do ficheiro e-SISTAFE
+# Extrair metadados de ficheiros de extracto e-SISTAFE
 
-Esta função lê o nome de um ficheiro do e-SISTAFE e extrai metadados
-estruturados, incluindo:
+Extrai metadados relevantes a partir dos nomes de ficheiros de
+exportação do e-SISTAFE, incluindo o tipo de relatório, datas de
+referência e de extracção, ano e mês em português. Suporta um ou
+múltiplos ficheiros.
 
 ## Usage
 
@@ -13,57 +15,69 @@ extrair_meta_extracto(caminho)
 
 - caminho:
 
-  Caminho ou nome do ficheiro a partir do qual extrair metadados.
+  Um vector de caracteres com um ou mais caminhos completos ou relativos
+  para ficheiros de exportação e-SISTAFE. Os nomes dos ficheiros devem
+  seguir a convenção de nomenclatura padrão do e-SISTAFE, contendo
+  padrões de data no formato `YYYYMMDD`.
 
 ## Value
 
-Um tibble com as seguintes colunas:
+Um tibble com uma linha por ficheiro e as seguintes colunas:
 
 - file_name:
 
-  Nome do ficheiro.
+  Nome do ficheiro sem o caminho completo.
 
 - reporte_tipo:
 
-  Classificação do tipo de reporte.
+  Tipo de relatório classificado a partir do nome do ficheiro. Um de
+  `"Funcionamento"`, `"Investimento Externo"`, `"Investimento Interno"`,
+  ou `NA` se não reconhecido.
 
 - data_reporte:
 
-  Data de referência (classe `Date`).
+  Data de referência do relatório como objecto `Date`, extraída do
+  primeiro padrão `YYYYMMDD` no nome do ficheiro.
 
 - data_extraido:
 
-  Data de extração (classe `Date`).
+  Data de extracção do ficheiro como objecto `Date`, extraída do segundo
+  padrão `YYYYMMDD` no nome do ficheiro.
 
 - ano:
 
-  Ano extraído da data de referência.
+  Ano da data de referência como inteiro.
 
 - mes:
 
-  Nome do mês (Português) correspondente à data de referência.
+  Mês da data de referência em português (ex. `"Janeiro"`).
 
 ## Details
 
-- tipo de reporte (Funcionamento, Investimento Interno, Investimento
-  Externo);
+A classificação do tipo de relatório é feita por detecção de padrões no
+nome do ficheiro:
 
-- data de referência (a primeira data YYYYMMDD presente no nome);
+- `"InvestimentoCompExterna"` → `"Investimento Externo"`
 
-- data de extração (a segunda data YYYYMMDD, se existir);
+- `"InvestimentoCompInterna"` → `"Investimento Interno"`
 
-- ano e mês de referência, com nome do mês em Português.
+- `"OrcamentoFuncionamento"` → `"Funcionamento"`
 
-A função procura padrões `\d{8}` no nome do ficheiro. O primeiro padrão
-encontrado é assumido como data de referência e o segundo como data de
-extração.
+Se nenhum padrão for reconhecido, `reporte_tipo` é `NA`.
+
+As datas são extraídas pelo padrão regex `\d{8}` — espera-se que o
+primeiro match corresponda à data de referência do relatório e o segundo
+à data de extracção.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-extrair_meta_extracto(
-  "OrcamentoFuncionamento_20240101_20240115.xlsx"
-)
+# Ficheiro único
+extrair_meta_extracto("Data/DemonstrativoConsolidadoOrcamentoFuncionamento_20251231_20260205.xlsx")
+
+# Múltiplos ficheiros
+path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
+extrair_meta_extracto(path_files)
 } # }
 ```
