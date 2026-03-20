@@ -1,4 +1,4 @@
-# Processar ficheiros extraídos do e-SISTAFE
+# Processar Extrações e-SISTAFE
 
 Esta função aplica
 [`processar_esistafe_extracto_unico()`](https://moz-gpe.github.io/easystafe/reference/processar_esistafe_extracto_unico.md)
