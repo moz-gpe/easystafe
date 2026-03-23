@@ -33,7 +33,7 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise."><met
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Processar extractos de exportacao e-SISTAFE</h1>
-      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/processar_extracto_esistafe.R" class="external-link"><code>R/processar_extracto_esistafe.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/processar_extracto.R" class="external-link"><code>R/processar_extracto.R</code></a></small>
       <div class="d-none name"><code>processar_extracto_esistafe.Rd</code></div>
     </div>
 
@@ -52,6 +52,7 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.</p>
 <span>  <span class="va">ugb_lookup</span>,</span>
 <span>  include_percent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_meta <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  include_metrica <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -86,6 +87,15 @@ Se <code>FALSE</code>, os metadados nao sao adicionados e a coluna
 <code>file_name</code> e tambem removida do resultado final.</p></dd>
 
 
+<dt id="arg-include-metrica">include_metrica<a class="anchor" aria-label="anchor" href="#arg-include-metrica"></a></dt>
+<dd><p>Logico. Se <code>FALSE</code> (padrao), as linhas do tipo
+<code>"Metrica"</code> sao excluidas do output final, mantendo apenas as linhas
+<code>"Valor"</code> apos subtraccao hierarquica. Se <code>TRUE</code>, as linhas
+<code>"Metrica"</code> sao reincluidas no output final apos o processamento,
+util para comparacoes e validacao. A coluna <code>data_tipo</code> e sempre
+incluida no output, independentemente deste parametro.</p></dd>
+
+
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
 <dd><p>Logico. Se <code>TRUE</code> (padrao), as mensagens de progresso
 sao suprimidas. Se <code>FALSE</code>, e emitida uma mensagem por cada etapa
@@ -97,8 +107,10 @@ uma mensagem final com o numero de ficheiros processados.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Um tibble com uma linha por entrada CED deduplificada, contendo
 as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
-hierarquica. As colunas de percentagem sao sempre incluidas na estrutura
-original (preenchidas com <code>NA</code>) salvo se <code>include_percent = FALSE</code>.</p>
+hierarquica. A coluna <code>data_tipo</code> esta sempre presente e posicionada
+imediatamente antes de <code>ugb</code>. As colunas de percentagem sao sempre
+incluidas na estrutura original (preenchidas com <code>NA</code>) salvo se
+<code>include_percent = FALSE</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -111,11 +123,16 @@ original (preenchidas com <code>NA</code>) salvo se <code>include_percent = FALS
 <li><p>Remocao de linhas com CED e campos-chave em branco.</p></li>
 <li><p>Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.</p></li>
 <li><p>Criacao de variaveis hierarquicas auxiliares.</p></li>
-<li><p>Subtraccao hierarquica em tres passos para eliminar dupla contagem:</p><ul><li><p>Passo 1: Subtrair grupo A do grupo B (dentro de <code>ced_b4</code>).</p></li>
+<li><p>Separacao de linhas <code>"Metrica"</code> e <code>"Valor"</code> antes da
+subtraccao hierarquica.</p></li>
+<li><p>Subtraccao hierarquica em tres passos para eliminar dupla contagem
+(aplicada apenas a linhas <code>"Valor"</code>):</p><ul><li><p>Passo 1: Subtrair grupo A do grupo B (dentro de <code>ced_b4</code>).</p></li>
 <li><p>Passo 2: Subtrair grupo B ajustado do grupo C (dentro de <code>ced_b3</code>).</p></li>
 <li><p>Passo 3: Subtrair grupo A directamente do grupo C (dentro de <code>ced_b3</code>).</p></li>
 </ul></li>
-<li><p>Restauracao da estrutura original de colunas.</p></li>
+<li><p>Reinclusao opcional das linhas <code>"Metrica"</code> via <code>include_metrica</code>.</p></li>
+<li><p>Seleccao das colunas finais a partir de um vector explicito,
+garantindo que <code>data_tipo</code> e sempre incluido antes de <code>ugb</code>.</p></li>
 </ol></div>
 
     <div class="section level2">
@@ -124,7 +141,7 @@ original (preenchidas com <code>NA</code>) salvo se <code>include_percent = FALS
 <span class="r-in"><span><span class="va">ugb_raw</span>    <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"Data/ugb/Codigos de UGBs.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"UGBS"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">path_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"Data/"</span>, pattern <span class="op">=</span> <span class="st">"\\.xlsx$"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Padrao -- com metadados e colunas percent</span></span></span>
+<span class="r-in"><span><span class="co"># Padrao -- com metadados e colunas percent, sem linhas Metrica</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_files</span>,</span></span>
 <span class="r-in"><span>  ugb_lookup  <span class="op">=</span> <span class="va">ugb_raw</span></span></span>
@@ -136,6 +153,13 @@ original (preenchidas com <code>NA</code>) salvo se <code>include_percent = FALS
 <span class="r-in"><span>  ugb_lookup      <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
 <span class="r-in"><span>  include_percent <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  include_meta    <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Com linhas Metrica incluidas para comparacao</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  source_path      <span class="op">=</span> <span class="va">path_files</span>,</span></span>
+<span class="r-in"><span>  ugb_lookup       <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
+<span class="r-in"><span>  include_metrica  <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com mensagens de progresso</span></span></span>

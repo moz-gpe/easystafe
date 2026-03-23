@@ -2,8 +2,8 @@
 
 Grava um dataframe processado do e-SISTAFE num ficheiro Excel,
 construindo automaticamente o nome do ficheiro a partir dos metadados do
-relatório (tipo, ano e mês) e da data actual. Cria a pasta de destino se
-não existir.
+relatorio (tipo, ano e mes) e da data actual. Cria a pasta de destino se
+nao existir.
 
 ## Usage
 
@@ -21,42 +21,42 @@ gravar_extracto_sistafe(df, output_folder = "Dataout", quiet = TRUE)
 
 - output_folder:
 
-  Caractere. Caminho para a pasta de destino onde o ficheiro Excel será
-  gravado. Por padrão `"Dataout"`. A pasta é criada automaticamente se
-  não existir.
+  Caractere. Caminho para a pasta de destino onde o ficheiro Excel sera
+  gravado. Por padrao `"Dataout"`. A pasta e criada automaticamente se
+  nao existir.
 
 - quiet:
 
-  Lógico. Se `TRUE` (padrão), as mensagens de progresso são suprimidas.
-  Se `FALSE`, são emitidas mensagens sobre a criação da pasta e o
+  Logico. Se `TRUE` (padrao), as mensagens de progresso sao suprimidas.
+  Se `FALSE`, sao emitidas mensagens sobre a criacao da pasta e o
   caminho do ficheiro gravado.
 
 ## Value
 
-O caminho completo do ficheiro gravado, retornado de forma invisível.
+O caminho completo do ficheiro gravado, retornado de forma invisivel.
 Pode ser capturado com `path <- gravar_extracto_sistafe(df)` para uso
-posterior se necessário.
+posterior se necessario.
 
 ## Details
 
-O nome do ficheiro é construído automaticamente no formato:
+O nome do ficheiro e construido automaticamente no formato:
 `<reporte_tipo>_<ano>_<mes>_<YYYYMMDD>.xlsx`
 
 Por exemplo: `Funcionamento_2025_Dezembro_20260320.xlsx`
 
-Se o dataframe contiver múltiplos valores para `reporte_tipo`, `ano` ou
-`mes` (por exemplo, quando se combinam vários meses), os valores são
+Se o dataframe contiver multiplos valores para `reporte_tipo`, `ano` ou
+`mes` (por exemplo, quando se combinam varios meses), os valores sao
 concatenados com `"-"` no nome do ficheiro.
 
-Esta função requer que `processar_extracto_sistafe()` tenha sido chamado
+Esta funcao requer que `processar_extracto_sistafe()` tenha sido chamado
 com `include_meta = TRUE`. Se as colunas de metadados estiverem em
-falta, a função para com uma mensagem de erro informativa.
+falta, a funcao para com uma mensagem de erro informativa.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Gravar com pasta padrão
+# Gravar com pasta padrao
 gravar_extracto_sistafe(df)
 
 # Gravar numa pasta personalizada

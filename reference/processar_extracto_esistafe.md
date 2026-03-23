@@ -15,6 +15,7 @@ processar_extracto_esistafe(
   ugb_lookup,
   include_percent = TRUE,
   include_meta = TRUE,
+  include_metrica = FALSE,
   quiet = TRUE
 )
 ```
@@ -46,6 +47,15 @@ processar_extracto_esistafe(
   sao adicionados e a coluna `file_name` e tambem removida do resultado
   final.
 
+- include_metrica:
+
+  Logico. Se `FALSE` (padrao), as linhas do tipo `"Metrica"` sao
+  excluidas do output final, mantendo apenas as linhas `"Valor"` apos
+  subtraccao hierarquica. Se `TRUE`, as linhas `"Metrica"` sao
+  reincluidas no output final apos o processamento, util para
+  comparacoes e validacao. A coluna `data_tipo` e sempre incluida no
+  output, independentemente deste parametro.
+
 - quiet:
 
   Logico. Se `TRUE` (padrao), as mensagens de progresso sao suprimidas.
@@ -57,8 +67,10 @@ processar_extracto_esistafe(
 
 Um tibble com uma linha por entrada CED deduplificada, contendo as
 colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
-hierarquica. As colunas de percentagem sao sempre incluidas na estrutura
-original (preenchidas com `NA`) salvo se `include_percent = FALSE`.
+hierarquica. A coluna `data_tipo` esta sempre presente e posicionada
+imediatamente antes de `ugb`. As colunas de percentagem sao sempre
+incluidas na estrutura original (preenchidas com `NA`) salvo se
+`include_percent = FALSE`.
 
 ## Details
 
@@ -84,7 +96,11 @@ O processamento segue as seguintes etapas principais:
 
 9.  Criacao de variaveis hierarquicas auxiliares.
 
-10. Subtraccao hierarquica em tres passos para eliminar dupla contagem:
+10. Separacao de linhas `"Metrica"` e `"Valor"` antes da subtraccao
+    hierarquica.
+
+11. Subtraccao hierarquica em tres passos para eliminar dupla contagem
+    (aplicada apenas a linhas `"Valor"`):
 
     - Passo 1: Subtrair grupo A do grupo B (dentro de `ced_b4`).
 
@@ -94,7 +110,10 @@ O processamento segue as seguintes etapas principais:
     - Passo 3: Subtrair grupo A directamente do grupo C (dentro de
       `ced_b3`).
 
-11. Restauracao da estrutura original de colunas.
+12. Reinclusao opcional das linhas `"Metrica"` via `include_metrica`.
+
+13. Seleccao das colunas finais a partir de um vector explicito,
+    garantindo que `data_tipo` e sempre incluido antes de `ugb`.
 
 ## Examples
 
@@ -103,7 +122,7 @@ if (FALSE) { # \dontrun{
 ugb_raw    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
 
-# Padrao -- com metadados e colunas percent
+# Padrao -- com metadados e colunas percent, sem linhas Metrica
 df <- processar_extracto_sistafe(
   source_path = path_files,
   ugb_lookup  = ugb_raw
@@ -115,6 +134,13 @@ df <- processar_extracto_sistafe(
   ugb_lookup      = ugb_raw,
   include_percent = FALSE,
   include_meta    = FALSE
+)
+
+# Com linhas Metrica incluidas para comparacao
+df <- processar_extracto_sistafe(
+  source_path      = path_files,
+  ugb_lookup       = ugb_raw,
+  include_metrica  = TRUE
 )
 
 # Com mensagens de progresso
