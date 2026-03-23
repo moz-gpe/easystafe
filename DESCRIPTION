@@ -22,7 +22,10 @@ Imports:
     lubridate,
     purrr,
     glue,
-    writexl
+    writexl,
+    cli,
+    pdftools,
+    readr
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
