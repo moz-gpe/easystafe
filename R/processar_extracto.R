@@ -15,12 +15,12 @@
 #' @param include_percent Logico. Se \code{TRUE} (padrao), as colunas
 #'   \code{percent} sao incluidas no output (preenchidas com \code{NA}).
 #'   Se \code{FALSE}, essas colunas sao removidas do resultado final.
-#' @param include_meta Logico. Se \code{TRUE} (padrao), os metadados
+#' @param include_file_metadata Logico. Se \code{TRUE} (padrao), os metadados
 #'   extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
 #'   adicionados ao dataframe imediatamente apos a coluna \code{file_name}.
 #'   Se \code{FALSE}, os metadados nao sao adicionados e a coluna
 #'   \code{file_name} e tambem removida do resultado final.
-#' @param include_metrica Logico. Se \code{FALSE} (padrao), as linhas do tipo
+#' @param include_metrica Logico. Se \code{TRUE} (padrao), as linhas do tipo
 #'   \code{"Metrica"} sao excluidas do output final, mantendo apenas as linhas
 #'   \code{"Valor"} apos subtraccao hierarquica. Se \code{TRUE}, as linhas
 #'   \code{"Metrica"} sao reincluidas no output final apos o processamento,
@@ -80,7 +80,7 @@
 #'   source_path     = path_files,
 #'   ugb_lookup      = ugb_raw,
 #'   include_percent = FALSE,
-#'   include_meta    = FALSE
+#'   include_file_metadata    = FALSE
 #' )
 #'
 #' # Com linhas Metrica incluidas para comparacao
@@ -114,8 +114,8 @@ processar_extracto_esistafe <- function(
     source_path,
     ugb_lookup,
     include_percent  = TRUE,
-    include_meta     = TRUE,
-    include_metrica  = FALSE,
+    include_file_metadata     = TRUE,
+    include_metrica  = TRUE,
     quiet            = TRUE
 ) {
 
@@ -134,7 +134,7 @@ processar_extracto_esistafe <- function(
   msg(glue::glue("Ficheiros carregados: {dplyr::n_distinct(df$file_name)} | Linhas: {nrow(df)}"))
 
   # --- 2. Adicionar ou remover metadados ---
-  if (include_meta) {
+  if (include_file_metadata) {
     msg("A extrair e adicionar metadados...")
 
     paths_meta <- extrair_meta_extracto(source_path)
@@ -282,7 +282,7 @@ processar_extracto_esistafe <- function(
   msg("A finalizar estrutura do dataset...")
 
   final_cols <- c(
-    # metadados de ficheiro (removidos se include_meta = FALSE)
+    # metadados de ficheiro (removidos se include_file_metadata = FALSE)
     "file_name", "reporte_tipo", "data_reporte", "data_extraido",
     "ano", "mes",
     # classificacao da linha -- sempre presente
@@ -323,8 +323,8 @@ processar_extracto_esistafe <- function(
       dplyr::select(!dplyr::ends_with("percent"))
   }
 
-  # --- 16. Remover file_name e metadados se include_meta = FALSE ---
-  if (!include_meta) {
+  # --- 16. Remover file_name e metadados se include_file_metadata = FALSE ---
+  if (!include_file_metadata) {
     df_limpeza_final <- df_limpeza_final |>
       dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ano", "mes", "ugb_id")))
   }
@@ -338,7 +338,6 @@ processar_extracto_esistafe <- function(
   return(df_limpeza_final)
 
 }
-
 
 
 

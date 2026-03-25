@@ -8,8 +8,8 @@ processar_extracto_esistafe(
   source_path,
   ugb_lookup,
   include_percent = TRUE,
-  include_meta = TRUE,
-  include_metrica = FALSE,
+  include_file_metadata = TRUE,
+  include_metrica = TRUE,
   quiet = TRUE
 )
 }
@@ -26,13 +26,13 @@ completos dos UGBs validos.}
 \code{percent} sao incluidas no output (preenchidas com \code{NA}).
 Se \code{FALSE}, essas colunas sao removidas do resultado final.}
 
-\item{include_meta}{Logico. Se \code{TRUE} (padrao), os metadados
+\item{include_file_metadata}{Logico. Se \code{TRUE} (padrao), os metadados
 extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
 adicionados ao dataframe imediatamente apos a coluna \code{file_name}.
 Se \code{FALSE}, os metadados nao sao adicionados e a coluna
 \code{file_name} e tambem removida do resultado final.}
 
-\item{include_metrica}{Logico. Se \code{FALSE} (padrao), as linhas do tipo
+\item{include_metrica}{Logico. Se \code{TRUE} (padrao), as linhas do tipo
 \code{"Metrica"} sao excluidas do output final, mantendo apenas as linhas
 \code{"Valor"} apos subtraccao hierarquica. Se \code{TRUE}, as linhas
 \code{"Metrica"} sao reincluidas no output final apos o processamento,
@@ -101,7 +101,7 @@ df <- processar_extracto_sistafe(
   source_path     = path_files,
   ugb_lookup      = ugb_raw,
   include_percent = FALSE,
-  include_meta    = FALSE
+  include_file_metadata    = FALSE
 )
 
 # Com linhas Metrica incluidas para comparacao
