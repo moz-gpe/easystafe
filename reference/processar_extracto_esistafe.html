@@ -51,8 +51,8 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.</p>
 <span>  <span class="va">source_path</span>,</span>
 <span>  <span class="va">ugb_lookup</span>,</span>
 <span>  include_percent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  include_meta <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  include_metrica <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  include_file_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  include_metrica <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,7 +79,7 @@ completos dos UGBs validos.</p></dd>
 Se <code>FALSE</code>, essas colunas sao removidas do resultado final.</p></dd>
 
 
-<dt id="arg-include-meta">include_meta<a class="anchor" aria-label="anchor" href="#arg-include-meta"></a></dt>
+<dt id="arg-include-file-metadata">include_file_metadata<a class="anchor" aria-label="anchor" href="#arg-include-file-metadata"></a></dt>
 <dd><p>Logico. Se <code>TRUE</code> (padrao), os metadados
 extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
 adicionados ao dataframe imediatamente apos a coluna <code>file_name</code>.
@@ -88,7 +88,7 @@ Se <code>FALSE</code>, os metadados nao sao adicionados e a coluna
 
 
 <dt id="arg-include-metrica">include_metrica<a class="anchor" aria-label="anchor" href="#arg-include-metrica"></a></dt>
-<dd><p>Logico. Se <code>FALSE</code> (padrao), as linhas do tipo
+<dd><p>Logico. Se <code>TRUE</code> (padrao), as linhas do tipo
 <code>"Metrica"</code> sao excluidas do output final, mantendo apenas as linhas
 <code>"Valor"</code> apos subtraccao hierarquica. Se <code>TRUE</code>, as linhas
 <code>"Metrica"</code> sao reincluidas no output final apos o processamento,
@@ -152,7 +152,7 @@ garantindo que <code>data_tipo</code> e sempre incluido antes de <code>ugb</code
 <span class="r-in"><span>  source_path     <span class="op">=</span> <span class="va">path_files</span>,</span></span>
 <span class="r-in"><span>  ugb_lookup      <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
 <span class="r-in"><span>  include_percent <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  include_meta    <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  include_file_metadata    <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com linhas Metrica incluidas para comparacao</span></span></span>

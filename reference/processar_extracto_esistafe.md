@@ -14,8 +14,8 @@ processar_extracto_esistafe(
   source_path,
   ugb_lookup,
   include_percent = TRUE,
-  include_meta = TRUE,
-  include_metrica = FALSE,
+  include_file_metadata = TRUE,
+  include_metrica = TRUE,
   quiet = TRUE
 )
 ```
@@ -39,7 +39,7 @@ processar_extracto_esistafe(
   output (preenchidas com `NA`). Se `FALSE`, essas colunas sao removidas
   do resultado final.
 
-- include_meta:
+- include_file_metadata:
 
   Logico. Se `TRUE` (padrao), os metadados extraidos do nome do ficheiro
   (tipo de relatorio, ano, mes, datas) sao adicionados ao dataframe
@@ -49,7 +49,7 @@ processar_extracto_esistafe(
 
 - include_metrica:
 
-  Logico. Se `FALSE` (padrao), as linhas do tipo `"Metrica"` sao
+  Logico. Se `TRUE` (padrao), as linhas do tipo `"Metrica"` sao
   excluidas do output final, mantendo apenas as linhas `"Valor"` apos
   subtraccao hierarquica. Se `TRUE`, as linhas `"Metrica"` sao
   reincluidas no output final apos o processamento, util para
@@ -133,7 +133,7 @@ df <- processar_extracto_sistafe(
   source_path     = path_files,
   ugb_lookup      = ugb_raw,
   include_percent = FALSE,
-  include_meta    = FALSE
+  include_file_metadata    = FALSE
 )
 
 # Com linhas Metrica incluidas para comparacao
