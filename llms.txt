@@ -58,4 +58,8 @@ inteira responsabilidade dos autores.*
 - [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
   : Processar extractos do Razao C do e-SISTAFE a partir de ficheiros
   PDF
+- [`recode_programa_tipo()`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
+  : Recode programa column to programa_tipo
+- [`recodificar_esistafe_vars()`](https://moz-gpe.github.io/easystafe/reference/recodificar_esistafe_vars.md)
+  : Recodificar variaveis padrao de exportacoes e-SISTAFE
 
