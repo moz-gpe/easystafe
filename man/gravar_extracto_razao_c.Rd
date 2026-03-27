@@ -2,7 +2,7 @@
 % Please edit documentation in R/gravar_extracto.R
 \name{gravar_extracto_razao_c}
 \alias{gravar_extracto_razao_c}
-\title{Gravar extracto do Razao C processado em Excel}
+\title{Gravar extracto da razao contabilistico processado em Excel}
 \usage{
 gravar_extracto_razao_c(df, output_folder = "Dataout", quiet = TRUE)
 }

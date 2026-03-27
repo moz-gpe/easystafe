@@ -29,8 +29,10 @@ Imports:
     readr
 Suggests:
     testthat (>= 3.0.0),
-    knitr, 
-    rmarkdown
+    knitr,
+    rmarkdown,
+    gt,
+    glue
 Config/Needs/website: pkgdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_extracto.R
 \name{processar_extracto_razao_c}
 \alias{processar_extracto_razao_c}
-\title{Processar extractos do Razao C do e-SISTAFE a partir de ficheiros PDF}
+\title{Processar extractos do razao contabilistico do e-SISTAFE a partir de ficheiros PDF}
 \usage{
 processar_extracto_razao_c(
   source_path,
@@ -45,7 +45,7 @@ saldo final) de todos os PDFs processados, contendo as colunas:
 }
 \description{
 Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
-de cada extracto do Razao C do e-SISTAFE, e combina os resultados num
+de cada extracto da razao contabilistico, e combina os resultados num
 unico tibble. Ficheiros com formato FOREX (USD/EUR) sao excluidos por
 padrao.
 }
