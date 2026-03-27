@@ -160,7 +160,8 @@ processar_extracto_esistafe <- function(
 
   df_limpeza_3 <- df_limpeza_2 |>
     dplyr::mutate(
-      dplyr::across(dotacao_inicial:liq_ad_fundos_via_directa_lafvd, as.numeric),
+      dplyr::across(dotacao_inicial:liq_ad_fundos_via_directa_lafvd,
+                    ~ suppressWarnings(as.numeric(.x))),
       ugb_id = base::substr(ugb, 1, 9)
     ) |>
     dplyr::relocate(ugb_id, .after = ugb)
