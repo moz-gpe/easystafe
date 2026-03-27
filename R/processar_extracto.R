@@ -345,10 +345,10 @@ processar_extracto_esistafe <- function(
 
 
 
-#' Processar extractos do Razao C do e-SISTAFE a partir de ficheiros PDF
+#' Processar extractos do razao contabilistico do e-SISTAFE a partir de ficheiros PDF
 #'
 #' Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
-#' de cada extracto do Razao C do e-SISTAFE, e combina os resultados num
+#' de cada extracto da razao contabilistico, e combina os resultados num
 #' unico tibble. Ficheiros com formato FOREX (USD/EUR) sao excluidos por
 #' padrao.
 #'

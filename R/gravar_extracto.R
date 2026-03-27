@@ -106,7 +106,7 @@ gravar_extracto_sistafe <- function(
 
 
 
-#' Gravar extracto do Razao C processado em Excel
+#' Gravar extracto da razao contabilistico processado em Excel
 #'
 #' Grava um dataframe processado por \code{processar_extracto_razao_c()} num
 #' ficheiro Excel, construindo automaticamente o nome do ficheiro a partir do
