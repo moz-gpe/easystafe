@@ -1,4 +1,4 @@
-# Gravar extracto do Razao C processado em Excel
+# Gravar extracto da razao contabilistico processado em Excel
 
 Grava um dataframe processado por
 [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)

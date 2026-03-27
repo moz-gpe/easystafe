@@ -14,8 +14,8 @@ Funções principais de limpeza e processamento
 - [`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md)
   : Processar extractos de exportacao e-SISTAFE
 - [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
-  : Processar extractos do Razao C do e-SISTAFE a partir de ficheiros
-  PDF
+  : Processar extractos do razao contabilistico do e-SISTAFE a partir de
+  ficheiros PDF
 
 ## Recodificação
 
@@ -33,4 +33,4 @@ Funções para gravar outputs processados
 - [`gravar_extracto_sistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_sistafe.md)
   : Gravar extracto processado do e-SISTAFE em Excel
 - [`gravar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_razao_c.md)
-  : Gravar extracto do Razao C processado em Excel
+  : Gravar extracto da razao contabilistico processado em Excel
