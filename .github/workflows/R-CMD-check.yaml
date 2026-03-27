@@ -34,7 +34,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-          dependencies: '["hard", "soft"]'
+          dependencies: 'c("hard", "soft")'
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: false
