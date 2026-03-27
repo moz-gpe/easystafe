@@ -3,22 +3,40 @@ url: https://moz-gpe.github.io/easystafe/
 template:
   bootstrap: 5
   bslib:
-    base_font: { google: "Montserrat" }
-    heading_font: { google: "Lato" }
-    code_font: { google: "Source Code Pro" }
+    base_font: {google: "Montserrat"}
+    heading_font: {google: "Lato"}
+    code_font: {google: "Source Code Pro"}
     primary: "#306cc9"
-  package: easystafe
 
 lang: pt
 
-# Logo goes inside navbar
 navbar:
   structure:
     left: [reference, articles]
     right: [github]
-  logo: man/figures/logo.png
-  links:
-    - text: "Código-fonte"
-      href: https://moz-gpe.github.io/easystafe/reference
-    - text: "Reportar erro"
-      href: https://github.com/moz-gpe/easystafe/issues
+  components:
+    links:
+      - text: "Código-fonte"
+        href: https://github.com/moz-gpe/easystafe
+      - text: "Reportar erro"
+        href: https://github.com/moz-gpe/easystafe/issues
+
+reference:
+  - title: "Processamento de Extractos"
+    desc: "Funções principais para carregar e processar extractos do e-SISTAFE"
+    contents:
+      - processar_extracto_esistafe
+      - processar_extracto_razao_c
+      - gravar_extracto_razao_c
+
+  - title: "Metadados e Recodificação"
+    desc: "Extração de metadados e recodificação de variáveis"
+    contents:
+      - extrair_meta_extracto
+      - recode_programa_tipo
+      - recodificar_esistafe_vars
+
+  - title: "Gravação de Resultados"
+    desc: "Funções para exportar os dados processados"
+    contents:
+      - gravar_extracto_sistafe
