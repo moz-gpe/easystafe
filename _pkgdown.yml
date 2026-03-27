@@ -3,6 +3,7 @@ url: https://moz-gpe.github.io/easystafe/
 template:
   bootstrap: 5
   bslib:
+    navbar-brand-image-height: 200px
     base_font: {google: "Montserrat"}
     heading_font: {google: "Lato"}
     code_font: {google: "Source Code Pro"}
@@ -22,21 +23,25 @@ navbar:
         href: https://github.com/moz-gpe/easystafe/issues
 
 reference:
-  - title: "Processamento de Extractos"
-    desc: "Funções principais para carregar e processar extractos do e-SISTAFE"
+  - title: "Importação e metadados"
+    desc: "Funções para carregar ficheiros e extrair metadados"
+    contents:
+      - extrair_meta_extracto
+
+  - title: "Processamento"
+    desc: "Funções principais de limpeza e processamento"
     contents:
       - processar_extracto_esistafe
       - processar_extracto_razao_c
-      - gravar_extracto_razao_c
 
-  - title: "Metadados e Recodificação"
-    desc: "Extração de metadados e recodificação de variáveis"
+  - title: "Recodificação"
+    desc: "Funções para recodificar e classificar variáveis"
     contents:
-      - extrair_meta_extracto
-      - recode_programa_tipo
       - recodificar_esistafe_vars
+      - recode_programa_tipo
 
-  - title: "Gravação de Resultados"
-    desc: "Funções para exportar os dados processados"
+  - title: "Exportação"
+    desc: "Funções para gravar outputs processados"
     contents:
       - gravar_extracto_sistafe
+      - gravar_extracto_razao_c

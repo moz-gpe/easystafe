@@ -1,4 +1,4 @@
-# easystafe <a href="https://moz-gpe.github.io/easystafe/"><img src="man/figures/logo.png" align="right" height="175" alt="easystafe logo"/></a>
+# easystafe <a href="https://moz-gpe.github.io/easystafe/"><img src="man/figures/logo.png" align="right" height="300" alt="easystafe logo"/></a>
 
 > **Estado:** *experimental*
 
