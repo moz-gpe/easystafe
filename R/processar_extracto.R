@@ -8,10 +8,12 @@
 #'
 #' @param source_path Um vector de caracteres com um ou mais caminhos para
 #'   ficheiros de exportacao e-SISTAFE no formato \code{.xlsx}.
-#' @param ugb_lookup Um dataframe com a tabela de referencia de UGBs de
-#'   educacao, carregado a partir do ficheiro Excel de codigos UGB (folha
-#'   \code{"UGBS"}). Deve conter uma coluna \code{ugb_3} com os nomes
-#'   completos dos UGBs validos.
+#' @param df_ugb_lookup Um dataframe com a tabela de referencia de UGBs de
+#'   educacao. Deve conter pelo menos a coluna \code{codigo_ugb} com os
+#'   codigos de 9 caracteres dos UGBs validos (e.g. \code{"50B105761"}).
+#'   Tipicamente carregado a partir da tabela de referencia de UGBs do
+#'   projecto. Apenas as linhas cujo \code{ugb_id} coincida com um valor
+#'   em \code{codigo_ugb} sao retidas no processamento.
 #' @param include_percent Logico. Se \code{TRUE} (padrao), as colunas
 #'   \code{percent} sao incluidas no output (preenchidas com \code{NA}).
 #'   Se \code{FALSE}, essas colunas sao removidas do resultado final.
@@ -46,7 +48,7 @@
 #'   \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
 #'   \item Remocao de colunas \code{percent}.
 #'   \item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
-#'   \item Filtragem de UGBs validos de educacao a partir de \code{ugb_lookup}.
+#'   \item Filtragem de UGBs validos de educacao a partir de \code{df_ugb_lookup}.
 #'   \item Remocao de linhas com CED e campos-chave em branco.
 #'   \item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
 #'   \item Criacao de variaveis hierarquicas auxiliares.
@@ -66,34 +68,34 @@
 #'
 #' @examples
 #' \dontrun{
-#' ugb_raw    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
+#' ugb_lookup    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 #' path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
 #'
 #' # Padrao -- com metadados e colunas percent, sem linhas Metrica
-#' df <- processar_extracto_sistafe(
+#' df <- processar_extracto_esistafe(
 #'   source_path = path_files,
-#'   ugb_lookup  = ugb_raw
+#'   df_ugb_lookup  = ugb_lookup
 #' )
 #'
 #' # Sem metadados, sem colunas percent
-#' df <- processar_extracto_sistafe(
+#' df <- processar_extracto_esistafe(
 #'   source_path     = path_files,
-#'   ugb_lookup      = ugb_raw,
+#'   df_ugb_lookup      = ugb_lookup,
 #'   include_percent = FALSE,
 #'   include_file_metadata    = FALSE
 #' )
 #'
 #' # Com linhas Metrica incluidas para comparacao
-#' df <- processar_extracto_sistafe(
+#' df <- processar_extracto_esistafe(
 #'   source_path      = path_files,
-#'   ugb_lookup       = ugb_raw,
+#'   df_ugb_lookup       = ugb_lookup,
 #'   include_metrica  = TRUE
 #' )
 #'
 #' # Com mensagens de progresso
-#' df <- processar_extracto_sistafe(
+#' df <- processar_extracto_esistafe(
 #'   source_path = path_files,
-#'   ugb_lookup  = ugb_raw,
+#'   df_ugb_lookup  = ugb_lookup,
 #'   quiet       = FALSE
 #' )
 #' }
@@ -112,7 +114,7 @@
 
 processar_extracto_esistafe <- function(
     source_path,
-    ugb_lookup,
+    df_ugb_lookup,
     include_percent  = TRUE,
     include_file_metadata     = TRUE,
     include_metrica  = TRUE,
@@ -169,14 +171,12 @@ processar_extracto_esistafe <- function(
   # --- 6. Filtrar UGBs de educação ---
   msg("A filtrar UGBs de educa\u00e7\u00e3o...")
 
-  vec_ugb <- ugb_lookup |>
-    janitor::clean_names() |>
-    dplyr::select(ugb_nome = ugb_3) |>
-    dplyr::distinct(ugb_nome) |>
+  vec_ugb <- df_ugb_lookup |>
+    dplyr::distinct(codigo_ugb) |>
     dplyr::pull()
 
   df_limpeza_4 <- df_limpeza_3 |>
-    dplyr::mutate(mec_ugb_class = base::ifelse(ugb %in% vec_ugb, "Keep", "Remove")) |>
+    dplyr::mutate(mec_ugb_class = base::ifelse(ugb_id %in% vec_ugb, "Keep", "Remove")) |>
     dplyr::filter(mec_ugb_class == "Keep") |>
     dplyr::select(-mec_ugb_class)
 
@@ -339,6 +339,7 @@ processar_extracto_esistafe <- function(
   return(df_limpeza_final)
 
 }
+
 
 
 

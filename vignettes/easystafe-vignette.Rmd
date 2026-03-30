@@ -86,7 +86,7 @@ Antes de executar o pipeline, certifique-se de que:
    `"Documentos/Codigos de UGBs.xlsx"`, na folha `"UGBS"`.
 
 
-## Carregar pacotes no ambiente R
+## Carregar pacotes no R
 ```{r carregar-pacotes, eval = FALSE}
 library(easystafe)
 library(readxl)
@@ -124,7 +124,7 @@ automaticamente. Não é necessário abrir os ficheiros um a um.
 
 ---
 
-## Passo 3: Executar o Pipeline Completo
+## Passo 3: Executar o Código
 
 Com apenas a função `processar_extracto_sistafe()` o pacote executa
 todas as etapas de filtragem e desduplicação:

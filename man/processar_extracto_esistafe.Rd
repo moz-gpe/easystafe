@@ -6,7 +6,7 @@
 \usage{
 processar_extracto_esistafe(
   source_path,
-  ugb_lookup,
+  df_ugb_lookup,
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
@@ -17,10 +17,12 @@ processar_extracto_esistafe(
 \item{source_path}{Um vector de caracteres com um ou mais caminhos para
 ficheiros de exportacao e-SISTAFE no formato \code{.xlsx}.}
 
-\item{ugb_lookup}{Um dataframe com a tabela de referencia de UGBs de
-educacao, carregado a partir do ficheiro Excel de codigos UGB (folha
-\code{"UGBS"}). Deve conter uma coluna \code{ugb_3} com os nomes
-completos dos UGBs validos.}
+\item{df_ugb_lookup}{Um dataframe com a tabela de referencia de UGBs de
+educacao. Deve conter pelo menos a coluna \code{codigo_ugb} com os
+codigos de 9 caracteres dos UGBs validos (e.g. \code{"50B105761"}).
+Tipicamente carregado a partir da tabela de referencia de UGBs do
+projecto. Apenas as linhas cujo \code{ugb_id} coincida com um valor
+em \code{codigo_ugb} sao retidas no processamento.}
 
 \item{include_percent}{Logico. Se \code{TRUE} (padrao), as colunas
 \code{percent} sao incluidas no output (preenchidas com \code{NA}).
@@ -67,7 +69,7 @@ O processamento segue as seguintes etapas principais:
 \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
 \item Remocao de colunas \code{percent}.
 \item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
-\item Filtragem de UGBs validos de educacao a partir de \code{ugb_lookup}.
+\item Filtragem de UGBs validos de educacao a partir de \code{df_ugb_lookup}.
 \item Remocao de linhas com CED e campos-chave em branco.
 \item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
 \item Criacao de variaveis hierarquicas auxiliares.
@@ -93,13 +95,13 @@ path_files <- list.files("Data/", pattern = "\\\\.xlsx$", full.names = TRUE)
 # Padrao -- com metadados e colunas percent, sem linhas Metrica
 df <- processar_extracto_sistafe(
   source_path = path_files,
-  ugb_lookup  = ugb_raw
+  df_ugb_lookup  = ugb_raw
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_sistafe(
   source_path     = path_files,
-  ugb_lookup      = ugb_raw,
+  df_ugb_lookup      = ugb_raw,
   include_percent = FALSE,
   include_file_metadata    = FALSE
 )
@@ -107,14 +109,14 @@ df <- processar_extracto_sistafe(
 # Com linhas Metrica incluidas para comparacao
 df <- processar_extracto_sistafe(
   source_path      = path_files,
-  ugb_lookup       = ugb_raw,
+  df_ugb_lookup       = ugb_raw,
   include_metrica  = TRUE
 )
 
 # Com mensagens de progresso
 df <- processar_extracto_sistafe(
   source_path = path_files,
-  ugb_lookup  = ugb_raw,
+  df_ugb_lookup  = ugb_raw,
   quiet       = FALSE
 )
 }
