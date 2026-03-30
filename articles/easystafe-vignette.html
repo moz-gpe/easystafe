@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Automatização do Processamento de Extractos do e-SISTAFE • easystafe</title>
+<title>Automatizar o processamento de dados e-SISTAFE • easystafe</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link href="../deps/Lato-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Automatização do Processamento de Extractos do e-SISTAFE">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Automatizar o processamento de dados e-SISTAFE">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -41,7 +41,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/easystafe-vignette.html">Automatização do Processamento de Extractos do e-SISTAFE</a></li>
+<li><a class="dropdown-item" href="../articles/easystafe-vignette.html">Automatizar o processamento de dados e-SISTAFE</a></li>
   </ul>
 </li>
       </ul>
@@ -59,7 +59,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Automatização do Processamento de Extractos do e-SISTAFE</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Automatizar o processamento de dados e-SISTAFE</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/vignettes/easystafe-vignette.Rmd" class="external-link"><code>vignettes/easystafe-vignette.Rmd</code></a></small>
@@ -71,20 +71,18 @@
 <div class="section level2">
 <h2 id="introdução">Introdução<a class="anchor" aria-label="anchor" href="#introdu%C3%A7%C3%A3o"></a>
 </h2>
-<p>Este documento explica como utilizar o pacote
-<strong>easystafe</strong> para automatizar o processamento dos
-extractos exportados do sistema e-SISTAFE, no contexto da Direcção de
-Administração e Finanças (DAF) do Ministério da Educação e Cultura
-(MEC).</p>
-<p>Actualmente, a preparação destes dados para análise é frequentemente
-feita de forma manual. Este trabalho consome tempo, é propenso a erros,
-e dificulta a verificação posterior das decisões tomadas durante a
-limpeza dos dados.</p>
-<p>O pacote <strong>easystafe</strong> resolve este problema. Com poucas
-linhas de código em R, é possível:</p>
+<p>Este documento explica como utilizar o pacote <code>easystafe</code>
+para automatizar a criação de um conjunto de dados analíticos a partir
+de exportações do e-SISTAFE no contexto do Ministério da Educação e
+Cultura (MEC). Através da utilização de um conjunto básico de funções, o
+pacote elimina a necessidade de realizar trabalhos manuais trabalhosos,
+tais como filtrar as exportações para obter apenas os dados específicos
+do MEC, eliminar a duplicação hierárquica e adicionar metadados
+essenciais para cada utilização na análise.</p>
+<p>Com poucas linhas de código em R, o <code>easystafe</code>
+consegue:</p>
 <ul>
-<li>Carregar automaticamente vários ficheiros extraídos do e-SISTAFE de
-uma pasta;</li>
+<li>Carregar vários ficheiros extraídos do e-SISTAFE de uma pasta;</li>
 <li>Extrair os metadados relevantes a partir dos nomes dos ficheiros
 (período de reporte, tipo de relatório, etc.);</li>
 <li>Limpar e padronizar as colunas dos dados;</li>
@@ -94,16 +92,17 @@ hierárquica;</li>
 <li>Gravar os dados processados num ficheiro Excel pronto para
 análise.</li>
 </ul>
-<p>O processo completo demora apenas alguns segundos e produz sempre o
-mesmo resultado independentemente de quem o executa ou quando.</p>
+<p>Esta abordagem de processamento baseada em código demora apenas
+segundos, em comparação com os dias que são necessários para aplicar um
+processo manual propenso a erros.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="visão-geral-do-pipeline">Visão Geral do Pipeline<a class="anchor" aria-label="anchor" href="#vis%C3%A3o-geral-do-pipeline"></a>
+<h2 id="etapas-do-processamento">Etapas do Processamento<a class="anchor" aria-label="anchor" href="#etapas-do-processamento"></a>
 </h2>
-<p>O diagrama abaixo mostra as etapas principais do pipeline de
-processamento:</p>
-<pre><code>Ficheiros Excel (exportados do e-SISTAFE)
+<p>O diagrama abaixo mostra as etapas principais do processamento com
+<code>easystafe</code>:</p>
+<pre><code>Ficheiros e-SISTAFE (gravado numa pasta)
           │
           ▼
   1. Carregar ficheiros
@@ -129,41 +128,46 @@ processamento:</p>
 </h2>
 <p>Antes de executar o pipeline, certifique-se de que:</p>
 <ol style="list-style-type: decimal">
-<li>O pacote <strong>easystafe</strong> está instalado e carregado.</li>
+<li>O pacote <code>easystafe</code> está instalado e carregado.</li>
 <li>Os ficheiros de extracto exportados do e-SISTAFE estão guardados
 numa pasta acessível (por exemplo, <code>"Data/"</code>).</li>
 <li>O ficheiro de referência de UGBs de educação está disponível em
 <code>"Documentos/Codigos de UGBs.xlsx"</code>, na folha
 <code>"UGBS"</code>.</li>
 </ol>
+</div>
+<div class="section level2">
+<h2 id="carregar-pacotes-no-ambiente-r">Carregar pacotes no ambiente R<a class="anchor" aria-label="anchor" href="#carregar-pacotes-no-ambiente-r"></a>
+</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://moz-gpe.github.io/easystafe/">easystafe</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org" class="external-link">readxl</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gt.rstudio.com" class="external-link">gt</a></span><span class="op">)</span></span></code></pre></div>
-<hr>
 </div>
 <div class="section level2">
-<h2 id="passo-1-carregar-a-tabela-de-referência-de-ugbs">Passo 1: Carregar a Tabela de Referência de UGBs<a class="anchor" aria-label="anchor" href="#passo-1-carregar-a-tabela-de-refer%C3%AAncia-de-ugbs"></a>
+<h2 id="passo-1-definir-ubgs-do-mec">Passo 1: Definir UBG’s do MEC<a class="anchor" aria-label="anchor" href="#passo-1-definir-ubgs-do-mec"></a>
 </h2>
-<p>O pipeline precisa de saber quais UGBs pertencem ao sector da
-educação. Esta informação está guardada numa tabela de referência
-externa que carregamos antes de iniciar o processamento.</p>
+<p>O processamento começa com a definição e a aplicação de um filtro
+UGB. Isto permite que o conjunto de dados seja reduzido às linhas
+relevantes para o MEC.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ugb_lookup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># Este código importa os UGBs relevantes da área da educação para o ambiente R, para que possam ser utilizados.</span></span>
+<span></span>
+<span><span class="va">ugb_lookup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Documents/Codigos de UGBs.xlsx"</span>,</span>
 <span>  sheet <span class="op">=</span> <span class="st">"UGBS"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Esta tabela contém os nomes e códigos de todos os UGBs do sector da
 educação. É ela que determina quais linhas do extracto são mantidas na
 etapa de filtragem.</p>
-<hr>
 </div>
 <div class="section level2">
-<h2 id="passo-2-definir-o-caminho-para-os-ficheiros-de-extracto">Passo 2: Definir o Caminho para os Ficheiros de Extracto<a class="anchor" aria-label="anchor" href="#passo-2-definir-o-caminho-para-os-ficheiros-de-extracto"></a>
+<h2 id="passo-2-definir-caminho-aos-ficheiros-e-sistafe">Passo 2: Definir Caminho aos Ficheiros e-SISTAFE<a class="anchor" aria-label="anchor" href="#passo-2-definir-caminho-aos-ficheiros-e-sistafe"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pasta_extractos</span> <span class="op">&lt;-</span> <span class="st">"Data/extractos/"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Este código define a pasta na qual são guardadas as exportações do e-SISTAFE em formato Excel</span></span>
+<span><span class="va">pasta_extractos</span> <span class="op">&lt;-</span> <span class="st">"Data/extractos/"</span></span></code></pre></div>
 <p>Todos os ficheiros <code>.xlsx</code> presentes nesta pasta serão
 processados automaticamente. Não é necessário abrir os ficheiros um a
 um.</p>
@@ -172,9 +176,8 @@ um.</p>
 <div class="section level2">
 <h2 id="passo-3-executar-o-pipeline-completo">Passo 3: Executar o Pipeline Completo<a class="anchor" aria-label="anchor" href="#passo-3-executar-o-pipeline-completo"></a>
 </h2>
-<p>Com apenas uma função — <code>processar_extracto_sistafe()</code> — o
-pacote executa todas as etapas de limpeza, filtragem, classificação e
-desduplicação:</p>
+<p>Com apenas a função <code>processar_extracto_sistafe()</code> o
+pacote executa todas as etapas de filtragem e desduplicação:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_processado</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span>
 <span>  source_path    <span class="op">=</span> <span class="va">pasta_extractos</span>,</span>
@@ -202,7 +205,7 @@ que está a acontecer, especialmente da primeira vez.</p>
 compreender o que a função <code>processar_extracto_sistafe()</code> faz
 internamente.</p>
 <div class="section level3">
-<h3 id="extracção-de-metadados">3.1 Extracção de Metadados<a class="anchor" aria-label="anchor" href="#extrac%C3%A7%C3%A3o-de-metadados"></a>
+<h3 id="extracção-de-metadados">Extracção de Metadados<a class="anchor" aria-label="anchor" href="#extrac%C3%A7%C3%A3o-de-metadados"></a>
 </h3>
 <p>A função <code><a href="../reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code> analisa automaticamente
 o <strong>nome de cada ficheiro</strong> para extrair informação sobre o
@@ -238,7 +241,7 @@ período de reporte.</p>
 período pertence — o nome do ficheiro já contém essa informação.</p>
 </div>
 <div class="section level3">
-<h3 id="limpeza-de-colunas">3.2 Limpeza de Colunas<a class="anchor" aria-label="anchor" href="#limpeza-de-colunas"></a>
+<h3 id="limpeza-de-colunas">Limpeza de Colunas<a class="anchor" aria-label="anchor" href="#limpeza-de-colunas"></a>
 </h3>
 <p>Os ficheiros exportados do e-SISTAFE têm nomes de colunas com
 espaços, acentos e maiúsculas inconsistentes. O pipeline padroniza
@@ -247,7 +250,7 @@ automaticamente todos os nomes de colunas para o formato
 mais fiável e previsível.</p>
 </div>
 <div class="section level3">
-<h3 id="filtragem-de-ugbs-do-sector-da-educação">3.3 Filtragem de UGBs do Sector da Educação<a class="anchor" aria-label="anchor" href="#filtragem-de-ugbs-do-sector-da-educa%C3%A7%C3%A3o"></a>
+<h3 id="filtragem-de-ugbs-do-sector-da-educação">Filtragem de UGBs do Sector da Educação<a class="anchor" aria-label="anchor" href="#filtragem-de-ugbs-do-sector-da-educa%C3%A7%C3%A3o"></a>
 </h3>
 <p>Muitos extractos contêm dados de UGBs que não pertencem ao sector da
 educação. Esta etapa compara cada linha do extracto com a tabela de
@@ -277,7 +280,7 @@ possível verificar quantas linhas foram removidas:</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="remoção-de-linhas-de-agregação">3.4 Remoção de Linhas de Agregação<a class="anchor" aria-label="anchor" href="#remo%C3%A7%C3%A3o-de-linhas-de-agrega%C3%A7%C3%A3o"></a>
+<h3 id="remoção-de-linhas-de-agregação">Remoção de Linhas de Agregação<a class="anchor" aria-label="anchor" href="#remo%C3%A7%C3%A3o-de-linhas-de-agrega%C3%A7%C3%A3o"></a>
 </h3>
 <p>Os extractos do e-SISTAFE contêm linhas de subtotal e cabeçalho que
 não representam transacções individuais. Estas linhas são identificadas
@@ -293,7 +296,7 @@ completos.</p>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="classificação-dos-grupos-ced-a-b-c-d">3.5 Classificação dos Grupos CED (A, B, C, D)<a class="anchor" aria-label="anchor" href="#classifica%C3%A7%C3%A3o-dos-grupos-ced-a-b-c-d"></a>
+<h3 id="classificação-dos-grupos-ced-a-b-c-d">Classificação dos Grupos CED (A, B, C, D)<a class="anchor" aria-label="anchor" href="#classifica%C3%A7%C3%A3o-dos-grupos-ced-a-b-c-d"></a>
 </h3>
 <p>O e-SISTAFE organiza as dotações numa hierarquia de quatro níveis,
 que o pacote designa por grupos A, B, C e D:</p>
@@ -330,7 +333,7 @@ que o pacote designa por grupos A, B, C e D:</p>
 topo que duplicariam os valores dos outros grupos.</p>
 </div>
 <div class="section level3">
-<h3 id="subtracção-hierárquica-eliminação-de-dupla-contagem">3.6 Subtracção Hierárquica (Eliminação de Dupla Contagem)<a class="anchor" aria-label="anchor" href="#subtrac%C3%A7%C3%A3o-hier%C3%A1rquica-elimina%C3%A7%C3%A3o-de-dupla-contagem"></a>
+<h3 id="subtracção-hierárquica-eliminação-de-dupla-contagem">Subtracção Hierárquica (Eliminação de Dupla Contagem)<a class="anchor" aria-label="anchor" href="#subtrac%C3%A7%C3%A3o-hier%C3%A1rquica-elimina%C3%A7%C3%A3o-de-dupla-contagem"></a>
 </h3>
 <p>Esta é a etapa mais importante — e a mais difícil de fazer
 correctamente de forma manual. Os grupos B e C incluem nos seus valores
@@ -396,9 +399,9 @@ automaticamente.</p>
 <div class="section level2">
 <h2 id="resumo">Resumo<a class="anchor" aria-label="anchor" href="#resumo"></a>
 </h2>
-<p>Com o pacote <strong>easystafe</strong>, o processamento completo de
-um mês de extractos do e-SISTAFE pode ser feito com menos de 10 linhas
-de código:</p>
+<p>Com o pacote <code>easystafe</code>, o processamento completo de um
+mês de extractos do e-SISTAFE pode ser feito com menos de 10 linhas de
+código:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://moz-gpe.github.io/easystafe/">easystafe</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org" class="external-link">readxl</a></span><span class="op">)</span></span>

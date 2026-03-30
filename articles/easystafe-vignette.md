@@ -1,22 +1,19 @@
-# Automatização do Processamento de Extractos do e-SISTAFE
+# Automatizar o processamento de dados e-SISTAFE
 
 ## Introdução
 
-Este documento explica como utilizar o pacote **easystafe** para
-automatizar o processamento dos extractos exportados do sistema
-e-SISTAFE, no contexto da Direcção de Administração e Finanças (DAF) do
-Ministério da Educação e Cultura (MEC).
+Este documento explica como utilizar o pacote `easystafe` para
+automatizar a criação de um conjunto de dados analíticos a partir de
+exportações do e-SISTAFE no contexto do Ministério da Educação e Cultura
+(MEC). Através da utilização de um conjunto básico de funções, o pacote
+elimina a necessidade de realizar trabalhos manuais trabalhosos, tais
+como filtrar as exportações para obter apenas os dados específicos do
+MEC, eliminar a duplicação hierárquica e adicionar metadados essenciais
+para cada utilização na análise.
 
-Actualmente, a preparação destes dados para análise é frequentemente
-feita de forma manual. Este trabalho consome tempo, é propenso a erros,
-e dificulta a verificação posterior das decisões tomadas durante a
-limpeza dos dados.
+Com poucas linhas de código em R, o `easystafe` consegue:
 
-O pacote **easystafe** resolve este problema. Com poucas linhas de
-código em R, é possível:
-
-- Carregar automaticamente vários ficheiros extraídos do e-SISTAFE de
-  uma pasta;
+- Carregar vários ficheiros extraídos do e-SISTAFE de uma pasta;
 - Extrair os metadados relevantes a partir dos nomes dos ficheiros
   (período de reporte, tipo de relatório, etc.);
 - Limpar e padronizar as colunas dos dados;
@@ -25,17 +22,18 @@ código em R, é possível:
   hierárquica;
 - Gravar os dados processados num ficheiro Excel pronto para análise.
 
-O processo completo demora apenas alguns segundos e produz sempre o
-mesmo resultado independentemente de quem o executa ou quando.
+Esta abordagem de processamento baseada em código demora apenas
+segundos, em comparação com os dias que são necessários para aplicar um
+processo manual propenso a erros.
 
 ------------------------------------------------------------------------
 
-## Visão Geral do Pipeline
+## Etapas do Processamento
 
-O diagrama abaixo mostra as etapas principais do pipeline de
-processamento:
+O diagrama abaixo mostra as etapas principais do processamento com
+`easystafe`:
 
-    Ficheiros Excel (exportados do e-SISTAFE)
+    Ficheiros e-SISTAFE (gravado numa pasta)
               │
               ▼
       1. Carregar ficheiros
@@ -61,11 +59,13 @@ processamento:
 
 Antes de executar o pipeline, certifique-se de que:
 
-1.  O pacote **easystafe** está instalado e carregado.
+1.  O pacote `easystafe` está instalado e carregado.
 2.  Os ficheiros de extracto exportados do e-SISTAFE estão guardados
     numa pasta acessível (por exemplo, `"Data/"`).
 3.  O ficheiro de referência de UGBs de educação está disponível em
     `"Documentos/Codigos de UGBs.xlsx"`, na folha `"UGBS"`.
+
+## Carregar pacotes no ambiente R
 
 ``` r
 library(easystafe)
@@ -74,15 +74,15 @@ library(dplyr)
 library(gt)
 ```
 
-------------------------------------------------------------------------
+## Passo 1: Definir UBG’s do MEC
 
-## Passo 1: Carregar a Tabela de Referência de UGBs
-
-O pipeline precisa de saber quais UGBs pertencem ao sector da educação.
-Esta informação está guardada numa tabela de referência externa que
-carregamos antes de iniciar o processamento.
+O processamento começa com a definição e a aplicação de um filtro UGB.
+Isto permite que o conjunto de dados seja reduzido às linhas relevantes
+para o MEC.
 
 ``` r
+# Este código importa os UGBs relevantes da área da educação para o ambiente R, para que possam ser utilizados.
+
 ugb_lookup <- read_excel(
   "Documents/Codigos de UGBs.xlsx",
   sheet = "UGBS"
@@ -93,11 +93,10 @@ Esta tabela contém os nomes e códigos de todos os UGBs do sector da
 educação. É ela que determina quais linhas do extracto são mantidas na
 etapa de filtragem.
 
-------------------------------------------------------------------------
-
-## Passo 2: Definir o Caminho para os Ficheiros de Extracto
+## Passo 2: Definir Caminho aos Ficheiros e-SISTAFE
 
 ``` r
+# Este código define a pasta na qual são guardadas as exportações do e-SISTAFE em formato Excel
 pasta_extractos <- "Data/extractos/"
 ```
 
@@ -108,9 +107,8 @@ automaticamente. Não é necessário abrir os ficheiros um a um.
 
 ## Passo 3: Executar o Pipeline Completo
 
-Com apenas uma função — `processar_extracto_sistafe()` — o pacote
-executa todas as etapas de limpeza, filtragem, classificação e
-desduplicação:
+Com apenas a função `processar_extracto_sistafe()` o pacote executa
+todas as etapas de filtragem e desduplicação:
 
 ``` r
 df_processado <- processar_extracto_sistafe(
@@ -142,7 +140,7 @@ Enquanto o pipeline corre, verá mensagens como:
 Esta secção explica cada etapa do pipeline para quem quiser compreender
 o que a função `processar_extracto_sistafe()` faz internamente.
 
-### 3.1 Extracção de Metadados
+### Extracção de Metadados
 
 A função
 [`extrair_meta_extracto()`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md)
@@ -165,14 +163,14 @@ Por exemplo, a partir de um nome como:
 Desta forma, não é necessário abrir cada ficheiro para saber a que
 período pertence — o nome do ficheiro já contém essa informação.
 
-### 3.2 Limpeza de Colunas
+### Limpeza de Colunas
 
 Os ficheiros exportados do e-SISTAFE têm nomes de colunas com espaços,
 acentos e maiúsculas inconsistentes. O pipeline padroniza
 automaticamente todos os nomes de colunas para o formato `snake_case`
 (minúsculas, sem espaços), tornando o código mais fiável e previsível.
 
-### 3.3 Filtragem de UGBs do Sector da Educação
+### Filtragem de UGBs do Sector da Educação
 
 Muitos extractos contêm dados de UGBs que não pertencem ao sector da
 educação. Esta etapa compara cada linha do extracto com a tabela de
@@ -188,7 +186,7 @@ possível verificar quantas linhas foram removidas:
 | Remover       |    15 766    |
 | **Total**     |  **24 107**  |
 
-### 3.4 Remoção de Linhas de Agregação
+### Remoção de Linhas de Agregação
 
 Os extractos do e-SISTAFE contêm linhas de subtotal e cabeçalho que não
 representam transacções individuais. Estas linhas são identificadas e
@@ -200,7 +198,7 @@ Especificamente, são mantidas apenas as linhas que:
 - Têm os campos `funcao`, `programa` e `fr` todos preenchidos (*linhas
   de Métrica*).
 
-### 3.5 Classificação dos Grupos CED (A, B, C, D)
+### Classificação dos Grupos CED (A, B, C, D)
 
 O e-SISTAFE organiza as dotações numa hierarquia de quatro níveis, que o
 pacote designa por grupos A, B, C e D:
@@ -215,7 +213,7 @@ pacote designa por grupos A, B, C e D:
 O grupo D é removido imediatamente por representar apenas somas de topo
 que duplicariam os valores dos outros grupos.
 
-### 3.6 Subtracção Hierárquica (Eliminação de Dupla Contagem)
+### Subtracção Hierárquica (Eliminação de Dupla Contagem)
 
 Esta é a etapa mais importante — e a mais difícil de fazer correctamente
 de forma manual. Os grupos B e C incluem nos seus valores os montantes
@@ -289,7 +287,7 @@ automaticamente.
 
 ## Resumo
 
-Com o pacote **easystafe**, o processamento completo de um mês de
+Com o pacote `easystafe`, o processamento completo de um mês de
 extractos do e-SISTAFE pode ser feito com menos de 10 linhas de código:
 
 ``` r
