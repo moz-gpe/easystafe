@@ -12,7 +12,7 @@ pronto para analise.
 ``` r
 processar_extracto_esistafe(
   source_path,
-  ugb_lookup,
+  df_ugb_lookup,
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
@@ -27,11 +27,14 @@ processar_extracto_esistafe(
   Um vector de caracteres com um ou mais caminhos para ficheiros de
   exportacao e-SISTAFE no formato `.xlsx`.
 
-- ugb_lookup:
+- df_ugb_lookup:
 
-  Um dataframe com a tabela de referencia de UGBs de educacao, carregado
-  a partir do ficheiro Excel de codigos UGB (folha `"UGBS"`). Deve
-  conter uma coluna `ugb_3` com os nomes completos dos UGBs validos.
+  Um dataframe com a tabela de referencia de UGBs de educacao. Deve
+  conter pelo menos a coluna `codigo_ugb` com os codigos de 9 caracteres
+  dos UGBs validos (e.g. `"50B105761"`). Tipicamente carregado a partir
+  da tabela de referencia de UGBs do projecto. Apenas as linhas cujo
+  `ugb_id` coincida com um valor em `codigo_ugb` sao retidas no
+  processamento.
 
 - include_percent:
 
@@ -88,7 +91,7 @@ O processamento segue as seguintes etapas principais:
 
 5.  Conversao de colunas numericas e extraccao do codigo `ugb_id`.
 
-6.  Filtragem de UGBs validos de educacao a partir de `ugb_lookup`.
+6.  Filtragem de UGBs validos de educacao a partir de `df_ugb_lookup`.
 
 7.  Remocao de linhas com CED e campos-chave em branco.
 
@@ -125,13 +128,13 @@ path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
 # Padrao -- com metadados e colunas percent, sem linhas Metrica
 df <- processar_extracto_sistafe(
   source_path = path_files,
-  ugb_lookup  = ugb_raw
+  df_ugb_lookup  = ugb_raw
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_sistafe(
   source_path     = path_files,
-  ugb_lookup      = ugb_raw,
+  df_ugb_lookup      = ugb_raw,
   include_percent = FALSE,
   include_file_metadata    = FALSE
 )
@@ -139,14 +142,14 @@ df <- processar_extracto_sistafe(
 # Com linhas Metrica incluidas para comparacao
 df <- processar_extracto_sistafe(
   source_path      = path_files,
-  ugb_lookup       = ugb_raw,
+  df_ugb_lookup       = ugb_raw,
   include_metrica  = TRUE
 )
 
 # Com mensagens de progresso
 df <- processar_extracto_sistafe(
   source_path = path_files,
-  ugb_lookup  = ugb_raw,
+  df_ugb_lookup  = ugb_raw,
   quiet       = FALSE
 )
 } # }

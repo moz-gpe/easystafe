@@ -65,7 +65,7 @@ Antes de executar o pipeline, certifique-se de que:
 3.  O ficheiro de referência de UGBs de educação está disponível em
     `"Documentos/Codigos de UGBs.xlsx"`, na folha `"UGBS"`.
 
-## Carregar pacotes no ambiente R
+## Carregar pacotes no R
 
 ``` r
 library(easystafe)
@@ -105,7 +105,7 @@ automaticamente. Não é necessário abrir os ficheiros um a um.
 
 ------------------------------------------------------------------------
 
-## Passo 3: Executar o Pipeline Completo
+## Passo 3: Executar o Código
 
 Com apenas a função `processar_extracto_sistafe()` o pacote executa
 todas as etapas de filtragem e desduplicação:
