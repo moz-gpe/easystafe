@@ -333,5 +333,5 @@ durante o processamento.
 ---
 
 *Para mais informações sobre as funções individuais do pacote, consulte a
-documentação com `?processar_extracto_sistafe`, `?extrair_meta_extracto`,
-e `?gravar_extracto_sistafe`.*
+documentação com `?processar_extracto_esistafe`
+e `?gravar_extracto_esistafe`.*

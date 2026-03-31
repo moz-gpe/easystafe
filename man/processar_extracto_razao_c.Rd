@@ -34,8 +34,8 @@ saldo final) de todos os PDFs processados, contendo as colunas:
 \item{source_file}{Nome do ficheiro PDF de origem.}
 \item{unidade_gestao}{Nome da unidade de gestao extraido do cabecalho.}
 \item{data}{Data do registo (\code{Date}).}
-\item{year}{Ano extraido da data do registo (\code{integer}).}
-\item{month}{Mes extraido da data do registo (\code{integer}).}
+\item{ano}{Ano extraido da data do registo (\code{integer}).}
+\item{mes}{Mes extraido da data do registo (\code{integer}).}
 \item{tipo}{Tipo de registo: \code{"MOVIMENTO"}, \code{"SALDO_INICIAL"} ou \code{"SALDO_FINAL"}.}
 \item{codigo_documento}{Codigo do documento (apenas em movimentos).}
 \item{valor_lancamento}{Valor do lancamento em MZN, negativo para creditos (C).}

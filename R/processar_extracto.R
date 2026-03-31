@@ -371,8 +371,8 @@ processar_extracto_esistafe <- function(
 #'     \item{source_file}{Nome do ficheiro PDF de origem.}
 #'     \item{unidade_gestao}{Nome da unidade de gestao extraido do cabecalho.}
 #'     \item{data}{Data do registo (\code{Date}).}
-#'     \item{year}{Ano extraido da data do registo (\code{integer}).}
-#'     \item{month}{Mes extraido da data do registo (\code{integer}).}
+#'     \item{ano}{Ano extraido da data do registo (\code{integer}).}
+#'     \item{mes}{Mes extraido da data do registo (\code{integer}).}
 #'     \item{tipo}{Tipo de registo: \code{"MOVIMENTO"}, \code{"SALDO_INICIAL"} ou \code{"SALDO_FINAL"}.}
 #'     \item{codigo_documento}{Codigo do documento (apenas em movimentos).}
 #'     \item{valor_lancamento}{Valor do lancamento em MZN, negativo para creditos (C).}
@@ -635,10 +635,10 @@ processar_extracto_razao_c <- function(
     purrr::map(extract_sistafe_table) |>
     purrr::list_rbind(names_to = "source_file") |>
     dplyr::mutate(
-      year  = lubridate::year(data),
-      month = as.character(lubridate::month(data, label = TRUE, abbr = FALSE))
+      ano  = lubridate::year(data),
+      mes = as.character(lubridate::month(data, label = TRUE, abbr = FALSE))
     ) |>
-    dplyr::relocate(year, month, .after = data)
+    dplyr::relocate(ano, mes, .after = data)
 
   # ---- Calcular intervalo de datas ----
   date_min <- suppressWarnings(min(df$data, na.rm = TRUE))
