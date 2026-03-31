@@ -654,3 +654,370 @@ processar_extracto_razao_c <- function(
 
   df
 }
+
+
+#' Parse an ABSA Bank Statement PDF into a tidy dataframe
+#'
+#' Reads an ABSA Bank account statement PDF and returns a tibble matching the
+#' \code{df_razao} schema used in the \code{easystafe} pipeline. Line
+#' reconstruction uses word-level coordinate data from \code{pdftools::pdf_data()}
+#' rather than \code{pdftools::pdf_text()}, which silently truncates ABSA
+#' statement pages.
+#'
+#' @param pdf_path \code{character(1)}. Full or relative path to the ABSA
+#'   statement PDF file.
+#' @param y_tolerance \code{numeric(1)}. Vertical tolerance (in PDF points) used
+#'   when grouping words onto the same line during coordinate-based reconstruction.
+#'   The default of \code{2} works for standard ABSA statements. Increase if
+#'   words from the same row are being split; decrease if adjacent rows are
+#'   being merged. Default: \code{2}.
+#' @param verbose \code{logical(1)}. If \code{TRUE}, prints a summary message
+#'   with row count, totals and calculated closing balance after parsing.
+#'   Default: \code{TRUE}.
+#'
+#' @return A tibble with 12 columns:
+#' \describe{
+#'   \item{source_file}{\code{character}. Basename of the source PDF file.}
+#'   \item{unidade_gestao}{\code{character}. Always \code{NA} — to be populated
+#'     downstream.}
+#'   \item{data}{\code{Date}. Transaction date. The dummy opening-balance date
+#'     (\code{01/01/1900}) is remapped to the first day of the statement period.}
+#'   \item{ano}{\code{integer}. Year extracted from \code{data}.}
+#'   \item{mes}{\code{character}. Full month name in English extracted from
+#'     \code{data} (e.g. \code{"February"}).}
+#'   \item{tipo}{\code{character}. One of \code{"SALDO_INICIAL"},
+#'     \code{"MOVIMENTO"}, or \code{"SALDO_FINAL"}.}
+#'   \item{codigo_documento}{\code{character}. Reference number extracted from
+#'     the statement, where present. \code{NA} otherwise.}
+#'   \item{valor_lancamento}{\code{double}. Signed transaction amount: positive
+#'     for credits, negative for debits. \code{NA} for \code{SALDO_INICIAL} and
+#'     \code{SALDO_FINAL} rows.}
+#'   \item{dc1}{\code{character}. Debit/credit indicator for the transaction
+#'     amount: \code{"C"} (credit), \code{"D"} (debit), or \code{NA} for balance
+#'     rows.}
+#'   \item{saldo_atual}{\code{double}. Running account balance after the
+#'     transaction.}
+#'   \item{dc2}{\code{character}. Debit/credit indicator for the running
+#'     balance. Always \code{"D"} for this account type.}
+#'   \item{saldo_inicial_fim}{\code{double}. Opening balance for
+#'     \code{SALDO_INICIAL} rows; calculated closing balance
+#'     (opening + credits - debits) for \code{SALDO_FINAL} rows; \code{NA}
+#'     for \code{MOVIMENTO} rows.}
+#' }
+#'
+#' @details
+#' The ABSA statement PDF layout has two known quirks that this function handles:
+#'
+#' \enumerate{
+#'   \item \strong{Page truncation}: \code{pdftools::pdf_text()} silently
+#'     truncates the first page of ABSA statements. This function uses
+#'     \code{pdftools::pdf_data()} instead, reconstructing lines from word-level
+#'     x/y coordinates.
+#'   \item \strong{Continuation lines}: Long descriptions and reference numbers
+#'     wrap onto a second line with no leading date. These are detected and
+#'     appended to their parent transaction row before parsing.
+#' }
+#'
+#' The closing balance row (\code{SALDO_FINAL}) is appended programmatically
+#' and is not extracted from the PDF footer. Its \code{saldo_inicial_fim} value
+#' is calculated as:
+#' \code{saldo_abertura + sum(credits) - sum(debits)}.
+#'
+#' The \code{data} for the \code{SALDO_FINAL} row is set to the last calendar
+#' day of the statement month, derived from the period end date in the PDF
+#' header.
+#'
+#' @examples
+#' \dontrun{
+#' df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/EXTRACTO ABSA BANK MT.pdf")
+#' glimpse(df_absa)
+#'
+#' # Bind with other razao dataframes
+#' df_razao <- bind_rows(df_razao, df_absa)
+#' }
+#'
+#' @importFrom pdftools pdf_data
+#' @importFrom dplyr mutate case_when arrange group_by summarise bind_rows
+#'   select filter slice_max
+#' @importFrom tidyr unnest
+#' @importFrom purrr map discard
+#' @importFrom stringr str_split str_trim str_detect str_extract str_extract_all
+#'   str_remove str_remove_all str_subset
+#' @importFrom lubridate dmy year month floor_date ceiling_date days
+#' @importFrom tibble tibble
+#'
+#' @export
+
+processar_extracto_absa <- function(pdf_path,
+                                 y_tolerance = 2,
+                                 verbose     = TRUE) {
+
+  # --- 0. Validate input -----------------------------------------------------
+  stopifnot(
+    "pdf_path must be a single character string" =
+      is.character(pdf_path) && length(pdf_path) == 1,
+    "y_tolerance must be a positive number" =
+      is.numeric(y_tolerance) && y_tolerance > 0,
+    "verbose must be TRUE or FALSE" =
+      is.logical(verbose) && length(verbose) == 1
+  )
+  if (!file.exists(pdf_path)) stop("File not found: ", pdf_path)
+
+  source_file_name <- basename(pdf_path)
+
+  # --- 1. Extract lines from PDF using word-level coordinate data ------------
+  # pdf_text() silently truncates ABSA page 1; pdf_data() returns all words
+  # with x/y positions. Lines are reconstructed by grouping words that share
+  # the same y coordinate (within y_tolerance) and sorting by x.
+
+  reconstruct_lines <- function(page_data) {
+    page_data |>
+      mutate(y_group = round(y / y_tolerance) * y_tolerance) |>
+      arrange(y_group, x) |>
+      group_by(y_group) |>
+      summarise(line = paste(text, collapse = " "), .groups = "drop") |>
+      arrange(y_group) |>
+      pull(line)
+  }
+
+  lines <- pdf_data(pdf_path) |>
+    map(reconstruct_lines) |>
+    unlist() |>
+    str_trim() |>
+    discard(~ .x == "")
+
+  # --- 2. Extract account metadata -------------------------------------------
+  account_number <- lines |>
+    str_subset("Nr da Conta") |>
+    str_extract("\\d{10,}") |>
+    first() %||% NA_character_
+
+  client_name <- lines |>
+    str_subset("Nome da Cliente") |>
+    str_remove(".*Nome da Cliente\\s*:?\\s*") |>
+    str_trim() |>
+    first() %||% NA_character_
+
+  currency <- lines |>
+    str_subset("Nome da Moeda") |>
+    str_extract("MZN|USD|EUR") |>
+    first() %||% "MZN"
+
+  # --- 3. Extract opening balance --------------------------------------------
+  saldo_abertura <- lines |>
+    str_subset("Saldo de Abertura") |>
+    str_extract("[\\d,]+\\.\\d{2}") |>
+    str_remove_all(",") |>
+    as.numeric() |>
+    first() %||% NA_real_
+
+  # --- 4. Parse statement period ---------------------------------------------
+  all_period_dates <- lines |>
+    str_subset("^Per|^Para\\s*:") |>
+    str_extract_all("\\d{2}/\\d{2}/\\d{4}") |>
+    unlist() |>
+    dmy()
+
+  periodo_inicio <- if (length(all_period_dates) >= 1) min(all_period_dates) else NA
+  periodo_fim    <- if (length(all_period_dates) >= 1) max(all_period_dates) else NA
+
+  # --- 5. Filter to transaction lines only -----------------------------------
+  # Drop all known header/footer/noise lines. Patterns use ASCII-safe
+  # substrings only (no accented characters) to avoid encoding mismatches.
+
+  date_pattern  <- "^\\d{2}/\\d{2}/\\d{4}\\s+\\d+"
+  num_pat       <- "[\\d,]+\\.\\d{2}"
+
+  noise_pattern <- paste(c(
+    "^Extracto de Conta",
+    "^Nome do Balcao",
+    "^Per.*De",           # Período De
+    "^Para\\s*:",
+    "^Nr da P",           # Nr da Página
+    "^Nr da Conta",
+    "^NIB No",
+    "^Nome do Produto",
+    "^Nome da Moeda",
+    "^C.*d do Bal",       # Cód do Balcão
+    "^Nome Abreviado",
+    "^Nr de Identifica",
+    "^Nome da Cliente",
+    "^Endere",            # Endereço do Cliente
+    "^T.*tulo da Conta",  # Título da Conta
+    "^Data Bal",          # column header row
+    "^Saldo de Abertura",
+    "^Valor Total",
+    "^Nr de D",           # Nr de Debitos
+    "^Nr de Cr",          # Nr de Creditos
+    "^Saldo de Encer",
+    "^Valor da Comissao",
+    "^\\*",
+    "^-{3,}",
+    "^%%",
+    "^NR\\s+\\d+",
+    "^CIDADE DE",
+    "^Maputo",
+    "^AV\\s+",
+    "Fim do Extracto",
+    "^Rel Pty",
+    "^Large Corporate"
+  ), collapse = "|")
+
+  tx_lines_raw <- lines |> discard(~ str_detect(.x, noise_pattern))
+
+  # --- 6. Join continuation lines onto their parent -------------------------
+  # Lines without a leading dd/mm/yyyy date are description continuations;
+  # they are appended to the preceding transaction line.
+
+  joined_lines <- character(0)
+  for (line in tx_lines_raw) {
+    if (str_detect(line, date_pattern)) {
+      joined_lines <- c(joined_lines, line)
+    } else if (length(joined_lines) > 0) {
+      joined_lines[length(joined_lines)] <-
+        paste(joined_lines[length(joined_lines)], line)
+    }
+  }
+
+  # --- 7. Parse each joined line ---------------------------------------------
+  transactions <- joined_lines |>
+    map_dfr(function(line) {
+
+      data_str   <- str_extract(line, "^\\d{2}/\\d{2}/\\d{4}")
+      referencia <- str_extract(line, "\\d{12,}") %||% NA_character_
+
+      # Strip leading date + branch code, long reference numbers, and any
+      # mid-line value-date, leaving: description text + debit + credit + saldo
+      line_clean <- line |>
+        str_remove("^\\d{2}/\\d{2}/\\d{4}\\s+\\d+\\s+") |>
+        str_remove_all("\\d{12,}")                        |>
+        str_remove_all("\\d{2}/\\d{2}/\\d{4}")            |>
+        str_trim()
+
+      nums <- str_extract_all(line_clean, num_pat)[[1]] |>
+        str_remove_all(",") |>
+        as.numeric()
+
+      if (length(nums) < 3) return(NULL)
+
+      n       <- length(nums)
+      debito  <- nums[n - 2]
+      credito <- nums[n - 1]
+      saldo   <- nums[n]
+
+      desc_raw <- line_clean |>
+        str_remove("[\\d,]+\\.\\d{2}.*$") |>
+        str_trim()
+
+      tibble(
+        data_str   = data_str,
+        descricao  = desc_raw,
+        referencia = referencia,
+        debito     = debito,
+        credito    = credito,
+        saldo      = saldo
+      )
+    })
+
+  # --- 8. Remap dummy opening balance date -----------------------------------
+  transactions <- transactions |>
+    mutate(
+      data = dmy(data_str),
+      data = if_else(
+        data == as.Date("1900-01-01"),
+        periodo_inicio %||% floor_date(min(dmy(data_str), na.rm = TRUE), "month"),
+        data
+      )
+    )
+
+  # --- 9. Classify transaction types -----------------------------------------
+  transactions <- transactions |>
+    mutate(
+      tipo = case_when(
+        str_detect(descricao, regex("SALDO DE ABERTURA", ignore_case = TRUE)) ~ "SALDO_INICIAL",
+        TRUE ~ "MOVIMENTO"
+      )
+    )
+
+  # --- 10. Build df_razao-compatible tibble ----------------------------------
+  df_movimentos <- transactions |>
+    mutate(
+      source_file       = source_file_name,
+      unidade_gestao    = NA_character_,
+      ano               = year(data),
+      mes               = month(data, label = TRUE, abbr = FALSE) |> as.character(),
+      valor_lancamento  = case_when(
+        tipo == "SALDO_INICIAL" ~ NA_real_,
+        credito > 0             ~ credito,
+        TRUE                    ~ -debito
+      ),
+      dc1 = case_when(
+        tipo == "SALDO_INICIAL" ~ NA_character_,
+        credito > 0             ~ "C",
+        debito  > 0             ~ "D",
+        TRUE                    ~ NA_character_
+      ),
+      dc2               = "D",
+      codigo_documento  = referencia,
+      saldo_atual       = saldo,
+      saldo_inicial_fim = case_when(
+        tipo == "SALDO_INICIAL" ~ saldo_abertura,
+        TRUE                    ~ NA_real_
+      )
+    ) |>
+    select(source_file, unidade_gestao, data, ano, mes, tipo,
+           codigo_documento, valor_lancamento, dc1,
+           saldo_atual, dc2, saldo_inicial_fim)
+
+  # --- 11. Append closing balance row ----------------------------------------
+  total_cred_mov <- sum(df_movimentos$valor_lancamento[
+    df_movimentos$tipo == "MOVIMENTO" &
+      !is.na(df_movimentos$valor_lancamento) &
+      df_movimentos$valor_lancamento > 0])
+
+  total_deb_mov <- abs(sum(df_movimentos$valor_lancamento[
+    df_movimentos$tipo == "MOVIMENTO" &
+      !is.na(df_movimentos$valor_lancamento) &
+      df_movimentos$valor_lancamento < 0]))
+
+  saldo_final_calc <- saldo_abertura + total_cred_mov - total_deb_mov
+
+  data_saldo_final <- if (!is.na(periodo_fim)) {
+    ceiling_date(periodo_fim, "month") - days(1)
+  } else {
+    ceiling_date(max(transactions$data), "month") - days(1)
+  }
+
+  df_saldo_final <- tibble(
+    source_file       = source_file_name,
+    unidade_gestao    = NA_character_,
+    data              = data_saldo_final,
+    ano               = year(data_saldo_final),
+    mes               = month(data_saldo_final, label = TRUE, abbr = FALSE) |> as.character(),
+    tipo              = "SALDO_FINAL",
+    codigo_documento  = NA_character_,
+    valor_lancamento  = NA_real_,
+    dc1               = NA_character_,
+    saldo_atual       = saldo_final_calc,
+    dc2               = "D",
+    saldo_inicial_fim = saldo_final_calc
+  )
+
+  # --- 12. Final assembly & sort ---------------------------------------------
+  df_out <- bind_rows(df_movimentos, df_saldo_final) |>
+    arrange(data, desc(tipo == "SALDO_INICIAL"), tipo == "SALDO_FINAL")
+
+  # --- 13. Optional summary message ------------------------------------------
+  if (verbose) {
+    message("--- processar_extracto_absa() ---")
+    message("Ficheiro     : ", source_file_name)
+    message("Linhas output: ", nrow(df_out))
+    message(sprintf("Saldo abertura         : %15.2f", saldo_abertura))
+    message(sprintf("Total creditos         : %15.2f", total_cred_mov))
+    message(sprintf("Total debitos          : %15.2f", total_deb_mov))
+    message(sprintf("Saldo final (calculado): %15.2f", saldo_final_calc))
+    message(sprintf("Data saldo final       : %s",     format(data_saldo_final)))
+  }
+
+  df_out
+}
