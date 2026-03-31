@@ -89,34 +89,34 @@ garantindo que \code{data_tipo} e sempre incluido antes de \code{ugb}.
 }
 \examples{
 \dontrun{
-ugb_raw    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
+ugb_lookup    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 path_files <- list.files("Data/", pattern = "\\\\.xlsx$", full.names = TRUE)
 
 # Padrao -- com metadados e colunas percent, sem linhas Metrica
-df <- processar_extracto_sistafe(
+df <- processar_extracto_esistafe(
   source_path = path_files,
-  df_ugb_lookup  = ugb_raw
+  df_ugb_lookup  = ugb_lookup
 )
 
 # Sem metadados, sem colunas percent
-df <- processar_extracto_sistafe(
+df <- processar_extracto_esistafe(
   source_path     = path_files,
-  df_ugb_lookup      = ugb_raw,
+  df_ugb_lookup      = ugb_lookup,
   include_percent = FALSE,
   include_file_metadata    = FALSE
 )
 
 # Com linhas Metrica incluidas para comparacao
-df <- processar_extracto_sistafe(
+df <- processar_extracto_esistafe(
   source_path      = path_files,
-  df_ugb_lookup       = ugb_raw,
+  df_ugb_lookup       = ugb_lookup,
   include_metrica  = TRUE
 )
 
 # Com mensagens de progresso
-df <- processar_extracto_sistafe(
+df <- processar_extracto_esistafe(
   source_path = path_files,
-  df_ugb_lookup  = ugb_raw,
+  df_ugb_lookup  = ugb_lookup,
   quiet       = FALSE
 )
 }
