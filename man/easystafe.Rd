@@ -35,6 +35,8 @@ Useful links:
 Authors:
 \itemize{
   \item Damiano Stella \email{damiano.stella@giz.de}
+  \item Adolores Guimaraes \email{adolores.guimaraes@giz.de}
+  \item Carolina Cumbana \email{ccumbane11@gmail.com}
 }
 
 }
