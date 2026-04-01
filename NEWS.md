@@ -1,4 +1,4 @@
-# easystafe 0.0.0.9000 (2025-11-24)
+# easystafe 0.1.0
 
 ## Novas funcionalidades
 - Adicionada a funcção **`processar_esistafe_extracto_unico()`** para:

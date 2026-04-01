@@ -13,9 +13,12 @@ lang: pt
 
 navbar:
   structure:
-    left: [reference, articles]
-    right: [github]
+    left: [intro, reference, articles, news]
+    right: [search, github]
   components:
+    news:
+      text: "Changelog"
+      href: news/index.html
     links:
       - text: "Código-fonte"
         href: https://github.com/moz-gpe/easystafe
