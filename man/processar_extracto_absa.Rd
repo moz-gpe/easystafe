@@ -2,91 +2,103 @@
 % Please edit documentation in R/processar_extracto.R
 \name{processar_extracto_absa}
 \alias{processar_extracto_absa}
-\title{Parse an ABSA Bank Statement PDF into a tidy dataframe}
+\title{Processar Extractos Bancarios ABSA}
 \usage{
-processar_extracto_absa(pdf_path, y_tolerance = 2, verbose = TRUE)
+processar_extracto_absa(
+  source_path,
+  pattern = "EXTRACTO ABSA",
+  recursive = FALSE,
+  y_tolerance = 2,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{pdf_path}{\code{character(1)}. Full or relative path to the ABSA
-statement PDF file.}
+\item{source_path}{\code{character(1)}. Caminho para a pasta que contem os
+ficheiros PDF dos extractos ABSA.}
 
-\item{y_tolerance}{\code{numeric(1)}. Vertical tolerance (in PDF points) used
-when grouping words onto the same line during coordinate-based reconstruction.
-The default of \code{2} works for standard ABSA statements. Increase if
-words from the same row are being split; decrease if adjacent rows are
-being merged. Default: \code{2}.}
+\item{pattern}{\code{character(1)}. Padrao regex usado para identificar os
+ficheiros ABSA dentro de \code{source_path}. O padrao predefinido
+\code{"EXTRACTO ABSA"} corresponde ao nome de ficheiro padrao dos
+extractos ABSA Mocambique. Nao faz distincao entre maiusculas e
+minusculas. Default: \code{"EXTRACTO ABSA"}.}
 
-\item{verbose}{\code{logical(1)}. If \code{TRUE}, prints a summary message
-with row count, totals and calculated closing balance after parsing.
-Default: \code{TRUE}.}
+\item{recursive}{\code{logical(1)}. Se \code{TRUE}, pesquisa tambem nas
+subpastas de \code{source_path}. Default: \code{FALSE}.}
+
+\item{y_tolerance}{\code{numeric(1)}. Tolerancia vertical (em pontos PDF)
+para agrupar palavras na mesma linha durante a reconstrucao por
+coordenadas. O valor predefinido de \code{2} funciona para os extractos
+ABSA padrao. Default: \code{2}.}
+
+\item{verbose}{\code{logical(1)}. Se \code{TRUE}, imprime uma linha de
+resumo por ficheiro processado e um total no final. Default: \code{TRUE}.}
 }
 \value{
-A tibble with 12 columns:
+Um tibble com 12 colunas correspondentes ao esquema \code{df_razao}:
 \describe{
-\item{source_file}{\code{character}. Basename of the source PDF file.}
-\item{unidade_gestao}{\code{character}. Always \code{NA} — to be populated
+\item{source_file}{\code{character}. Nome do ficheiro PDF de origem.}
+\item{unidade_gestao}{\code{character}. Sempre \code{NA} -- a preencher
 downstream.}
-\item{data}{\code{Date}. Transaction date. The dummy opening-balance date
-(\code{01/01/1900}) is remapped to the first day of the statement period.}
-\item{ano}{\code{integer}. Year extracted from \code{data}.}
-\item{mes}{\code{character}. Full month name in English extracted from
-\code{data} (e.g. \code{"February"}).}
-\item{tipo}{\code{character}. One of \code{"SALDO_INICIAL"},
-\code{"MOVIMENTO"}, or \code{"SALDO_FINAL"}.}
-\item{codigo_documento}{\code{character}. Reference number extracted from
-the statement, where present. \code{NA} otherwise.}
-\item{valor_lancamento}{\code{double}. Signed transaction amount: positive
-for credits, negative for debits. \code{NA} for \code{SALDO_INICIAL} and
-\code{SALDO_FINAL} rows.}
-\item{dc1}{\code{character}. Debit/credit indicator for the transaction
-amount: \code{"C"} (credit), \code{"D"} (debit), or \code{NA} for balance
-rows.}
-\item{saldo_atual}{\code{double}. Running account balance after the
-transaction.}
-\item{dc2}{\code{character}. Debit/credit indicator for the running
-balance. Always \code{"D"} for this account type.}
-\item{saldo_inicial_fim}{\code{double}. Opening balance for
-\code{SALDO_INICIAL} rows; calculated closing balance
-(opening + credits - debits) for \code{SALDO_FINAL} rows; \code{NA}
-for \code{MOVIMENTO} rows.}
+\item{data}{\code{Date}. Data do movimento. A data ficticia de abertura
+(\code{01/01/1900}) e remapeada para o primeiro dia do periodo do
+extracto.}
+\item{ano}{\code{integer}. Ano extraido de \code{data}.}
+\item{mes}{\code{character}. Nome completo do mes em ingles (e.g.
+\code{"February"}).}
+\item{tipo}{\code{character}. Um de \code{"SALDO_INICIAL"},
+\code{"MOVIMENTO"} ou \code{"SALDO_FINAL"}.}
+\item{codigo_documento}{\code{character}. Numero de referencia do
+movimento, quando presente. \code{NA} caso contrario.}
+\item{valor_lancamento}{\code{double}. Valor assinado do movimento:
+positivo para creditos, negativo para debitos. \code{NA} nas linhas de
+saldo.}
+\item{dc1}{\code{character}. Indicador debito/credito do movimento:
+\code{"C"}, \code{"D"} ou \code{NA}.}
+\item{saldo_atual}{\code{double}. Saldo corrente apos o movimento.}
+\item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
+\code{"D"} para este tipo de conta.}
+\item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
+\code{SALDO_INICIAL}; saldo calculado (abertura + creditos - debitos)
+em \code{SALDO_FINAL}; \code{NA} nos movimentos.}
 }
 }
 \description{
-Reads an ABSA Bank account statement PDF and returns a tibble matching the
-\code{df_razao} schema used in the \code{easystafe} pipeline. Line
-reconstruction uses word-level coordinate data from \code{pdftools::pdf_data()}
-rather than \code{pdftools::pdf_text()}, which silently truncates ABSA
-statement pages.
+Localiza todos os ficheiros PDF com o padrao \code{"EXTRACTO ABSA"} numa
+pasta, processa cada um e devolve um unico tibble combinado compativel com o
+esquema \code{df_razao} utilizado no pipeline do \code{easystafe}.
 }
 \details{
-The ABSA statement PDF layout has two known quirks that this function handles:
+O layout dos PDFs ABSA apresenta dois problemas conhecidos que esta funcao
+resolve:
 
 \enumerate{
-\item \strong{Page truncation}: \code{pdftools::pdf_text()} silently
-truncates the first page of ABSA statements. This function uses
-\code{pdftools::pdf_data()} instead, reconstructing lines from word-level
-x/y coordinates.
-\item \strong{Continuation lines}: Long descriptions and reference numbers
-wrap onto a second line with no leading date. These are detected and
-appended to their parent transaction row before parsing.
+\item \strong{Truncagem de pagina}: \code{pdftools::pdf_text()} trunca
+silenciosamente a primeira pagina. A funcao usa
+\code{pdftools::pdf_data()} em alternativa, reconstruindo as linhas a
+partir das coordenadas x/y de cada palavra.
+\item \strong{Linhas de continuacao}: Descricoes longas e numeros de
+referencia podem continuar numa segunda linha sem data inicial. Essas
+linhas sao detectadas e concatenadas a linha de transaccao anterior.
 }
 
-The closing balance row (\code{SALDO_FINAL}) is appended programmatically
-and is not extracted from the PDF footer. Its \code{saldo_inicial_fim} value
-is calculated as:
-\code{saldo_abertura + sum(credits) - sum(debits)}.
-
-The \code{data} for the \code{SALDO_FINAL} row is set to the last calendar
-day of the statement month, derived from the period end date in the PDF
-header.
+A linha de fecho (\code{SALDO_FINAL}) e acrescentada programaticamente e
+nao extraida do rodape do PDF. O seu \code{saldo_inicial_fim} e calculado
+como \code{saldo_abertura + sum(creditos) - sum(debitos)}.
 }
 \examples{
 \dontrun{
-df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/EXTRACTO ABSA BANK MT.pdf")
-glimpse(df_absa)
+# Processar todos os extractos ABSA numa pasta
+df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/")
 
-# Bind with other razao dataframes
+# Combinar com outros extractos do razao
 df_razao <- bind_rows(df_razao, df_absa)
+
+# Usar um padrao diferente ou pesquisar em subpastas
+df_absa <- processar_extracto_absa(
+  source_path = "Data/razao_cont/",
+  pattern     = "ABSA",
+  recursive   = TRUE
+)
 }
 
 }
