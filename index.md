@@ -31,7 +31,8 @@ O pacote oferece:
 ### Versão de desenvolvimento (GitHub)
 
 ``` r
-
+      
+      # instalar pacote
       pak::pak("moz-gpe/easystafe")
 
       # carregar pacote
