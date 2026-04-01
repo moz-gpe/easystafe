@@ -16,6 +16,8 @@ Funções principais de limpeza e processamento
 - [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
   : Processar extractos do razao contabilistico do e-SISTAFE a partir de
   ficheiros PDF
+- [`processar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_absa.md)
+  : Parse an ABSA Bank Statement PDF into a tidy dataframe
 
 ## Recodificação
 

@@ -314,7 +314,6 @@ tomada durante o processamento.
 ------------------------------------------------------------------------
 
 *Para mais informações sobre as funções individuais do pacote, consulte
-a documentação com `?processar_extracto_sistafe`,
-[`?extrair_meta_extracto`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md),
-e
-[`?gravar_extracto_sistafe`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_sistafe.md).*
+a documentação com
+[`?processar_extracto_esistafe`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md)
+e `?gravar_extracto_esistafe`.*

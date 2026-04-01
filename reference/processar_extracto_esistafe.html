@@ -144,34 +144,34 @@ garantindo que <code>data_tipo</code> e sempre incluido antes de <code>ugb</code
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">ugb_raw</span>    <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"Data/ugb/Codigos de UGBs.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"UGBS"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ugb_lookup</span>    <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"Data/ugb/Codigos de UGBs.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"UGBS"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">path_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"Data/"</span>, pattern <span class="op">=</span> <span class="st">"\\.xlsx$"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Padrao -- com metadados e colunas percent, sem linhas Metrica</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_raw</span></span></span>
+<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_lookup</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Sem metadados, sem colunas percent</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path     <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup      <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup      <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
 <span class="r-in"><span>  include_percent <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  include_file_metadata    <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com linhas Metrica incluidas para comparacao</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path      <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup       <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup       <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
 <span class="r-in"><span>  include_metrica  <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com mensagens de progresso</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_sistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_raw</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
 <span class="r-in"><span>  quiet       <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>

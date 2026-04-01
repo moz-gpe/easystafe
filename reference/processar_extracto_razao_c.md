@@ -58,6 +58,14 @@ final) de todos os PDFs processados, contendo as colunas:
 
   Data do registo (`Date`).
 
+- ano:
+
+  Ano extraido da data do registo (`integer`).
+
+- mes:
+
+  Mes extraido da data do registo (`integer`).
+
 - tipo:
 
   Tipo de registo: `"MOVIMENTO"`, `"SALDO_INICIAL"` ou `"SALDO_FINAL"`.
