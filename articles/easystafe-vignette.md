@@ -1,4 +1,4 @@
-# Automatizar o processamento de dados e-SISTAFE
+# Processar dados do e-SISTAFE
 
 ## Introdução
 

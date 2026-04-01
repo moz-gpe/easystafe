@@ -18,9 +18,12 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/easystafe-vignette.html">Automatizar o processamento de dados e-SISTAFE</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/easystafe-vignette.html">Processar dados do e-SISTAFE</a></li>
   </ul></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/moz-gpe/easystafe/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/moz-gpe/easystafe/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -33,39 +36,39 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="easystafe-0009000-2025-11-24">easystafe 0.0.0.9000 (2025-11-24)<a class="anchor" aria-label="anchor" href="#easystafe-0009000-2025-11-24"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="easystafe-010">easystafe 0.1.0<a class="anchor" aria-label="anchor" href="#easystafe-010"></a></h2>
 <div class="section level3">
-<h3 id="novas-funcionalidades-0-0-0-9000">Novas funcionalidades<a class="anchor" aria-label="anchor" href="#novas-funcionalidades-0-0-0-9000"></a></h3>
-<ul><li>Adicionada a funcção <strong><code>processar_esistafe_extracto_unico()</code></strong> para:
+<h3 id="novas-funcionalidades-0-1-0">Novas funcionalidades<a class="anchor" aria-label="anchor" href="#novas-funcionalidades-0-1-0"></a></h3>
+<ul><li>Adicionada a funcção <code>processar_esistafe_extracto_unico()</code> para:
 <ul><li>processar extractos individuais do e-SISTAFE;</li>
 <li>aplicar lógica hierárquica de subtração entre níveis CED (A, B, C, D);</li>
 <li>consolidar valores e remover duplicações;</li>
 <li>retornar um extracto final único e coerente.</li>
 </ul></li>
-<li>Adicionada a funcção <strong><code>processo_esistafe_extracto()</code></strong> para:
+<li>Adicionada a funcção <code>processo_esistafe_extracto()</code> para:
 <ul><li>processar múltiplos extractos em lote;</li>
 <li>anexar metadados automaticamente a cada ficheiro;</li>
 <li>unificar resultados num único tibble consolidado;</li>
 <li>gerir erros com <code><a href="https://purrr.tidyverse.org/reference/possibly.html" class="external-link">purrr::possibly()</a></code>.</li>
 </ul></li>
-<li>Adicionada a função <strong><code><a href="../reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code></strong> para:
+<li>Adicionada a função <code><a href="../reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code> para:
 <ul><li>extrair datas (referência e extração) a partir dos nomes dos ficheiros;</li>
 <li>identificar o tipo de reporte (Funcionamento, Investimento Interno, Investimento Externo);</li>
 <li>devolver ano e mês de referência com nomes de meses em Português.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentação-e-estrutura-0-0-0-9000">Documentação e estrutura<a class="anchor" aria-label="anchor" href="#documenta%C3%A7%C3%A3o-e-estrutura-0-0-0-9000"></a></h3>
-<ul><li>Criada documentação completa em <strong>Roxygen2</strong>, totalmente compatível com UTF-8.</li>
-<li>Atualizadas imports no ficheiro <strong>DESCRIPTION</strong> para suportar todas as dependências usadas.</li>
+<h3 id="documentação-e-estrutura-0-1-0">Documentação e estrutura<a class="anchor" aria-label="anchor" href="#documenta%C3%A7%C3%A3o-e-estrutura-0-1-0"></a></h3>
+<ul><li>Criada documentação completa em Roxygen2, totalmente compatível com UTF-8.</li>
+<li>Atualizadas imports no ficheiro DESCRIPTION para suportar todas as dependências usadas.</li>
 <li>Estabelecida a infra-estrutura inicial do pacote:
 <ul><li>diretórios <code>R/</code>, <code>man/</code>, <code>.Rproj</code>, e configuração da toolchain de build;</li>
 <li>estrutura de versionamento semântico para evolução futura.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="melhorias-técnicas-0-0-0-9000">Melhorias técnicas<a class="anchor" aria-label="anchor" href="#melhorias-t%C3%A9cnicas-0-0-0-9000"></a></h3>
-<ul><li>Todo o código-fonte das funções foi convertido para <strong>ASCII-safe</strong>, garantindo:
+<h3 id="melhorias-técnicas-0-1-0">Melhorias técnicas<a class="anchor" aria-label="anchor" href="#melhorias-t%C3%A9cnicas-0-1-0"></a></h3>
+<ul><li>Todo o código-fonte das funções foi convertido para ASCII-safe, garantindo:
 <ul><li>compatibilidade com R CMD check;</li>
 <li>ausência de caracteres não-ASCII em strings internas;</li>
 <li>preservação de acentos apenas em comentários e documentação.</li>
@@ -82,7 +85,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Joe Lara, Damiano Stella.</p>
+  <p>Developed by Joe Lara, Damiano Stella, Adolores Guimaraes, Carolina Cumbana.</p>
 </div>
 
 <div class="pkgdown-footer-right">

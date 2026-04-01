@@ -2,5 +2,5 @@
 
 ### All vignettes
 
-- [Automatizar o processamento de dados
+- [Processar dados do
   e-SISTAFE](https://moz-gpe.github.io/easystafe/articles/easystafe-vignette.md):

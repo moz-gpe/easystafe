@@ -29,3 +29,7 @@ Useful links:
 Authors:
 
 - Damiano Stella <damiano.stella@giz.de>
+
+- Adolores Guimaraes <adolores.guimaraes@giz.de>
+
+- Carolina Cumbana <ccumbane11@gmail.com>

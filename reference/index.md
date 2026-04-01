@@ -1,6 +1,6 @@
 # Package index
 
-## Importação e metadados
+## Extracção de metadados
 
 Funções para carregar ficheiros e extrair metadados
 
@@ -28,7 +28,7 @@ Funções para recodificar e classificar variáveis
 - [`recode_programa_tipo()`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
   : Recode programa column to programa_tipo
 
-## Exportação
+## Gravação
 
 Funções para gravar outputs processados
 
