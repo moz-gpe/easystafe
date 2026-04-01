@@ -420,9 +420,10 @@ processar_extracto_esistafe <- function(
 #' }
 #'
 #' @export
+
 processar_extracto_razao_c <- function(
     source_path,
-    exclude_pattern = "CENTRAL USD|EXTRACTO DA CONTA FOREX EUR|EXTRACTO DA CONTA FOREX USD",
+    exclude_pattern = "CENTRAL USD|FOREX|DemonstrativoConsolidado",
     recursive       = FALSE,
     quiet           = TRUE
 ) {

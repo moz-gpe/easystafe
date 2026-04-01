@@ -6,7 +6,7 @@
 \usage{
 processar_extracto_razao_c(
   source_path,
-  exclude_pattern = "CENTRAL USD|EXTRACTO DA CONTA FOREX EUR|EXTRACTO DA CONTA FOREX USD",
+  exclude_pattern = "CENTRAL USD|FOREX|DemonstrativoConsolidado",
   recursive = FALSE,
   quiet = TRUE
 )
