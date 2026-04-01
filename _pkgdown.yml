@@ -23,7 +23,7 @@ navbar:
         href: https://github.com/moz-gpe/easystafe/issues
 
 reference:
-  - title: "Importação e metadados"
+  - title: "Extracção de metadados"
     desc: "Funções para carregar ficheiros e extrair metadados"
     contents:
       - extrair_meta_extracto
@@ -41,7 +41,7 @@ reference:
       - recodificar_esistafe_vars
       - recode_programa_tipo
 
-  - title: "Exportação"
+  - title: "Gravação"
     desc: "Funções para gravar outputs processados"
     contents:
       - gravar_extracto_sistafe
