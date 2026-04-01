@@ -64,7 +64,7 @@ gravar_extracto_sistafe <- function(
   }
 
   # --- Verificar que colunas de metadados existem ---
-  required_cols <- c("reporte_tipo", "ano", "mes")
+  required_cols <- c("ano", "mes")
   missing_cols  <- base::setdiff(required_cols, base::names(df))
 
   if (base::length(missing_cols) > 0) {
@@ -78,13 +78,17 @@ gravar_extracto_sistafe <- function(
   output_folder <- base::gsub("/$", "", output_folder)
 
   # --- Extrair valores unicos dos metadados ---
-  reporte_tipo <- df |> dplyr::distinct(reporte_tipo) |> dplyr::pull() |> base::paste(collapse = "-")
-  ano          <- df |> dplyr::distinct(ano)          |> dplyr::pull() |> base::paste(collapse = "-")
-  mes          <- df |> dplyr::distinct(mes)          |> dplyr::pull() |> base::paste(collapse = "-")
   today        <- base::format(base::Sys.Date(), "%Y%m%d")
 
   # --- Construir nome do ficheiro ---
-  file_name <- glue::glue("{reporte_tipo}_{ano}_{mes}_{today}.xlsx")
+  ano_num <- df |> dplyr::distinct(ano) |> dplyr::pull() |> base::paste(collapse = "-")
+  mes_num <- df |> dplyr::distinct(mes) |> dplyr::pull() |>
+    purrr::map_chr(~ stringr::str_pad(
+      match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")),
+      2, pad = "0")) |>
+    base::paste(collapse = "-")
+  file_name <- glue::glue("eSISTAFE_{ano_num}{mes_num}_{today}.xlsx")
   file_path <- base::file.path(output_folder, file_name)
 
   # --- Criar pasta se nao existir ---
@@ -96,6 +100,7 @@ gravar_extracto_sistafe <- function(
   # --- Guardar ficheiro ---
   msg(glue::glue("A guardar ficheiro: {file_path}"))
   writexl::write_xlsx(df, file_path)
+  message(glue::glue("Ficheiro do e-SISTAFE gravado: {file_path}"))
   msg("Concluido.")
 
   # --- Retornar caminho invisivel para uso posterior se necessario ---
@@ -181,8 +186,10 @@ gravar_extracto_razao_c <- function(
   output_folder <- base::gsub("/$", "", output_folder)
 
   # --- Construir nome do ficheiro ---
-  today     <- base::format(base::Sys.Date(), "%Y%m%d")
-  file_name <- glue::glue("Razao-Cont_{date_range_txt}_{today}.xlsx")
+  today   <- base::format(base::Sys.Date(), "%Y%m%d")
+  date_ym <- stringr::str_extract(date_range_txt, "\\d{4}-\\d{2}") |>
+    stringr::str_remove("-")
+  file_name <- glue::glue("RazaoCont_{date_ym}_{today}.xlsx")
   file_path <- base::file.path(output_folder, file_name)
 
   # --- Criar pasta se nao existir ---
@@ -194,6 +201,7 @@ gravar_extracto_razao_c <- function(
   # --- Guardar ficheiro ---
   msg(glue::glue("A guardar ficheiro: {file_path}"))
   writexl::write_xlsx(df, file_path)
+  message(glue::glue("Ficheiro da Razao Contabilistica gravado: {file_path}"))
   msg("Concluido.")
 
   # --- Retornar caminho invisivel para uso posterior ---
@@ -255,67 +263,64 @@ gravar_extracto_razao_c <- function(
 #' @importFrom dplyr filter pull
 #' @export
 
-gravar_extracto_absa <- function(df,
-                                 output_path  = "Dataout",
-                                 prefix       = "extracto_absa",
-                                 include_date = TRUE,
-                                 overwrite    = FALSE,
-                                 verbose      = TRUE) {
+gravar_extracto_absa <- function(
+    df,
+    output_folder = "Dataout",
+    quiet         = TRUE
+) {
+  # --- Mensagens internas ---
+  msg <- function(...) {
+    if (!quiet) message(...)
+  }
 
-  # --- 0. Validate input -----------------------------------------------------
-  stopifnot(
-    "df must be a data frame"           = is.data.frame(df),
-    "df must contain column 'ano'"      = "ano" %in% names(df),
-    "df must contain column 'mes'"      = "mes" %in% names(df),
-    "output_path must be a string"      = is.character(output_path) && length(output_path) == 1,
-    "prefix must be a string"           = is.character(prefix) && length(prefix) == 1,
-    "include_date must be TRUE or FALSE" = is.logical(include_date) && length(include_date) == 1,
-    "overwrite must be TRUE or FALSE"   = is.logical(overwrite) && length(overwrite) == 1,
-    "verbose must be TRUE or FALSE"     = is.logical(verbose) && length(verbose) == 1
-  )
+  # --- Verificar que colunas de metadados existem ---
+  required_cols <- c("ano", "mes")
+  missing_cols  <- base::setdiff(required_cols, base::names(df))
+  if (base::length(missing_cols) > 0) {
+    stop(glue::glue(
+      "Colunas de metadados em falta: {paste(missing_cols, collapse = ', ')}."
+    ))
+  }
 
-  # --- 1. Extract year and month from MOVIMENTO rows -------------------------
-  # Prefer MOVIMENTO rows to avoid atypical dates on SALDO_INICIAL/SALDO_FINAL
-  df_meta <- if ("tipo" %in% names(df)) {
+  # --- Remover trailing slash se presente ---
+  output_folder <- base::gsub("/$", "", output_folder)
+
+  # --- Extrair ano e mes de linhas MOVIMENTO ---
+  df_meta <- if ("tipo" %in% base::names(df)) {
     dplyr::filter(df, tipo == "MOVIMENTO")
   } else {
     df
   }
-
-  # Fall back to full df if no MOVIMENTO rows present
   if (nrow(df_meta) == 0) df_meta <- df
 
-  ano_val <- df_meta |> dplyr::pull(ano) |> na.omit() |> unique() |> sort() |> paste(collapse = "-")
-  mes_val <- df_meta |> dplyr::pull(mes) |> na.omit() |> unique() |> sort() |> paste(collapse = "-")
+  # --- Construir nome do ficheiro ---
+  today   <- base::format(base::Sys.Date(), "%Y%m%d")
+  ano_num <- df_meta |> dplyr::pull(ano) |> stats::na.omit() |> unique() |> sort() |> base::paste(collapse = "-")
+  mes_num <- df_meta |> dplyr::pull(mes) |> stats::na.omit() |> unique() |>
+    purrr::map_chr(~ stringr::str_pad(
+      match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")),
+      2, pad = "0")) |>
+    base::paste(collapse = "-")
 
-  if (nchar(ano_val) == 0) ano_val <- "ano_desconhecido"
-  if (nchar(mes_val) == 0) mes_val <- "mes_desconhecido"
+  if (nchar(ano_num) == 0) ano_num <- "ano_desconhecido"
+  if (nchar(mes_num) == 0) mes_num <- "mes_desconhecido"
 
-  # --- 2. Build filename -----------------------------------------------------
-  date_stamp <- if (include_date) paste0("_", format(Sys.Date(), "%Y%m%d")) else ""
+  file_name <- glue::glue("ABSA_{ano_num}{mes_num}_{today}.xlsx")
+  file_path <- base::file.path(output_folder, file_name)
 
-  filename <- paste0(prefix, "_", ano_val, "_", mes_val, date_stamp, ".xlsx")
-  filepath <- file.path(output_path, filename)
-
-  # --- 3. Create output directory if needed ----------------------------------
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
-    if (verbose) message("Pasta criada: ", output_path)
+  # --- Criar pasta se nao existir ---
+  if (!base::dir.exists(output_folder)) {
+    msg(glue::glue("Pasta '{output_folder}' nao encontrada - a criar..."))
+    base::dir.create(output_folder, recursive = TRUE)
   }
 
-  # --- 4. Check for existing file --------------------------------------------
-  if (file.exists(filepath) && !overwrite) {
-    stop(
-      "O ficheiro j\u00e1 existe: ", filepath,
-      "\nUse overwrite = TRUE para substituir."
-    )
-  }
+  # --- Guardar ficheiro ---
+  msg(glue::glue("A guardar ficheiro: {file_path}"))
+  writexl::write_xlsx(df, file_path)
+  message(glue::glue("Ficheiro da ABSA gravado: {file_path}"))
+  msg("Concluido.")
 
-  # --- 5. Write to Excel -----------------------------------------------------
-  writexl::write_xlsx(df, filepath)
-
-  if (verbose) message("Ficheiro gravado: ", filepath)
-
-  invisible(filepath)
+  # --- Retornar caminho invisivel para uso posterior ---
+  base::invisible(file_path)
 }
-

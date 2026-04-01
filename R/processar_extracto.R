@@ -117,7 +117,7 @@
 #' @export
 
 processar_extracto_esistafe <- function(
-    source_path,
+    source_path = "Data/",
     df_ugb_lookup,
     include_pattern  = "DemonstrativoConsolidado",
     include_percent  = TRUE,
@@ -127,33 +127,39 @@ processar_extracto_esistafe <- function(
 ) {
 
 
-  # --- 1b. Filtrar ficheiros pelo include_pattern ---
-  if (!is.null(include_pattern)) {
-    msg(glue::glue("A filtrar ficheiros com o padr\u00e3o: {include_pattern}..."))
-    df <- df |>
-      dplyr::filter(stringr::str_detect(file_name, include_pattern))
-    msg(glue::glue("Ficheiros retidos ap\u00f3s filtragem: {dplyr::n_distinct(df$file_name)}"))
-  }
-
   # --- Mensagens internas ---
   msg <- function(...) {
     if (!quiet) message(...)
   }
 
-  # --- 1. Carregar ficheiros ---
-  msg("A carregar ficheiros...")
+  # --- 1. Identificar e carregar ficheiros ---
+  msg("A identificar ficheiros...")
 
-  df <- purrr::map(source_path, ~readxl::read_excel(.x, col_types = "text")) |>
-    purrr::set_names(base::basename(source_path)) |>
+  files <- base::list.files(
+    path       = source_path,
+    pattern    = include_pattern,
+    full.names = TRUE
+  )
+
+  if (length(files) == 0) {
+    stop(glue::glue("Nenhum ficheiro encontrado em '{source_path}' com o padrao '{include_pattern}'."))
+  }
+
+  msg(glue::glue("{length(files)} ficheiro(s) encontrado(s). A carregar..."))
+
+  df <- purrr::map(files, ~readxl::read_excel(.x, col_types = "text")) |>
+    purrr::set_names(base::basename(files)) |>
     purrr::list_rbind(names_to = "file_name")
 
   msg(glue::glue("Ficheiros carregados: {dplyr::n_distinct(df$file_name)} | Linhas: {nrow(df)}"))
+
 
   # --- 2. Adicionar ou remover metadados ---
   if (include_file_metadata) {
     msg("A extrair e adicionar metadados...")
 
-    paths_meta <- extrair_meta_extracto(source_path)
+    paths_meta <- extrair_meta_extracto(files) |>
+      dplyr::rename_with(~ gsub(".*_meta$", "", .x))
 
     df <- df |>
       dplyr::left_join(paths_meta, by = "file_name") |>
@@ -347,8 +353,9 @@ processar_extracto_esistafe <- function(
   msg("Conclu\u00eddo.")
 
   # --- Resumo final ---
-  n_files <- dplyr::n_distinct(df$file_name)
-  message(glue::glue("Processamento conclu\u00eddo: {n_files} ficheiro(s) processado(s) com sucesso."))
+  n_files <- length(files)
+  file_list <- base::paste(base::basename(files), collapse = "\n  - ")
+  message(glue::glue("Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n  - {file_list}"))
 
   return(df_limpeza_final)
 
@@ -667,7 +674,28 @@ processar_extracto_razao_c <- function(
 
   attr(df, "date_range_txt") <- date_range_txt
 
+  # ---- Resumo final ----
+  file_rows <- df |>
+    dplyr::group_by(source_file) |>
+    dplyr::summarise(n_linhas = dplyr::n(), .groups = "drop")
+
+  n_files    <- nrow(file_rows)
+  n_total    <- nrow(df)
+
+  file_lines <- file_rows |>
+    glue::glue_data("  \u2714 {source_file} \u2014 {n_linhas} linhas") |>
+    paste(collapse = "\n")
+
+  message(glue::glue(
+    "\n--- processar_extracto_razao_c() ---\n",
+    "{n_files} ficheiro(s) encontrado(s)\n",
+    "{file_lines}\n",
+    "Total linhas output  : {n_total}\n",
+    "Ficheiros processados: {n_files}"
+  ))
+
   df
+
 }
 
 
@@ -681,7 +709,7 @@ processar_extracto_razao_c <- function(
 # Parses a single ABSA statement PDF. Called by processar_extracto_absa().
 # -----------------------------------------------------------------------------
 
-.parse_single_absa <- function(pdf_path, y_tolerance = 2, verbose = TRUE) {
+.parse_single_absa <- function(pdf_path, y_tolerance = 2, quiet = TRUE) {
 
   source_file_name <- basename(pdf_path)
 
@@ -865,7 +893,9 @@ processar_extracto_razao_c <- function(
       source_file       = source_file_name,
       unidade_gestao    = NA_character_,
       ano               = lubridate::year(data),
-      mes               = lubridate::month(data, label = TRUE, abbr = FALSE) |> as.character(),
+      mes = lubridate::month(data) |>
+        purrr::map_chr(~ c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+                           "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")[.x]),
       valor_lancamento  = dplyr::case_when(
         tipo == "SALDO_INICIAL" ~ NA_real_,
         credito > 0             ~ credito,
@@ -913,7 +943,8 @@ processar_extracto_razao_c <- function(
     unidade_gestao    = NA_character_,
     data              = data_saldo_final,
     ano               = lubridate::year(data_saldo_final),
-    mes               = lubridate::month(data_saldo_final, label = TRUE, abbr = FALSE) |> as.character(),
+    mes = c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")[lubridate::month(data_saldo_final)],
     tipo              = "SALDO_FINAL",
     codigo_documento  = NA_character_,
     valor_lancamento  = NA_real_,
@@ -928,272 +959,7 @@ processar_extracto_razao_c <- function(
     dplyr::arrange(data, desc(tipo == "SALDO_INICIAL"), tipo == "SALDO_FINAL")
 
   # --- 13. Optional per-file summary message ---------------------------------
-  if (verbose) {
-    message(sprintf("  \u2714 %s \u2014 %d linhas", source_file_name, nrow(df_out)))
-  }
-
-  df_out
-}
-
-
-# =============================================================================
-# processar_extracto_absa()
-# Internal helper: .parse_single_absa()
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# .parse_single_absa() internal, not exported
-# Parses a single ABSA statement PDF. Called by processar_extracto_absa().
-# -----------------------------------------------------------------------------
-
-.parse_single_absa <- function(pdf_path, y_tolerance = 2, verbose = TRUE) {
-
-  source_file_name <- basename(pdf_path)
-
-  # --- 1. Extract lines from PDF using word-level coordinate data ------------
-  # pdf_text() silently truncates ABSA page 1; pdf_data() returns all words
-  # with x/y positions. Lines are reconstructed by grouping words that share
-  # the same y coordinate (within y_tolerance) and sorting by x.
-
-  reconstruct_lines <- function(page_data) {
-    page_data |>
-      dplyr::mutate(y_group = round(y / y_tolerance) * y_tolerance) |>
-      dplyr::arrange(y_group, x) |>
-      dplyr::group_by(y_group) |>
-      dplyr::summarise(line = paste(text, collapse = " "), .groups = "drop") |>
-      dplyr::arrange(y_group) |>
-      dplyr::pull(line)
-  }
-
-  lines <- pdf_data(pdf_path) |>
-    purrr::map(reconstruct_lines) |>
-    unlist() |>
-    stringr::str_trim() |>
-    purrr::discard(~ .x == "")
-
-  # --- 2. Extract account metadata -------------------------------------------
-  account_number <- lines |>
-    stringr::str_subset("Nr da Conta") |>
-    stringr::str_extract("\\d{10,}") |>
-    first() %||% NA_character_
-
-  client_name <- lines |>
-    stringr::str_subset("Nome da Cliente") |>
-    stringr::str_remove(".*Nome da Cliente\\s*:?\\s*") |>
-    stringr::str_trim() |>
-    first() %||% NA_character_
-
-  currency <- lines |>
-    stringr::str_subset("Nome da Moeda") |>
-    stringr::str_extract("MZN|USD|EUR") |>
-    first() %||% "MZN"
-
-  # --- 3. Extract opening balance --------------------------------------------
-  saldo_abertura <- lines |>
-    stringr::str_subset("Saldo de Abertura") |>
-    stringr::str_extract("[\\d,]+\\.\\d{2}") |>
-    stringr::str_remove_all(",") |>
-    as.numeric() |>
-    first() %||% NA_real_
-
-  # --- 4. Parse statement period ---------------------------------------------
-  all_period_dates <- lines |>
-    stringr::str_subset("^Per|^Para\\s*:") |>
-    stringr::str_extract_all("\\d{2}/\\d{2}/\\d{4}") |>
-    unlist() |>
-    lubridate::dmy()
-
-  periodo_inicio <- if (length(all_period_dates) >= 1) min(all_period_dates) else NA
-  periodo_fim    <- if (length(all_period_dates) >= 1) max(all_period_dates) else NA
-
-  # --- 5. Filter to transaction lines only -----------------------------------
-  # Drop all known header/footer/noise lines. Patterns use ASCII-safe
-  # substrings only (no accented characters) to avoid encoding mismatches.
-
-  date_pattern  <- "^\\d{2}/\\d{2}/\\d{4}\\s+\\d+"
-  num_pat       <- "[\\d,]+\\.\\d{2}"
-
-  noise_pattern <- paste(c(
-    "^Extracto de Conta",
-    "^Nome do Balcao",
-    "^Per.*De",           # Per\u00edodo De
-    "^Para\\s*:",
-    "^Nr da P",           # Nr da P\u00e1gina
-    "^Nr da Conta",
-    "^NIB No",
-    "^Nome do Produto",
-    "^Nome da Moeda",
-    "^C.*d do Bal",       # C\u00f3d do Balc\u00e3o
-    "^Nome Abreviado",
-    "^Nr de Identifica",
-    "^Nome da Cliente",
-    "^Endere",            # Endere\u00e7o do Cliente
-    "^T.*tulo da Conta",  # T\u00edtulo da Conta
-    "^Data Bal",          # column header row
-    "^Saldo de Abertura",
-    "^Valor Total",
-    "^Nr de D",           # Nr de Debitos
-    "^Nr de Cr",          # Nr de Creditos
-    "^Saldo de Encer",
-    "^Valor da Comissao",
-    "^\\*",
-    "^-{3,}",
-    "^%%",
-    "^NR\\s+\\d+",
-    "^CIDADE DE",
-    "^Maputo",
-    "^AV\\s+",
-    "Fim do Extracto",
-    "^Rel Pty",
-    "^Large Corporate"
-  ), collapse = "|")
-
-  tx_lines_raw <- lines |> purrr::discard(~ stringr::str_detect(.x, noise_pattern))
-
-  # --- 6. Join continuation lines onto their parent -------------------------
-  # Lines without a leading dd/mm/yyyy date are description continuations;
-  # they are appended to the preceding transaction line.
-
-  joined_lines <- character(0)
-  for (line in tx_lines_raw) {
-    if (stringr::str_detect(line, date_pattern)) {
-      joined_lines <- c(joined_lines, line)
-    } else if (length(joined_lines) > 0) {
-      joined_lines[length(joined_lines)] <-
-        paste(joined_lines[length(joined_lines)], line)
-    }
-  }
-
-  # --- 7. Parse each joined line ---------------------------------------------
-  transactions <- joined_lines |>
-    purrr::map_dfr(function(line) {
-
-      data_str   <- stringr::str_extract(line, "^\\d{2}/\\d{2}/\\d{4}")
-      referencia <- stringr::str_extract(line, "\\d{12,}") %||% NA_character_
-
-      # Strip leading date + branch code, long reference numbers, and any
-      # mid-line value-date, leaving: description text + debit + credit + saldo
-      line_clean <- line |>
-        stringr::str_remove("^\\d{2}/\\d{2}/\\d{4}\\s+\\d+\\s+") |>
-        stringr::str_remove_all("\\d{12,}")                        |>
-        stringr::str_remove_all("\\d{2}/\\d{2}/\\d{4}")            |>
-        stringr::str_trim()
-
-      nums <- stringr::str_extract_all(line_clean, num_pat)[[1]] |>
-        stringr::str_remove_all(",") |>
-        as.numeric()
-
-      if (length(nums) < 3) return(NULL)
-
-      n       <- length(nums)
-      debito  <- nums[n - 2]
-      credito <- nums[n - 1]
-      saldo   <- nums[n]
-
-      desc_raw <- line_clean |>
-        stringr::str_remove("[\\d,]+\\.\\d{2}.*$") |>
-        stringr::str_trim()
-
-      tibble::tibble(
-        data_str   = data_str,
-        descricao  = desc_raw,
-        referencia = referencia,
-        debito     = debito,
-        credito    = credito,
-        saldo      = saldo
-      )
-    })
-
-  # --- 8. Remap dummy opening balance date -----------------------------------
-  transactions <- transactions |>
-    dplyr::mutate(
-      data = lubridate::dmy(data_str),
-      data = dplyr::if_else(
-        data == as.Date("1900-01-01"),
-        periodo_inicio %||% lubridate::floor_date(min(lubridate::dmy(data_str), na.rm = TRUE), "month"),
-        data
-      )
-    )
-
-  # --- 9. Classify transaction types -----------------------------------------
-  transactions <- transactions |>
-    dplyr::mutate(
-      tipo = dplyr::case_when(
-        stringr::str_detect(descricao, stringr::regex("SALDO DE ABERTURA", ignore_case = TRUE)) ~ "SALDO_INICIAL",
-        TRUE ~ "MOVIMENTO"
-      )
-    )
-
-  # --- 10. Build df_razao-compatible tibble ----------------------------------
-  df_movimentos <- transactions |>
-    dplyr::mutate(
-      source_file       = source_file_name,
-      unidade_gestao    = NA_character_,
-      ano               = lubridate::year(data),
-      mes               = lubridate::month(data, label = TRUE, abbr = FALSE) |> as.character(),
-      valor_lancamento  = dplyr::case_when(
-        tipo == "SALDO_INICIAL" ~ NA_real_,
-        credito > 0             ~ credito,
-        TRUE                    ~ -debito
-      ),
-      dc1 = dplyr::case_when(
-        tipo == "SALDO_INICIAL" ~ NA_character_,
-        credito > 0             ~ "C",
-        debito  > 0             ~ "D",
-        TRUE                    ~ NA_character_
-      ),
-      dc2               = "D",
-      codigo_documento  = referencia,
-      saldo_atual       = saldo,
-      saldo_inicial_fim = dplyr::case_when(
-        tipo == "SALDO_INICIAL" ~ saldo_abertura,
-        TRUE                    ~ NA_real_
-      )
-    ) |>
-    dplyr::select(source_file, unidade_gestao, data, ano, mes, tipo,
-                  codigo_documento, valor_lancamento, dc1,
-                  saldo_atual, dc2, saldo_inicial_fim)
-
-  # --- 11. Append closing balance row ----------------------------------------
-  total_cred_mov <- sum(df_movimentos$valor_lancamento[
-    df_movimentos$tipo == "MOVIMENTO" &
-      !is.na(df_movimentos$valor_lancamento) &
-      df_movimentos$valor_lancamento > 0])
-
-  total_deb_mov <- abs(sum(df_movimentos$valor_lancamento[
-    df_movimentos$tipo == "MOVIMENTO" &
-      !is.na(df_movimentos$valor_lancamento) &
-      df_movimentos$valor_lancamento < 0]))
-
-  saldo_final_calc <- saldo_abertura + total_cred_mov - total_deb_mov
-
-  data_saldo_final <- if (!is.na(periodo_fim)) {
-    lubridate::ceiling_date(periodo_fim, "month") - lubridate::days(1)
-  } else {
-    lubridate::ceiling_date(max(transactions$data), "month") - lubridate::days(1)
-  }
-
-  df_saldo_final <- tibble::tibble(
-    source_file       = source_file_name,
-    unidade_gestao    = NA_character_,
-    data              = data_saldo_final,
-    ano               = lubridate::year(data_saldo_final),
-    mes               = lubridate::month(data_saldo_final, label = TRUE, abbr = FALSE) |> as.character(),
-    tipo              = "SALDO_FINAL",
-    codigo_documento  = NA_character_,
-    valor_lancamento  = NA_real_,
-    dc1               = NA_character_,
-    saldo_atual       = saldo_final_calc,
-    dc2               = "D",
-    saldo_inicial_fim = saldo_final_calc
-  )
-
-  # --- 12. Final assembly & sort ---------------------------------------------
-  df_out <- dplyr::bind_rows(df_movimentos, df_saldo_final) |>
-    dplyr::arrange(data, desc(tipo == "SALDO_INICIAL"), tipo == "SALDO_FINAL")
-
-  # --- 13. Optional per-file summary message ---------------------------------
-  if (verbose) {
+  if (!quiet) {
     message(sprintf("  \u2714 %s \u2014 %d linhas", source_file_name, nrow(df_out)))
   }
 
@@ -1222,8 +988,11 @@ processar_extracto_razao_c <- function(
 #'   para agrupar palavras na mesma linha durante a reconstrucao por
 #'   coordenadas. O valor predefinido de \code{2} funciona para os extractos
 #'   ABSA padrao. Default: \code{2}.
-#' @param verbose \code{logical(1)}. Se \code{TRUE}, imprime uma linha de
-#'   resumo por ficheiro processado e um total no final. Default: \code{TRUE}.
+#' @param quiet Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
+#'   por ficheiro durante o processamento. Se \code{FALSE}, e emitida uma
+#'   mensagem por ficheiro processado. Independentemente deste parametro,
+#'   e sempre emitida uma mensagem final com o numero de linhas e ficheiros
+#'   processados.
 #'
 #' @return Um tibble com 12 colunas correspondentes ao esquema \code{df_razao}:
 #' \describe{
@@ -1302,30 +1071,26 @@ processar_extracto_absa <- function(source_path,
                                     pattern     = "EXTRACTO ABSA",
                                     recursive   = FALSE,
                                     y_tolerance = 2,
-                                    verbose     = TRUE) {
-
-  # --- 0. Validate input -----------------------------------------------------
+                                    quiet       = TRUE) {
   stopifnot(
     "source_path must be a single character string" =
       is.character(source_path) && length(source_path) == 1,
     "y_tolerance must be a positive number" =
       is.numeric(y_tolerance) && y_tolerance > 0,
-    "verbose must be TRUE or FALSE" =
-      is.logical(verbose) && length(verbose) == 1,
+    "quiet must be TRUE or FALSE" =
+      is.logical(quiet) && length(quiet) == 1,
     "recursive must be TRUE or FALSE" =
       is.logical(recursive) && length(recursive) == 1
   )
   if (!dir.exists(source_path)) stop("Pasta n\u00e3o encontrada: ", source_path)
 
-  # --- 1. Locate matching PDF files ------------------------------------------
   pdf_files <- list.files(
-    path         = source_path,
-    pattern      = pattern,
-    full.names   = TRUE,
-    recursive    = recursive,
-    ignore.case  = TRUE
+    path        = source_path,
+    pattern     = pattern,
+    full.names  = TRUE,
+    recursive   = recursive,
+    ignore.case = TRUE
   )
-
   if (length(pdf_files) == 0) {
     stop(
       "Nenhum ficheiro PDF correspondente ao padr\u00e3o '", pattern,
@@ -1333,24 +1098,20 @@ processar_extracto_absa <- function(source_path,
     )
   }
 
-  if (verbose) {
+  if (!quiet) {
     message(sprintf(
       "--- processar_extracto_absa() --- %d ficheiro(s) encontrado(s)",
       length(pdf_files)
     ))
   }
 
-  # --- 2. Parse each file and bind -------------------------------------------
   df_out <- pdf_files |>
     purrr::set_names(basename) |>
-    purrr::map(\(f) .parse_single_absa(f, y_tolerance = y_tolerance, verbose = verbose)) |>
+    purrr::map(\(f) .parse_single_absa(f, y_tolerance = y_tolerance, quiet = quiet)) |>
     purrr::list_rbind()
 
-  # --- 3. Summary ------------------------------------------------------------
-  if (verbose) {
-    message(sprintf("Total linhas output  : %d", nrow(df_out)))
-    message(sprintf("Ficheiros processados: %d", length(pdf_files)))
-  }
+  message(sprintf("Total linhas output  : %d", nrow(df_out)))
+  message(sprintf("Ficheiros processados: %d", length(pdf_files)))
 
   df_out
 }

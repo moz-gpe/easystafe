@@ -9,7 +9,7 @@ processar_extracto_absa(
   pattern = "EXTRACTO ABSA",
   recursive = FALSE,
   y_tolerance = 2,
-  verbose = TRUE
+  quiet = TRUE
 )
 }
 \arguments{
@@ -30,8 +30,11 @@ para agrupar palavras na mesma linha durante a reconstrucao por
 coordenadas. O valor predefinido de \code{2} funciona para os extractos
 ABSA padrao. Default: \code{2}.}
 
-\item{verbose}{\code{logical(1)}. Se \code{TRUE}, imprime uma linha de
-resumo por ficheiro processado e um total no final. Default: \code{TRUE}.}
+\item{quiet}{Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
+por ficheiro durante o processamento. Se \code{FALSE}, e emitida uma
+mensagem por ficheiro processado. Independentemente deste parametro,
+e sempre emitida uma mensagem final com o numero de linhas e ficheiros
+processados.}
 }
 \value{
 Um tibble com 12 colunas correspondentes ao esquema \code{df_razao}:

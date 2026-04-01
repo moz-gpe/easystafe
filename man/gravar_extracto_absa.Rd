@@ -4,14 +4,7 @@
 \alias{gravar_extracto_absa}
 \title{Gravar Extracto Bancario ABSA em Excel}
 \usage{
-gravar_extracto_absa(
-  df,
-  output_path = "Dataout",
-  prefix = "extracto_absa",
-  include_date = TRUE,
-  overwrite = FALSE,
-  verbose = TRUE
-)
+gravar_extracto_absa(df, output_folder = "Dataout", quiet = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame} ou \code{tibble}. O objecto devolvido por

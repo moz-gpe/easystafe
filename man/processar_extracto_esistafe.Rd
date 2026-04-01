@@ -5,7 +5,7 @@
 \title{Processar extractos de exportacao e-SISTAFE}
 \usage{
 processar_extracto_esistafe(
-  source_path,
+  source_path = "Data/",
   df_ugb_lookup,
   include_pattern = "DemonstrativoConsolidado",
   include_percent = TRUE,
