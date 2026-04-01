@@ -12,7 +12,7 @@ processar_extracto_absa(
   pattern = "EXTRACTO ABSA",
   recursive = FALSE,
   y_tolerance = 2,
-  verbose = TRUE
+  quiet = TRUE
 )
 ```
 
@@ -43,10 +43,13 @@ processar_extracto_absa(
   valor predefinido de `2` funciona para os extractos ABSA padrao.
   Default: `2`.
 
-- verbose:
+- quiet:
 
-  `logical(1)`. Se `TRUE`, imprime uma linha de resumo por ficheiro
-  processado e um total no final. Default: `TRUE`.
+  Logico. Se `TRUE` (padrao), suprime as mensagens emitidas por ficheiro
+  durante o processamento. Se `FALSE`, e emitida uma mensagem por
+  ficheiro processado. Independentemente deste parametro, e sempre
+  emitida uma mensagem final com o numero de linhas e ficheiros
+  processados.
 
 ## Value
 

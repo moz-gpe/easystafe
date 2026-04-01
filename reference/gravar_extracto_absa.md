@@ -8,14 +8,7 @@ partir dos metadados do proprio dataframe (ano, mes e data de execucao).
 ## Usage
 
 ``` r
-gravar_extracto_absa(
-  df,
-  output_path = "Dataout",
-  prefix = "extracto_absa",
-  include_date = TRUE,
-  overwrite = FALSE,
-  verbose = TRUE
-)
+gravar_extracto_absa(df, output_folder = "Dataout", quiet = TRUE)
 ```
 
 ## Arguments

@@ -55,8 +55,9 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span>
-<span>  <span class="va">source_path</span>,</span>
+<span>  source_path <span class="op">=</span> <span class="st">"Data/"</span>,</span>
 <span>  <span class="va">df_ugb_lookup</span>,</span>
+<span>  include_pattern <span class="op">=</span> <span class="st">"DemonstrativoConsolidado"</span>,</span>
 <span>  include_percent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_file_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_metrica <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -69,47 +70,54 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.</p>
 
 
 <dl><dt id="arg-source-path">source_path<a class="anchor" aria-label="anchor" href="#arg-source-path"></a></dt>
-<dd><p>Um vector de caracteres com um ou mais caminhos para
-ficheiros de exportacao e-SISTAFE no formato <code>.xlsx</code>.</p></dd>
+<dd><p>A character vector with one or more file paths to
+e-SISTAFE export files in <code>.xlsx</code> format.</p></dd>
 
 
 <dt id="arg-df-ugb-lookup">df_ugb_lookup<a class="anchor" aria-label="anchor" href="#arg-df-ugb-lookup"></a></dt>
-<dd><p>Um dataframe com a tabela de referencia de UGBs de
-educacao. Deve conter pelo menos a coluna <code>codigo_ugb</code> com os
-codigos de 9 caracteres dos UGBs validos (e.g. <code>"50B105761"</code>).
-Tipicamente carregado a partir da tabela de referencia de UGBs do
-projecto. Apenas as linhas cujo <code>ugb_id</code> coincida com um valor
-em <code>codigo_ugb</code> sao retidas no processamento.</p></dd>
+<dd><p>A dataframe with the education UGB reference table.
+Must contain at least the column <code>codigo_ugb</code> with 9-character UGB
+codes (e.g. <code>"50B105761"</code>). Only rows whose <code>ugb_id</code> matches a
+value in <code>codigo_ugb</code> are retained during processing.</p></dd>
+
+
+<dt id="arg-include-pattern">include_pattern<a class="anchor" aria-label="anchor" href="#arg-include-pattern"></a></dt>
+<dd><p>A character string with a regex pattern used to
+retain only files whose <code>file_name</code> matches the pattern. Defaults to
+<code>"DemonstrativoConsolidado"</code>, which retains only consolidated
+statement files. Set to <code>NULL</code> to skip filtering and process all
+loaded files regardless of name.</p></dd>
 
 
 <dt id="arg-include-percent">include_percent<a class="anchor" aria-label="anchor" href="#arg-include-percent"></a></dt>
-<dd><p>Logico. Se <code>TRUE</code> (padrao), as colunas
-<code>percent</code> sao incluidas no output (preenchidas com <code>NA</code>).
-Se <code>FALSE</code>, essas colunas sao removidas do resultado final.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), the
+<code>percent</code> columns are included in the output (filled with
+<code>NA</code>). If <code>FALSE</code>, those columns are removed from the final
+result.</p></dd>
 
 
 <dt id="arg-include-file-metadata">include_file_metadata<a class="anchor" aria-label="anchor" href="#arg-include-file-metadata"></a></dt>
-<dd><p>Logico. Se <code>TRUE</code> (padrao), os metadados
-extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
-adicionados ao dataframe imediatamente apos a coluna <code>file_name</code>.
-Se <code>FALSE</code>, os metadados nao sao adicionados e a coluna
-<code>file_name</code> e tambem removida do resultado final.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), metadata
+extracted from the file name (report type, year, month, dates) are added
+to the dataframe immediately after the <code>file_name</code> column. If
+<code>FALSE</code>, metadata are not added and the <code>file_name</code> column is
+also removed from the final result.</p></dd>
 
 
 <dt id="arg-include-metrica">include_metrica<a class="anchor" aria-label="anchor" href="#arg-include-metrica"></a></dt>
-<dd><p>Logico. Se <code>TRUE</code> (padrao), as linhas do tipo
-<code>"Metrica"</code> sao excluidas do output final, mantendo apenas as linhas
-<code>"Valor"</code> apos subtraccao hierarquica. Se <code>TRUE</code>, as linhas
-<code>"Metrica"</code> sao reincluidas no output final apos o processamento,
-util para comparacoes e validacao. A coluna <code>data_tipo</code> e sempre
-incluida no output, independentemente deste parametro.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), rows of type
+<code>"Metrica"</code> are excluded from the final output, retaining only
+<code>"Valor"</code> rows after hierarchical subtraction. If <code>TRUE</code>,
+<code>"Metrica"</code> rows are reincluded in the final output after
+processing, useful for comparisons and validation. The <code>data_tipo</code>
+column is always included in the output regardless of this parameter.</p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
-<dd><p>Logico. Se <code>TRUE</code> (padrao), as mensagens de progresso
-sao suprimidas. Se <code>FALSE</code>, e emitida uma mensagem por cada etapa
-do processamento. Independentemente deste parametro, e sempre emitida
-uma mensagem final com o numero de ficheiros processados.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), progress messages are
+suppressed. If <code>FALSE</code>, a message is emitted for each processing
+step. Regardless of this parameter, a final message with the number of
+processed files is always emitted.</p></dd>
 
 </dl></div>
     <div class="section level2">

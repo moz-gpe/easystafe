@@ -11,8 +11,9 @@ pronto para analise.
 
 ``` r
 processar_extracto_esistafe(
-  source_path,
+  source_path = "Data/",
   df_ugb_lookup,
+  include_pattern = "DemonstrativoConsolidado",
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
@@ -24,47 +25,53 @@ processar_extracto_esistafe(
 
 - source_path:
 
-  Um vector de caracteres com um ou mais caminhos para ficheiros de
-  exportacao e-SISTAFE no formato `.xlsx`.
+  A character vector with one or more file paths to e-SISTAFE export
+  files in `.xlsx` format.
 
 - df_ugb_lookup:
 
-  Um dataframe com a tabela de referencia de UGBs de educacao. Deve
-  conter pelo menos a coluna `codigo_ugb` com os codigos de 9 caracteres
-  dos UGBs validos (e.g. `"50B105761"`). Tipicamente carregado a partir
-  da tabela de referencia de UGBs do projecto. Apenas as linhas cujo
-  `ugb_id` coincida com um valor em `codigo_ugb` sao retidas no
-  processamento.
+  A dataframe with the education UGB reference table. Must contain at
+  least the column `codigo_ugb` with 9-character UGB codes (e.g.
+  `"50B105761"`). Only rows whose `ugb_id` matches a value in
+  `codigo_ugb` are retained during processing.
+
+- include_pattern:
+
+  A character string with a regex pattern used to retain only files
+  whose `file_name` matches the pattern. Defaults to
+  `"DemonstrativoConsolidado"`, which retains only consolidated
+  statement files. Set to `NULL` to skip filtering and process all
+  loaded files regardless of name.
 
 - include_percent:
 
-  Logico. Se `TRUE` (padrao), as colunas `percent` sao incluidas no
-  output (preenchidas com `NA`). Se `FALSE`, essas colunas sao removidas
-  do resultado final.
+  Logical. If `TRUE` (default), the `percent` columns are included in
+  the output (filled with `NA`). If `FALSE`, those columns are removed
+  from the final result.
 
 - include_file_metadata:
 
-  Logico. Se `TRUE` (padrao), os metadados extraidos do nome do ficheiro
-  (tipo de relatorio, ano, mes, datas) sao adicionados ao dataframe
-  imediatamente apos a coluna `file_name`. Se `FALSE`, os metadados nao
-  sao adicionados e a coluna `file_name` e tambem removida do resultado
-  final.
+  Logical. If `TRUE` (default), metadata extracted from the file name
+  (report type, year, month, dates) are added to the dataframe
+  immediately after the `file_name` column. If `FALSE`, metadata are not
+  added and the `file_name` column is also removed from the final
+  result.
 
 - include_metrica:
 
-  Logico. Se `TRUE` (padrao), as linhas do tipo `"Metrica"` sao
-  excluidas do output final, mantendo apenas as linhas `"Valor"` apos
-  subtraccao hierarquica. Se `TRUE`, as linhas `"Metrica"` sao
-  reincluidas no output final apos o processamento, util para
-  comparacoes e validacao. A coluna `data_tipo` e sempre incluida no
-  output, independentemente deste parametro.
+  Logical. If `TRUE` (default), rows of type `"Metrica"` are excluded
+  from the final output, retaining only `"Valor"` rows after
+  hierarchical subtraction. If `TRUE`, `"Metrica"` rows are reincluded
+  in the final output after processing, useful for comparisons and
+  validation. The `data_tipo` column is always included in the output
+  regardless of this parameter.
 
 - quiet:
 
-  Logico. Se `TRUE` (padrao), as mensagens de progresso sao suprimidas.
-  Se `FALSE`, e emitida uma mensagem por cada etapa do processamento.
-  Independentemente deste parametro, e sempre emitida uma mensagem final
-  com o numero de ficheiros processados.
+  Logical. If `TRUE` (default), progress messages are suppressed. If
+  `FALSE`, a message is emitted for each processing step. Regardless of
+  this parameter, a final message with the number of processed files is
+  always emitted.
 
 ## Value
 
