@@ -662,7 +662,7 @@ processar_extracto_razao_c <- function(
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# .parse_single_absa() — internal, not exported
+# .parse_single_absa() -- internal, not exported
 # Parses a single ABSA statement PDF. Called by processar_extracto_absa().
 # -----------------------------------------------------------------------------
 
@@ -1282,6 +1282,7 @@ processar_extracto_razao_c <- function(
 #' @importFrom tibble tibble
 #'
 #' @export
+
 processar_extracto_absa <- function(source_path,
                                     pattern     = "EXTRACTO ABSA",
                                     recursive   = FALSE,
@@ -1337,124 +1338,4 @@ processar_extracto_absa <- function(source_path,
   }
 
   df_out
-}
-
-
-
-
-#' Gravar Extracto Bancario ABSA em Excel
-#'
-#' Guarda o tibble devolvido por \code{\link{processar_extracto_absa}} num
-#' ficheiro Excel com um nome de ficheiro construido automaticamente a partir
-#' dos metadados do proprio dataframe (ano, mes e data de execucao).
-#'
-#' @param df \code{data.frame} ou \code{tibble}. O objecto devolvido por
-#'   \code{\link{processar_extracto_absa}}. Deve conter pelo menos as colunas
-#'   \code{ano} e \code{mes}.
-#' @param output_path \code{character(1)}. Caminho para a pasta de destino.
-#'   A pasta e criada automaticamente se nao existir. Default: \code{"Dataout"}.
-#' @param prefix \code{character(1)}. Prefixo do nome de ficheiro. Permite
-#'   identificar o tipo de extracto. Default: \code{"extracto_absa"}.
-#' @param include_date \code{logical(1)}. Se \code{TRUE}, acrescenta a data de
-#'   execucao (\code{YYYYMMDD}) ao nome do ficheiro, evitando sobreescritas
-#'   acidentais. Default: \code{TRUE}.
-#' @param overwrite \code{logical(1)}. Se \code{FALSE} e o ficheiro ja existir,
-#'   a funcao lanca um erro em vez de sobreescrever. Default: \code{FALSE}.
-#' @param verbose \code{logical(1)}. Se \code{TRUE}, imprime o caminho
-#'   completo do ficheiro gravado. Default: \code{TRUE}.
-#'
-#' @return Invisivel: o caminho completo do ficheiro gravado (\code{character(1)}).
-#'   Permite encadear com \code{|>} se necessario.
-#'
-#' @details
-#' O nome do ficheiro e construido da seguinte forma:
-#'
-#' \preformatted{
-#' <prefix>_<ano>_<mes>_<YYYYMMDD>.xlsx
-#' # exemplo: extracto_absa_2026_February_20260401.xlsx
-#' }
-#'
-#' Os valores de \code{ano} e \code{mes} sao extraidos das linhas
-#' \code{MOVIMENTO} do dataframe (excluindo as linhas de saldo, que podem ter
-#' datas atipicas). Se o dataframe nao contiver movimentos, os valores sao
-#' retirados de todas as linhas.
-#'
-#' @examples
-#' \dontrun{
-#' df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/")
-#'
-#' # Gravar com as definicoes predefinidas
-#' gravar_extracto_absa(df_absa)
-#' # -> Dataout/extracto_absa_2026_February_20260401.xlsx
-#'
-#' # Pasta de destino personalizada, sem data no nome
-#' gravar_extracto_absa(df_absa, output_path = "Dataout/banco", include_date = FALSE)
-#' # -> Dataout/banco/extracto_absa_2026_February.xlsx
-#' }
-#'
-#' @importFrom writexl write_xlsx
-#' @importFrom dplyr filter pull
-#' #' @export
-gravar_extracto_absa <- function(df,
-                                 output_path  = "Dataout",
-                                 prefix       = "extracto_absa",
-                                 include_date = TRUE,
-                                 overwrite    = FALSE,
-                                 verbose      = TRUE) {
-
-  # --- 0. Validate input -----------------------------------------------------
-  stopifnot(
-    "df must be a data frame"           = is.data.frame(df),
-    "df must contain column 'ano'"      = "ano" %in% names(df),
-    "df must contain column 'mes'"      = "mes" %in% names(df),
-    "output_path must be a string"      = is.character(output_path) && length(output_path) == 1,
-    "prefix must be a string"           = is.character(prefix) && length(prefix) == 1,
-    "include_date must be TRUE or FALSE" = is.logical(include_date) && length(include_date) == 1,
-    "overwrite must be TRUE or FALSE"   = is.logical(overwrite) && length(overwrite) == 1,
-    "verbose must be TRUE or FALSE"     = is.logical(verbose) && length(verbose) == 1
-  )
-
-  # --- 1. Extract year and month from MOVIMENTO rows -------------------------
-  # Prefer MOVIMENTO rows to avoid atypical dates on SALDO_INICIAL/SALDO_FINAL
-  df_meta <- if ("tipo" %in% names(df)) {
-    dplyr::filter(df, tipo == "MOVIMENTO")
-  } else {
-    df
-  }
-
-  # Fall back to full df if no MOVIMENTO rows present
-  if (nrow(df_meta) == 0) df_meta <- df
-
-  ano_val <- df_meta |> dplyr::pull(ano) |> na.omit() |> unique() |> sort() |> paste(collapse = "-")
-  mes_val <- df_meta |> dplyr::pull(mes) |> na.omit() |> unique() |> sort() |> paste(collapse = "-")
-
-  if (nchar(ano_val) == 0) ano_val <- "ano_desconhecido"
-  if (nchar(mes_val) == 0) mes_val <- "mes_desconhecido"
-
-  # --- 2. Build filename -----------------------------------------------------
-  date_stamp <- if (include_date) paste0("_", format(Sys.Date(), "%Y%m%d")) else ""
-
-  filename <- paste0(prefix, "_", ano_val, "_", mes_val, date_stamp, ".xlsx")
-  filepath <- file.path(output_path, filename)
-
-  # --- 3. Create output directory if needed ----------------------------------
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
-    if (verbose) message("Pasta criada: ", output_path)
-  }
-
-  # --- 4. Check for existing file --------------------------------------------
-  if (file.exists(filepath) && !overwrite) {
-    stop(
-      "O ficheiro j\u00e1 existe: ", filepath,
-      "\nUse overwrite = TRUE para substituir."
-    )
-  }
-
-  # --- 5. Write to Excel -----------------------------------------------------
-  writexl::write_xlsx(df, filepath)
-
-  if (verbose) message("Ficheiro gravado: ", filepath)
-
-  invisible(filepath)
 }
