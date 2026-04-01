@@ -7,6 +7,7 @@
 processar_extracto_esistafe(
   source_path,
   df_ugb_lookup,
+  include_pattern = "DemonstrativoConsolidado",
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
@@ -14,37 +15,42 @@ processar_extracto_esistafe(
 )
 }
 \arguments{
-\item{source_path}{Um vector de caracteres com um ou mais caminhos para
-ficheiros de exportacao e-SISTAFE no formato \code{.xlsx}.}
+\item{source_path}{A character vector with one or more file paths to
+e-SISTAFE export files in \code{.xlsx} format.}
 
-\item{df_ugb_lookup}{Um dataframe com a tabela de referencia de UGBs de
-educacao. Deve conter pelo menos a coluna \code{codigo_ugb} com os
-codigos de 9 caracteres dos UGBs validos (e.g. \code{"50B105761"}).
-Tipicamente carregado a partir da tabela de referencia de UGBs do
-projecto. Apenas as linhas cujo \code{ugb_id} coincida com um valor
-em \code{codigo_ugb} sao retidas no processamento.}
+\item{df_ugb_lookup}{A dataframe with the education UGB reference table.
+Must contain at least the column \code{codigo_ugb} with 9-character UGB
+codes (e.g. \code{"50B105761"}). Only rows whose \code{ugb_id} matches a
+value in \code{codigo_ugb} are retained during processing.}
 
-\item{include_percent}{Logico. Se \code{TRUE} (padrao), as colunas
-\code{percent} sao incluidas no output (preenchidas com \code{NA}).
-Se \code{FALSE}, essas colunas sao removidas do resultado final.}
+\item{include_pattern}{A character string with a regex pattern used to
+retain only files whose \code{file_name} matches the pattern. Defaults to
+\code{"DemonstrativoConsolidado"}, which retains only consolidated
+statement files. Set to \code{NULL} to skip filtering and process all
+loaded files regardless of name.}
 
-\item{include_file_metadata}{Logico. Se \code{TRUE} (padrao), os metadados
-extraidos do nome do ficheiro (tipo de relatorio, ano, mes, datas) sao
-adicionados ao dataframe imediatamente apos a coluna \code{file_name}.
-Se \code{FALSE}, os metadados nao sao adicionados e a coluna
-\code{file_name} e tambem removida do resultado final.}
+\item{include_percent}{Logical. If \code{TRUE} (default), the
+\code{percent} columns are included in the output (filled with
+\code{NA}). If \code{FALSE}, those columns are removed from the final
+result.}
 
-\item{include_metrica}{Logico. Se \code{TRUE} (padrao), as linhas do tipo
-\code{"Metrica"} sao excluidas do output final, mantendo apenas as linhas
-\code{"Valor"} apos subtraccao hierarquica. Se \code{TRUE}, as linhas
-\code{"Metrica"} sao reincluidas no output final apos o processamento,
-util para comparacoes e validacao. A coluna \code{data_tipo} e sempre
-incluida no output, independentemente deste parametro.}
+\item{include_file_metadata}{Logical. If \code{TRUE} (default), metadata
+extracted from the file name (report type, year, month, dates) are added
+to the dataframe immediately after the \code{file_name} column. If
+\code{FALSE}, metadata are not added and the \code{file_name} column is
+also removed from the final result.}
 
-\item{quiet}{Logico. Se \code{TRUE} (padrao), as mensagens de progresso
-sao suprimidas. Se \code{FALSE}, e emitida uma mensagem por cada etapa
-do processamento. Independentemente deste parametro, e sempre emitida
-uma mensagem final com o numero de ficheiros processados.}
+\item{include_metrica}{Logical. If \code{TRUE} (default), rows of type
+\code{"Metrica"} are excluded from the final output, retaining only
+\code{"Valor"} rows after hierarchical subtraction. If \code{TRUE},
+\code{"Metrica"} rows are reincluded in the final output after
+processing, useful for comparisons and validation. The \code{data_tipo}
+column is always included in the output regardless of this parameter.}
+
+\item{quiet}{Logical. If \code{TRUE} (default), progress messages are
+suppressed. If \code{FALSE}, a message is emitted for each processing
+step. Regardless of this parameter, a final message with the number of
+processed files is always emitted.}
 }
 \value{
 Um tibble com uma linha por entrada CED deduplificada, contendo
