@@ -747,10 +747,9 @@ processar_extracto_razao_c <- function(
 #' @importFrom tibble tibble
 #'
 #' @export
-
 processar_extracto_absa <- function(pdf_path,
-                                 y_tolerance = 2,
-                                 verbose     = TRUE) {
+                                    y_tolerance = 2,
+                                    verbose     = TRUE) {
 
   # --- 0. Validate input -----------------------------------------------------
   stopifnot(

@@ -33,6 +33,7 @@ reference:
     contents:
       - processar_extracto_esistafe
       - processar_extracto_razao_c
+      - processar_extracto_absa
 
   - title: "Recodificação"
     desc: "Funções para recodificar e classificar variáveis"
