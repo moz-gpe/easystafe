@@ -215,20 +215,16 @@ gravar_extracto_razao_c <- function(
 #' ficheiro Excel com um nome de ficheiro construido automaticamente a partir
 #' dos metadados do proprio dataframe (ano, mes e data de execucao).
 #'
-#' @param df \code{data.frame} ou \code{tibble}. O objecto devolvido por
-#'   \code{\link{processar_extracto_absa}}. Deve conter pelo menos as colunas
-#'   \code{ano} e \code{mes}.
-#' @param output_path \code{character(1)}. Caminho para a pasta de destino.
-#'   A pasta e criada automaticamente se nao existir. Default: \code{"Dataout"}.
-#' @param prefix \code{character(1)}. Prefixo do nome de ficheiro. Permite
-#'   identificar o tipo de extracto. Default: \code{"extracto_absa"}.
-#' @param include_date \code{logical(1)}. Se \code{TRUE}, acrescenta a data de
-#'   execucao (\code{YYYYMMDD}) ao nome do ficheiro, evitando sobreescritas
-#'   acidentais. Default: \code{TRUE}.
-#' @param overwrite \code{logical(1)}. Se \code{FALSE} e o ficheiro ja existir,
-#'   a funcao lanca um erro em vez de sobreescrever. Default: \code{FALSE}.
-#' @param verbose \code{logical(1)}. Se \code{TRUE}, imprime o caminho
-#'   completo do ficheiro gravado. Default: \code{TRUE}.
+#' @param df Um dataframe processado por \code{processar_extracto_absa()}.
+#'   Deve conter as colunas \code{ano} e \code{mes}.
+#' @param output_folder Caractere. Caminho para a pasta de destino onde o
+#'   ficheiro Excel sera gravado. Por padrao \code{"Dataout"}. A pasta e
+#'   criada automaticamente se nao existir.
+#' @param quiet Logico. Se \code{TRUE} (padrao), suprime as mensagens de
+#'   progresso. Se \code{FALSE}, sao emitidas mensagens sobre a criacao
+#'   da pasta e o caminho do ficheiro gravado. Independentemente deste
+#'   parametro, e sempre emitida uma mensagem final com o caminho do
+#'   ficheiro gravado.
 #'
 #' @return Invisivel: o caminho completo do ficheiro gravado (\code{character(1)}).
 #'   Permite encadear com \code{|>} se necessario.

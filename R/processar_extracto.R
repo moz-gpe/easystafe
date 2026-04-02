@@ -444,7 +444,7 @@ processar_extracto_esistafe <- function(
 
 processar_extracto_razao_c <- function(
     source_path,
-    exclude_pattern = "CAMBIO|CENTRAL|FOREX|EXTRACTO|DemonstrativoConsolidado",
+    exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
     recursive       = FALSE,
     quiet           = TRUE
 ) {
