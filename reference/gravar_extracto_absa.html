@@ -56,35 +56,22 @@ dos metadados do proprio dataframe (ano, mes e data de execucao).</p>
 
 
 <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p><code>data.frame</code> ou <code>tibble</code>. O objecto devolvido por
-<code><a href="processar_extracto_absa.html">processar_extracto_absa</a></code>. Deve conter pelo menos as colunas
-<code>ano</code> e <code>mes</code>.</p></dd>
+<dd><p>Um dataframe processado por <code><a href="processar_extracto_absa.html">processar_extracto_absa()</a></code>.
+Deve conter as colunas <code>ano</code> e <code>mes</code>.</p></dd>
 
 
-<dt id="arg-output-path">output_path<a class="anchor" aria-label="anchor" href="#arg-output-path"></a></dt>
-<dd><p><code>character(1)</code>. Caminho para a pasta de destino.
-A pasta e criada automaticamente se nao existir. Default: <code>"Dataout"</code>.</p></dd>
+<dt id="arg-output-folder">output_folder<a class="anchor" aria-label="anchor" href="#arg-output-folder"></a></dt>
+<dd><p>Caractere. Caminho para a pasta de destino onde o
+ficheiro Excel sera gravado. Por padrao <code>"Dataout"</code>. A pasta e
+criada automaticamente se nao existir.</p></dd>
 
 
-<dt id="arg-prefix">prefix<a class="anchor" aria-label="anchor" href="#arg-prefix"></a></dt>
-<dd><p><code>character(1)</code>. Prefixo do nome de ficheiro. Permite
-identificar o tipo de extracto. Default: <code>"extracto_absa"</code>.</p></dd>
-
-
-<dt id="arg-include-date">include_date<a class="anchor" aria-label="anchor" href="#arg-include-date"></a></dt>
-<dd><p><code>logical(1)</code>. Se <code>TRUE</code>, acrescenta a data de
-execucao (<code>YYYYMMDD</code>) ao nome do ficheiro, evitando sobreescritas
-acidentais. Default: <code>TRUE</code>.</p></dd>
-
-
-<dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
-<dd><p><code>logical(1)</code>. Se <code>FALSE</code> e o ficheiro ja existir,
-a funcao lanca um erro em vez de sobreescrever. Default: <code>FALSE</code>.</p></dd>
-
-
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p><code>logical(1)</code>. Se <code>TRUE</code>, imprime o caminho
-completo do ficheiro gravado. Default: <code>TRUE</code>.</p></dd>
+<dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
+<dd><p>Logico. Se <code>TRUE</code> (padrao), suprime as mensagens de
+progresso. Se <code>FALSE</code>, sao emitidas mensagens sobre a criacao
+da pasta e o caminho do ficheiro gravado. Independentemente deste
+parametro, e sempre emitida uma mensagem final com o caminho do
+ficheiro gravado.</p></dd>
 
 </dl></div>
     <div class="section level2">

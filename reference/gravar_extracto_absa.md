@@ -15,34 +15,22 @@ gravar_extracto_absa(df, output_folder = "Dataout", quiet = TRUE)
 
 - df:
 
-  `data.frame` ou `tibble`. O objecto devolvido por
-  [`processar_extracto_absa`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_absa.md).
-  Deve conter pelo menos as colunas `ano` e `mes`.
+  Um dataframe processado por
+  [`processar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_absa.md).
+  Deve conter as colunas `ano` e `mes`.
 
-- output_path:
+- output_folder:
 
-  `character(1)`. Caminho para a pasta de destino. A pasta e criada
-  automaticamente se nao existir. Default: `"Dataout"`.
+  Caractere. Caminho para a pasta de destino onde o ficheiro Excel sera
+  gravado. Por padrao `"Dataout"`. A pasta e criada automaticamente se
+  nao existir.
 
-- prefix:
+- quiet:
 
-  `character(1)`. Prefixo do nome de ficheiro. Permite identificar o
-  tipo de extracto. Default: `"extracto_absa"`.
-
-- include_date:
-
-  `logical(1)`. Se `TRUE`, acrescenta a data de execucao (`YYYYMMDD`) ao
-  nome do ficheiro, evitando sobreescritas acidentais. Default: `TRUE`.
-
-- overwrite:
-
-  `logical(1)`. Se `FALSE` e o ficheiro ja existir, a funcao lanca um
-  erro em vez de sobreescrever. Default: `FALSE`.
-
-- verbose:
-
-  `logical(1)`. Se `TRUE`, imprime o caminho completo do ficheiro
-  gravado. Default: `TRUE`.
+  Logico. Se `TRUE` (padrao), suprime as mensagens de progresso. Se
+  `FALSE`, sao emitidas mensagens sobre a criacao da pasta e o caminho
+  do ficheiro gravado. Independentemente deste parametro, e sempre
+  emitida uma mensagem final com o caminho do ficheiro gravado.
 
 ## Value
 
