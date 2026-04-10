@@ -91,6 +91,13 @@ Funções para gravar outputs processados
 - [`gravar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_absa.md)
   : Gravar Extracto Bancario ABSA em Excel
 
+## Verificação
+
+Funções para apoiar as verificações de qualidade
+
+- [`verificar_ugb_completude()`](https://moz-gpe.github.io/easystafe/reference/verificar_ugb_completude.md)
+  : Verificar completude de UGBs no extracto e-SISTAFE
+
 # Articles
 
 ### All vignettes
