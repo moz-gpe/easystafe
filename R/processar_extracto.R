@@ -172,7 +172,7 @@ processar_extracto_esistafe <- function(
   df_limpeza_1 <- janitor::clean_names(df)
 
   # --- 4. Remover colunas percent ---
-  msg("A remover colunas percent...")
+  msg("A remover colunas percentuais...")
 
   df_limpeza_2 <- df_limpeza_1 |>
     dplyr::select(!dplyr::ends_with("percent"))
@@ -189,7 +189,7 @@ processar_extracto_esistafe <- function(
     dplyr::relocate(ugb_id, .after = ugb)
 
   # --- 6. Filtrar UGBs de educacao ---
-  msg("A filtrar UGBs de educa\u00e7\u00e3o...")
+  msg("A filtrar UGB's de educa\u00e7\u00e3o...")
 
   vec_ugb <- df_ugb_lookup |>
     dplyr::distinct(codigo_ugb) |>
@@ -350,12 +350,15 @@ processar_extracto_esistafe <- function(
       dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ano", "mes", "ugb_id")))
   }
 
-  msg("Conclu\u00eddo.")
-
   # --- Resumo final ---
-  n_files <- length(files)
-  file_list <- base::paste(base::basename(files), collapse = "\n  - ")
-  message(glue::glue("Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n  - {file_list}"))
+  n_files   <- length(files)
+  file_list <- base::paste(base::paste0("  - ", base::basename(files)), collapse = "\n")
+  message(glue::glue(
+    "Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n{file_list}"
+  ))
+
+  # --- Verificar completude de UGBs ---
+  verificar_ugb_completude(df_limpeza_final, df_ugb_lookup, quiet = quiet)
 
   return(df_limpeza_final)
 

@@ -50,3 +50,8 @@ reference:
       - gravar_extracto_sistafe
       - gravar_extracto_razao_c
       - gravar_extracto_absa
+
+  - title: "Verificação"
+    desc: "Funções para apoiar as verificações de qualidade"
+    contents:
+      - verificar_ugb_completude
