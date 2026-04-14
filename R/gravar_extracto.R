@@ -105,7 +105,6 @@ gravar_extracto_sistafe <- function(
 
 
 
-
 #' Gravar extracto da razao contabilistico processado em Excel
 #'
 #' Grava um dataframe processado por \code{processar_extracto_razao_c()} num
@@ -315,5 +314,281 @@ gravar_extracto_absa <- function(
   msg("Concluido.")
 
   # --- Retornar caminho invisivel para uso posterior ---
+  base::invisible(file_path)
+}
+
+
+#' Compilar ficheiros eSISTAFE processados num unico Excel
+#'
+#' Localiza todos os ficheiros Excel com o padrao \code{"eSISTAFE_"} numa
+#' pasta de entrada, combina-os num unico tibble e grava o resultado em disco.
+#' O nome do ficheiro de saida e construido automaticamente a partir do
+#' intervalo de anos presente nos dados.
+#'
+#' @param input_folder Caractere. Caminho para a pasta que contem os ficheiros
+#'   Excel a compilar. Por padrao \code{"Data/processed"}.
+#' @param output_folder Caractere. Caminho para a pasta de destino onde o
+#'   ficheiro compilado sera gravado. Por padrao \code{"Dataout"}. A pasta e
+#'   criada automaticamente se nao existir.
+#' @param quiet Logico. Se \code{TRUE} (padrao), suprime as mensagens de
+#'   progresso. Se \code{FALSE}, sao emitidas mensagens detalhadas sobre os
+#'   ficheiros encontrados e o caminho do ficheiro gravado.
+#'
+#' @return Invisivel: o caminho completo do ficheiro gravado
+#'   (\code{character(1)}).
+#'
+#' @details
+#' A funcao pesquisa ficheiros cujo nome comeca com \code{"eSISTAFE_"} na
+#' pasta \code{input_folder} (apenas o nivel de topo, sem subpastas). Todos
+#' os ficheiros encontrados sao lidos e combinados por
+#' \code{dplyr::bind_rows()}.
+#'
+#' O nome do ficheiro de saida segue o formato:
+#' \preformatted{
+#' eSISTAFE_<ano_min>-<ano_max>.xlsx  # quando ha multiplos anos
+#' eSISTAFE_<ano>.xlsx                # quando todos os dados sao do mesmo ano
+#' }
+#'
+#' Se um ficheiro com o mesmo nome ja existir em \code{output_folder}, sera
+#' substituido com aviso.
+#'
+#' @examples
+#' \dontrun{
+#' # Compilar com pastas predefinidas
+#' gravar_compilacao_sistafe()
+#'
+#' # Pastas personalizadas
+#' gravar_compilacao_sistafe(
+#'   input_folder  = "Data/processed",
+#'   output_folder = "Dataout/compilado"
+#' )
+#'
+#' # Com mensagens de progresso
+#' gravar_compilacao_sistafe(quiet = FALSE)
+#' }
+#'
+#' @importFrom dplyr bind_rows pull
+#' @importFrom glue glue
+#' @importFrom purrr map set_names list_rbind
+#' @importFrom readxl read_xlsx
+#' @importFrom writexl write_xlsx
+#'
+#' @export
+
+gravar_compilacao_sistafe <- function(
+    input_folder  = "Data/processed",
+    output_folder = "Dataout",
+    quiet         = TRUE
+) {
+
+  # --- Mensagens internas ---
+  msg <- function(...) {
+    if (!quiet) message(...)
+  }
+
+  # --- Validacao ---
+  if (!base::dir.exists(input_folder)) {
+    cli::cli_abort("A pasta de entrada {.path {input_folder}} nao existe.")
+  }
+
+  # --- Remover trailing slash ---
+  input_folder  <- base::gsub("/$", "", input_folder)
+  output_folder <- base::gsub("/$", "", output_folder)
+
+  # --- Listar ficheiros ---
+  input_files <- base::list.files(
+    path       = input_folder,
+    pattern    = "^eSISTAFE_.*\\.xlsx$",
+    full.names = TRUE,
+    recursive  = FALSE
+  )
+
+  if (base::length(input_files) == 0) {
+    cli::cli_abort(
+      "Nenhum ficheiro com o padrao 'eSISTAFE_*.xlsx' encontrado em {.path {input_folder}}."
+    )
+  }
+
+  msg(glue::glue("{length(input_files)} ficheiro(s) encontrado(s) em '{input_folder}':"))
+  purrr::walk(input_files, ~ msg(glue::glue("  \u2714 {basename(.x)}")))
+
+  # --- Ler e compilar ---
+  df_compiled <- input_files |>
+    purrr::set_names(basename) |>
+    purrr::map(\(f) readxl::read_xlsx(f)) |>
+    purrr::list_rbind()
+
+  # --- Construir nome do ficheiro de saida ---
+  ano_min <- df_compiled |> dplyr::pull(ano) |> min(na.rm = TRUE)
+  ano_max <- df_compiled |> dplyr::pull(ano) |> max(na.rm = TRUE)
+
+  ano_str   <- if (ano_min == ano_max) {
+    as.character(ano_min)
+  } else {
+    glue::glue("{ano_min}-{ano_max}")
+  }
+
+  file_name <- glue::glue("eSISTAFE_{ano_str}.xlsx")
+  file_path <- base::file.path(output_folder, file_name)
+
+  # --- Criar pasta de saida se nao existir ---
+  if (!base::dir.exists(output_folder)) {
+    msg(glue::glue("Pasta '{output_folder}' nao encontrada - a criar..."))
+    base::dir.create(output_folder, recursive = TRUE)
+  }
+
+  # --- Aviso se ficheiro ja existir ---
+  if (base::file.exists(file_path)) {
+    warning(glue::glue(
+      "O ficheiro '{file_name}' ja existe em '{output_folder}' e sera substituido."
+    ))
+  }
+
+  # --- Guardar ---
+  msg(glue::glue("A guardar ficheiro: {file_path}"))
+  writexl::write_xlsx(df_compiled, file_path)
+  message(glue::glue(
+    "Compilacao eSISTAFE gravada: {file_path} ",
+    "({nrow(df_compiled)} linhas, {length(input_files)} ficheiro(s))"
+  ))
+
+  base::invisible(file_path)
+}
+
+
+#' Compilar ficheiros RazaoCont processados num unico Excel
+#'
+#' Localiza todos os ficheiros Excel com o padrao \code{"RazaoCont_"} numa
+#' pasta de entrada, combina-os num unico tibble e grava o resultado em disco.
+#' O nome do ficheiro de saida e construido automaticamente a partir do
+#' intervalo de anos presente nos dados.
+#'
+#' @param input_folder Caractere. Caminho para a pasta que contem os ficheiros
+#'   Excel a compilar. Por padrao \code{"Data/processed"}.
+#' @param output_folder Caractere. Caminho para a pasta de destino onde o
+#'   ficheiro compilado sera gravado. Por padrao \code{"Dataout"}. A pasta e
+#'   criada automaticamente se nao existir.
+#' @param quiet Logico. Se \code{TRUE} (padrao), suprime as mensagens de
+#'   progresso. Se \code{FALSE}, sao emitidas mensagens detalhadas sobre os
+#'   ficheiros encontrados e o caminho do ficheiro gravado.
+#'
+#' @return Invisivel: o caminho completo do ficheiro gravado
+#'   (\code{character(1)}).
+#'
+#' @details
+#' A funcao pesquisa ficheiros cujo nome comeca com \code{"RazaoCont_"} na
+#' pasta \code{input_folder} (apenas o nivel de topo, sem subpastas). Todos
+#' os ficheiros encontrados sao lidos e combinados por
+#' \code{dplyr::bind_rows()}.
+#'
+#' O nome do ficheiro de saida segue o formato:
+#' \preformatted{
+#' RazaoCont_<ano_min>-<ano_max>.xlsx  # quando ha multiplos anos
+#' RazaoCont_<ano>.xlsx                # quando todos os dados sao do mesmo ano
+#' }
+#'
+#' Se um ficheiro com o mesmo nome ja existir em \code{output_folder}, sera
+#' substituido com aviso.
+#'
+#' @examples
+#' \dontrun{
+#' # Compilar com pastas predefinidas
+#' gravar_compilacao_razao_c()
+#'
+#' # Pastas personalizadas
+#' gravar_compilacao_razao_c(
+#'   input_folder  = "Data/processed",
+#'   output_folder = "Dataout/compilado"
+#' )
+#'
+#' # Com mensagens de progresso
+#' gravar_compilacao_razao_c(quiet = FALSE)
+#' }
+#'
+#' @importFrom dplyr bind_rows pull
+#' @importFrom glue glue
+#' @importFrom purrr map set_names list_rbind walk
+#' @importFrom readxl read_xlsx
+#' @importFrom writexl write_xlsx
+#'
+#' @export
+
+gravar_compilacao_razao_c <- function(
+    input_folder  = "Data/processed",
+    output_folder = "Dataout",
+    quiet         = TRUE
+) {
+
+  # --- Mensagens internas ---
+  msg <- function(...) {
+    if (!quiet) message(...)
+  }
+
+  # --- Validacao ---
+  if (!base::dir.exists(input_folder)) {
+    cli::cli_abort("A pasta de entrada {.path {input_folder}} nao existe.")
+  }
+
+  # --- Remover trailing slash ---
+  input_folder  <- base::gsub("/$", "", input_folder)
+  output_folder <- base::gsub("/$", "", output_folder)
+
+  # --- Listar ficheiros ---
+  input_files <- base::list.files(
+    path       = input_folder,
+    pattern    = "^RazaoCont_.*\\.xlsx$",
+    full.names = TRUE,
+    recursive  = FALSE
+  )
+
+  if (base::length(input_files) == 0) {
+    cli::cli_abort(
+      "Nenhum ficheiro com o padrao 'RazaoCont_*.xlsx' encontrado em {.path {input_folder}}."
+    )
+  }
+
+  msg(glue::glue("{length(input_files)} ficheiro(s) encontrado(s) em '{input_folder}':"))
+  purrr::walk(input_files, ~ msg(glue::glue("  \u2714 {basename(.x)}")))
+
+  # --- Ler e compilar ---
+  df_compiled <- input_files |>
+    purrr::set_names(basename) |>
+    purrr::map(\(f) readxl::read_xlsx(f)) |>
+    purrr::list_rbind()
+
+  # --- Construir nome do ficheiro de saida ---
+  ano_min <- df_compiled |> dplyr::pull(ano) |> min(na.rm = TRUE)
+  ano_max <- df_compiled |> dplyr::pull(ano) |> max(na.rm = TRUE)
+
+  ano_str <- if (ano_min == ano_max) {
+    as.character(ano_min)
+  } else {
+    glue::glue("{ano_min}-{ano_max}")
+  }
+
+  file_name <- glue::glue("RazaoCont_{ano_str}.xlsx")
+  file_path <- base::file.path(output_folder, file_name)
+
+  # --- Criar pasta de saida se nao existir ---
+  if (!base::dir.exists(output_folder)) {
+    msg(glue::glue("Pasta '{output_folder}' nao encontrada - a criar..."))
+    base::dir.create(output_folder, recursive = TRUE)
+  }
+
+  # --- Aviso se ficheiro ja existir ---
+  if (base::file.exists(file_path)) {
+    warning(glue::glue(
+      "O ficheiro '{file_name}' ja existe em '{output_folder}' e sera substituido."
+    ))
+  }
+
+  # --- Guardar ---
+  msg(glue::glue("A guardar ficheiro: {file_path}"))
+  writexl::write_xlsx(df_compiled, file_path)
+  message(glue::glue(
+    "Compilacao RazaoCont gravada: {file_path} ",
+    "({nrow(df_compiled)} linhas, {length(input_files)} ficheiro(s))"
+  ))
+
   base::invisible(file_path)
 }

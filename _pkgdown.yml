@@ -51,6 +51,8 @@ reference:
       - gravar_extracto_sistafe
       - gravar_extracto_razao_c
       - gravar_extracto_absa
+      - gravar_compilacao_sistafe
+      - gravar_compilacao_razao_c
 
   - title: "Verificação"
     desc: "Funções para apoiar as verificações de qualidade"
