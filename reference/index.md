@@ -40,6 +40,10 @@ Funções para gravar outputs processados
   : Gravar extracto da razao contabilistico processado em Excel
 - [`gravar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_absa.md)
   : Gravar Extracto Bancario ABSA em Excel
+- [`gravar_compilacao_sistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_compilacao_sistafe.md)
+  : Compilar ficheiros eSISTAFE processados num unico Excel
+- [`gravar_compilacao_razao_c()`](https://moz-gpe.github.io/easystafe/reference/gravar_compilacao_razao_c.md)
+  : Compilar ficheiros RazaoCont processados num unico Excel
 
 ## Verificação
 
