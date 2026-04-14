@@ -9,7 +9,7 @@ de destino se nao existir.
 ## Usage
 
 ``` r
-gravar_extracto_razao_c(df, output_folder = "Dataout", quiet = TRUE)
+gravar_extracto_razao_c(df, output_folder = "Data/processed", quiet = TRUE)
 ```
 
 ## Arguments
@@ -41,9 +41,10 @@ posterior se necessario.
 ## Details
 
 O nome do ficheiro e construido automaticamente no formato:
-`Razao_C_<data_inicio>_a_<data_fim>_<YYYYMMDD>.xlsx`
+`RazaoCont_<YYYYMM>.xlsx`, onde `YYYYMM` corresponde ao ano e mes da
+data final do intervalo presente no atributo `date_range_txt`.
 
-Por exemplo: `Razao_C_2025-01-01_a_2025-12-31_20260323.xlsx`
+Por exemplo: `RazaoCont_202512.xlsx`
 
 Se o atributo `date_range_txt` nao estiver presente no dataframe (por
 exemplo, se o objeto foi modificado apos o processamento), o nome do

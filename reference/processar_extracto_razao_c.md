@@ -12,7 +12,10 @@ processar_extracto_razao_c(
   source_path,
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
-  quiet = TRUE
+  quiet = TRUE,
+  usd_to_mt = 63.86,
+  eur_to_mt = 70,
+  eur_to_usd = 1.1
 )
 ```
 
@@ -27,8 +30,8 @@ processar_extracto_razao_c(
 
   Caractere. Expressao regular para excluir ficheiros pelo nome. Por
   padrao exclui ficheiros FOREX:
-  `"CENTRAL USD|EXTRACTO DA CONTA FOREX EUR|EXTRACTO DA CONTA FOREX USD"`.
-  Para nao excluir nenhum ficheiro, usar `NULL`.
+  `"CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado"`. Para nao excluir
+  nenhum ficheiro, usar `NULL`.
 
 - recursive:
 
@@ -41,99 +44,50 @@ processar_extracto_razao_c(
   durante o processamento (por exemplo, quando um PDF nao contem
   transaccoes). Se `FALSE`, as mensagens sao apresentadas.
 
+- usd_to_mt:
+
+  Numerico. Taxa de cambio USD para MZN. Passado a
+  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
+  Por padrao `63.86` (valor indicativo; actualizar conforme necessario).
+
+- eur_to_mt:
+
+  Numerico. Taxa de cambio EUR para MZN. Passado a
+  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
+  Por padrao `70.00` (valor indicativo; actualizar conforme necessario).
+
+- eur_to_usd:
+
+  Numerico. Taxa de cambio EUR para USD. Passado a
+  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
+  Por padrao `1.10` (valor indicativo; actualizar conforme necessario).
+
 ## Value
 
 Um tibble com uma linha por registo (movimentos, saldo inicial e saldo
-final) de todos os PDFs processados, contendo as colunas:
-
-- source_file:
-
-  Nome do ficheiro PDF de origem.
-
-- unidade_gestao:
-
-  Nome da unidade de gestao extraido do cabecalho.
-
-- data:
-
-  Data do registo (`Date`).
-
-- ano:
-
-  Ano extraido da data do registo (`integer`).
-
-- mes:
-
-  Mes extraido da data do registo (`integer`).
-
-- tipo:
-
-  Tipo de registo: `"MOVIMENTO"`, `"SALDO_INICIAL"` ou `"SALDO_FINAL"`.
-
-- codigo_documento:
-
-  Codigo do documento (apenas em movimentos).
-
-- valor_lancamento:
-
-  Valor do lancamento em MZN, negativo para creditos (C).
-
-- dc1:
-
-  Indicador debito/credito do lancamento (`"D"` ou `"C"`).
-
-- saldo_atual:
-
-  Saldo acumulado apos o lancamento.
-
-- dc2:
-
-  Indicador debito/credito do saldo.
-
-- saldo_inicial_fim:
-
-  Valor do saldo inicial ou final (apenas nessas linhas).
+final) de todos os PDFs processados. Ver
+[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
+para descricao das colunas `valor_lancamento_mt` e
+`valor_lancamento_usd`.
 
 ## Details
 
-A logica de extraccao trata os seguintes casos:
-
-- PDFs com transaccoes: extrai movimentos linha a linha e calcula saldos
-  inicial e final.
-
-- PDFs sem transaccoes: retorna apenas as linhas SALDO_INICIAL e
-  SALDO_FINAL com base nos valores do cabecalho.
-
-- Datas com espacos irregulares (ex: `"01 / 12 / 2025"`): sao
-  normalizadas automaticamente.
-
-- Valores em formato portugues (ponto como separador de milhares,
-  virgula como decimal): convertidos correctamente.
-
-- Creditos (C) sao convertidos para valores negativos.
-
-O intervalo de datas do conjunto processado e guardado como atributo do
-tibble retornado, acessivel via `attr(df, "date_range_txt")`.
+Apos extrair e combinar todos os PDFs, chama internamente
+[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
+com as taxas fornecidas. Para re-aplicar conversoes com taxas diferentes
+sem re-processar os PDFs, use
+[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
+directamente sobre o tibble ja processado.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path = path_folder_source
-)
-
-# Com mensagens visiveis e subpastas incluidas
-df_razao <- processar_extracto_razao_c(
   source_path = path_folder_source,
-  recursive   = TRUE,
-  quiet       = FALSE
-)
-
-# Sem exclusao de ficheiros FOREX
-df_razao <- processar_extracto_razao_c(
-  source_path     = path_folder_source,
-  exclude_pattern = NULL
+  usd_to_mt   = 63.86,
+  eur_to_mt   = 70.00,
+  eur_to_usd  = 1.10
 )
 } # }
 ```

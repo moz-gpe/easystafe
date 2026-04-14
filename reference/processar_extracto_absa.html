@@ -53,7 +53,10 @@ esquema <code>df_razao</code> utilizado no pipeline do <code>easystafe</code>.</
 <span>  pattern <span class="op">=</span> <span class="st">"EXTRACTO ABSA"</span>,</span>
 <span>  recursive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  y_tolerance <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  usd_to_mt <span class="op">=</span> <span class="fl">63.86</span>,</span>
+<span>  eur_to_mt <span class="op">=</span> <span class="fl">70</span>,</span>
+<span>  eur_to_usd <span class="op">=</span> <span class="fl">1.1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -63,15 +66,13 @@ esquema <code>df_razao</code> utilizado no pipeline do <code>easystafe</code>.</
 
 <dl><dt id="arg-source-path">source_path<a class="anchor" aria-label="anchor" href="#arg-source-path"></a></dt>
 <dd><p><code>character(1)</code>. Caminho para a pasta que contem os
-ficheiros PDF dos extractos ABSA.</p></dd>
+ficheiros PDF dos extractos ABSA. Obrigatorio.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
 <dd><p><code>character(1)</code>. Padrao regex usado para identificar os
-ficheiros ABSA dentro de <code>source_path</code>. O padrao predefinido
-<code>"EXTRACTO ABSA"</code> corresponde ao nome de ficheiro padrao dos
-extractos ABSA Mocambique. Nao faz distincao entre maiusculas e
-minusculas. Default: <code>"EXTRACTO ABSA"</code>.</p></dd>
+ficheiros ABSA dentro de <code>source_path</code>. Nao faz distincao entre
+maiusculas e minusculas. Default: <code>"EXTRACTO ABSA"</code>.</p></dd>
 
 
 <dt id="arg-recursive">recursive<a class="anchor" aria-label="anchor" href="#arg-recursive"></a></dt>
@@ -87,16 +88,36 @@ ABSA padrao. Default: <code>2</code>.</p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
-<dd><p>Logico. Se <code>TRUE</code> (padrao), suprime as mensagens emitidas
-por ficheiro durante o processamento. Se <code>FALSE</code>, e emitida uma
-mensagem por ficheiro processado. Independentemente deste parametro,
-e sempre emitida uma mensagem final com o numero de linhas e ficheiros
-processados.</p></dd>
+<dd><p><code>logical(1)</code>. Se <code>TRUE</code> (padrao), suprime as
+mensagens emitidas por ficheiro durante o processamento. Se <code>FALSE</code>,
+e emitida uma mensagem por ficheiro processado. Independentemente deste
+parametro, e sempre emitida uma mensagem final com o numero de linhas e
+ficheiros processados. Default: <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-usd-to-mt">usd_to_mt<a class="anchor" aria-label="anchor" href="#arg-usd-to-mt"></a></dt>
+<dd><p><code>numeric(1)</code>. Taxa de cambio USD para MZN. Passado a
+<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>63.86</code>
+(valor indicativo; actualizar conforme necessario).</p></dd>
+
+
+<dt id="arg-eur-to-mt">eur_to_mt<a class="anchor" aria-label="anchor" href="#arg-eur-to-mt"></a></dt>
+<dd><p><code>numeric(1)</code>. Taxa de cambio EUR para MZN. Passado a
+<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>70.00</code>
+(valor indicativo; actualizar conforme necessario).</p></dd>
+
+
+<dt id="arg-eur-to-usd">eur_to_usd<a class="anchor" aria-label="anchor" href="#arg-eur-to-usd"></a></dt>
+<dd><p><code>numeric(1)</code>. Taxa de cambio EUR para USD. Passado a
+<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>1.10</code>
+(valor indicativo; actualizar conforme necessario).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Um tibble com 12 colunas correspondentes ao esquema <code>df_razao</code>:</p><dl><dt>source_file</dt>
+    <p>Um tibble com 18 colunas: as 12 colunas base do esquema
+<code>df_razao</code> mais as 6 colunas de conversao de moeda produzidas por
+<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>:</p><dl><dt>source_file</dt>
 <dd><p><code>character</code>. Nome do ficheiro PDF de origem.</p></dd>
 
 <dt>unidade_gestao</dt>
@@ -112,8 +133,8 @@ extracto.</p></dd>
 <dd><p><code>integer</code>. Ano extraido de <code>data</code>.</p></dd>
 
 <dt>mes</dt>
-<dd><p><code>character</code>. Nome completo do mes em ingles (e.g.
-<code>"February"</code>).</p></dd>
+<dd><p><code>character</code>. Nome completo do mes em portugues (ex:
+<code>"Fevereiro"</code>).</p></dd>
 
 <dt>tipo</dt>
 <dd><p><code>character</code>. Um de <code>"SALDO_INICIAL"</code>,
@@ -125,8 +146,17 @@ movimento, quando presente. <code>NA</code> caso contrario.</p></dd>
 
 <dt>valor_lancamento</dt>
 <dd><p><code>double</code>. Valor assinado do movimento:
-positivo para creditos, negativo para debitos. <code>NA</code> nas linhas de
-saldo.</p></dd>
+positivo para creditos, negativo para debitos. <code>NA</code> nas linhas
+de saldo.</p></dd>
+
+<dt>valor_lancamento_mt</dt>
+<dd><p><code>double</code>. Valor do lancamento em MZN.</p></dd>
+
+<dt>valor_lancamento_usd</dt>
+<dd><p><code>double</code>. Valor do lancamento em USD.</p></dd>
+
+<dt>valor_lancamento_eur</dt>
+<dd><p><code>double</code>. Valor do lancamento em EUR.</p></dd>
 
 <dt>dc1</dt>
 <dd><p><code>character</code>. Indicador debito/credito do movimento:
@@ -141,8 +171,20 @@ saldo.</p></dd>
 
 <dt>saldo_inicial_fim</dt>
 <dd><p><code>double</code>. Saldo de abertura em
-<code>SALDO_INICIAL</code>; saldo calculado (abertura + creditos - debitos)
-em <code>SALDO_FINAL</code>; <code>NA</code> nos movimentos.</p></dd>
+<code>SALDO_INICIAL</code>; saldo calculado em <code>SALDO_FINAL</code>;
+<code>NA</code> nos movimentos.</p></dd>
+
+<dt>saldo_inicial_fim_mt</dt>
+<dd><p><code>double</code>. Saldo inicial ou final
+em MZN.</p></dd>
+
+<dt>saldo_inicial_fim_usd</dt>
+<dd><p><code>double</code>. Saldo inicial ou final
+em USD.</p></dd>
+
+<dt>saldo_inicial_fim_eur</dt>
+<dd><p><code>double</code>. Saldo inicial ou final
+em EUR.</p></dd>
 
 
 </dl></div>
@@ -160,23 +202,51 @@ linhas sao detectadas e concatenadas a linha de transaccao anterior.</p></li>
 </ol><p>A linha de fecho (<code>SALDO_FINAL</code>) e acrescentada programaticamente e
 nao extraida do rodape do PDF. O seu <code>saldo_inicial_fim</code> e calculado
 como <code>saldo_abertura + sum(creditos) - sum(debitos)</code>.</p>
+<p>Apos extrair e combinar todos os PDFs, chama internamente
+<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code> com as taxas fornecidas. Para
+re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
+use <code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code> directamente sobre o tibble
+ja processado.</p>
+<p>O helper interno <code>parse_single_absa()</code> e definido dentro desta funcao
+e nao e exportado.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>,
+<code><a href="processar_extracto_razao_c.html">processar_extracto_razao_c</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Processar todos os extractos ABSA numa pasta</span></span></span>
-<span class="r-in"><span><span class="va">df_absa</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_absa</span><span class="op">(</span><span class="st">"Data/razao_cont/2026_02/outro/"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df_absa</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_absa</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  source_path <span class="op">=</span> <span class="st">"Data/razao_cont/2026_02/outro/"</span>,</span></span>
+<span class="r-in"><span>  usd_to_mt   <span class="op">=</span> <span class="fl">63.86</span>,</span></span>
+<span class="r-in"><span>  eur_to_mt   <span class="op">=</span> <span class="fl">70.00</span>,</span></span>
+<span class="r-in"><span>  eur_to_usd  <span class="op">=</span> <span class="fl">1.10</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Combinar com outros extractos do razao</span></span></span>
-<span class="r-in"><span><span class="va">df_razao</span> <span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">df_razao</span>, <span class="va">df_absa</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df_razao</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">df_razao</span>, <span class="va">df_absa</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Usar um padrao diferente ou pesquisar em subpastas</span></span></span>
+<span class="r-in"><span><span class="co"># Pesquisar em subpastas com padrao alternativo</span></span></span>
 <span class="r-in"><span><span class="va">df_absa</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_absa</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  source_path <span class="op">=</span> <span class="st">"Data/razao_cont/"</span>,</span></span>
 <span class="r-in"><span>  pattern     <span class="op">=</span> <span class="st">"ABSA"</span>,</span></span>
-<span class="r-in"><span>  recursive   <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  recursive   <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  usd_to_mt   <span class="op">=</span> <span class="fl">63.86</span>,</span></span>
+<span class="r-in"><span>  eur_to_mt   <span class="op">=</span> <span class="fl">70.00</span>,</span></span>
+<span class="r-in"><span>  eur_to_usd  <span class="op">=</span> <span class="fl">1.10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Re-aplicar conversoes com taxas actualizadas sem re-processar PDFs</span></span></span>
+<span class="r-in"><span><span class="va">df_absa_revalorizado</span> <span class="op">&lt;-</span> <span class="va">df_absa</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">valor_lancamento_mt</span>, <span class="op">-</span><span class="va">valor_lancamento_usd</span>,</span></span>
+<span class="r-in"><span>                <span class="op">-</span><span class="va">valor_lancamento_eur</span>, <span class="op">-</span><span class="va">saldo_inicial_fim_mt</span>,</span></span>
+<span class="r-in"><span>                <span class="op">-</span><span class="va">saldo_inicial_fim_usd</span>, <span class="op">-</span><span class="va">saldo_inicial_fim_eur</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></span><span class="op">(</span>usd_to_mt <span class="op">=</span> <span class="fl">64.10</span>, eur_to_mt <span class="op">=</span> <span class="fl">71.20</span>,</span></span>
+<span class="r-in"><span>                          eur_to_usd <span class="op">=</span> <span class="fl">1.11</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

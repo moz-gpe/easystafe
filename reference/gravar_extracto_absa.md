@@ -41,13 +41,14 @@ Permite encadear com `|>` se necessario.
 
 O nome do ficheiro e construido da seguinte forma:
 
-    <prefix>_<ano>_<mes>_<YYYYMMDD>.xlsx
-    # exemplo: extracto_absa_2026_February_20260401.xlsx
+    ABSA_<YYYYMM>.xlsx
+    # exemplo: ABSA_202602.xlsx
 
 Os valores de `ano` e `mes` sao extraidos das linhas `MOVIMENTO` do
 dataframe (excluindo as linhas de saldo, que podem ter datas atipicas).
 Se o dataframe nao contiver movimentos, os valores sao retirados de
-todas as linhas.
+todas as linhas. E sempre utilizado o ano e mes mais recentes para
+construir o nome do ficheiro.
 
 ## Examples
 
@@ -57,10 +58,10 @@ df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/")
 
 # Gravar com as definicoes predefinidas
 gravar_extracto_absa(df_absa)
-# -> Dataout/extracto_absa_2026_February_20260401.xlsx
+# -> Dataout/ABSA_202602.xlsx
 
-# Pasta de destino personalizada, sem data no nome
-gravar_extracto_absa(df_absa, output_path = "Dataout/banco", include_date = FALSE)
-# -> Dataout/banco/extracto_absa_2026_February.xlsx
+# Pasta de destino personalizada
+gravar_extracto_absa(df_absa, output_folder = "Dataout/banco")
+# -> Dataout/banco/ABSA_202602.xlsx
 } # }
 ```

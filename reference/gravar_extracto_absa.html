@@ -83,14 +83,15 @@ Permite encadear com <code>|&gt;</code> se necessario.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>O nome do ficheiro e construido da seguinte forma:</p>
 <div class="sourceCode"><pre><code>
-&lt;prefix&gt;_&lt;ano&gt;_&lt;mes&gt;_&lt;YYYYMMDD&gt;.xlsx
-# exemplo: extracto_absa_2026_February_20260401.xlsx
+ABSA_&lt;YYYYMM&gt;.xlsx
+# exemplo: ABSA_202602.xlsx
 </code></pre></div>
 
 <p>Os valores de <code>ano</code> e <code>mes</code> sao extraidos das linhas
 <code>MOVIMENTO</code> do dataframe (excluindo as linhas de saldo, que podem ter
 datas atipicas). Se o dataframe nao contiver movimentos, os valores sao
-retirados de todas as linhas.</p>
+retirados de todas as linhas. E sempre utilizado o ano e mes mais recentes
+para construir o nome do ficheiro.</p>
     </div>
 
     <div class="section level2">
@@ -100,11 +101,11 @@ retirados de todas as linhas.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gravar com as definicoes predefinidas</span></span></span>
 <span class="r-in"><span><span class="fu">gravar_extracto_absa</span><span class="op">(</span><span class="va">df_absa</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># -&gt; Dataout/extracto_absa_2026_February_20260401.xlsx</span></span></span>
+<span class="r-in"><span><span class="co"># -&gt; Dataout/ABSA_202602.xlsx</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Pasta de destino personalizada, sem data no nome</span></span></span>
-<span class="r-in"><span><span class="fu">gravar_extracto_absa</span><span class="op">(</span><span class="va">df_absa</span>, output_path <span class="op">=</span> <span class="st">"Dataout/banco"</span>, include_date <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># -&gt; Dataout/banco/extracto_absa_2026_February.xlsx</span></span></span>
+<span class="r-in"><span><span class="co"># Pasta de destino personalizada</span></span></span>
+<span class="r-in"><span><span class="fu">gravar_extracto_absa</span><span class="op">(</span><span class="va">df_absa</span>, output_folder <span class="op">=</span> <span class="st">"Dataout/banco"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># -&gt; Dataout/banco/ABSA_202602.xlsx</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

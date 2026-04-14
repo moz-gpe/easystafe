@@ -1,23 +1,21 @@
 # Gravar extracto processado do e-SISTAFE em Excel
 
 Grava um dataframe processado do e-SISTAFE num ficheiro Excel,
-construindo automaticamente o nome do ficheiro a partir dos metadados do
-relatorio (tipo, ano e mes) e da data actual. Cria a pasta de destino se
-nao existir.
+construindo automaticamente o nome do ficheiro a partir do ano e mes
+mais recentes presentes nos dados. Cria a pasta de destino se nao
+existir.
 
 ## Usage
 
 ``` r
-gravar_extracto_sistafe(df, output_folder = "Dataout", quiet = TRUE)
+gravar_extracto_sistafe(df, output_folder = "Data/processed/", quiet = TRUE)
 ```
 
 ## Arguments
 
 - df:
 
-  Um dataframe processado por `processar_extracto_sistafe()` com
-  `include_meta = TRUE`. Deve conter as colunas `reporte_tipo`, `ano` e
-  `mes`.
+  Um dataframe processado contendo pelo menos as colunas `ano` e `mes`.
 
 - output_folder:
 
@@ -40,17 +38,13 @@ posterior se necessario.
 ## Details
 
 O nome do ficheiro e construido automaticamente no formato:
-`<reporte_tipo>_<ano>_<mes>_<YYYYMMDD>.xlsx`
+`eSISTAFE_<YYYYMM>.xlsx`, onde `YYYY` e o ano mais recente e `MM` o mes
+mais recente presentes no dataframe.
 
-Por exemplo: `Funcionamento_2025_Dezembro_20260320.xlsx`
+Por exemplo: `eSISTAFE_202512.xlsx`
 
-Se o dataframe contiver multiplos valores para `reporte_tipo`, `ano` ou
-`mes` (por exemplo, quando se combinam varios meses), os valores sao
-concatenados com `"-"` no nome do ficheiro.
-
-Esta funcao requer que `processar_extracto_sistafe()` tenha sido chamado
-com `include_meta = TRUE`. Se as colunas de metadados estiverem em
-falta, a funcao para com uma mensagem de erro informativa.
+Se o dataframe abranger varios meses ou anos, e sempre utilizado o valor
+mais recente para construir o nome do ficheiro.
 
 ## Examples
 
