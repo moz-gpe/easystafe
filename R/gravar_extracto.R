@@ -1,12 +1,11 @@
 #' Gravar extracto processado do e-SISTAFE em Excel
 #'
 #' Grava um dataframe processado do e-SISTAFE num ficheiro Excel, construindo
-#' automaticamente o nome do ficheiro a partir dos metadados do relatorio
-#' (tipo, ano e mes) e da data actual. Cria a pasta de destino se nao existir.
+#' automaticamente o nome do ficheiro a partir do ano e mes mais recentes
+#' presentes nos dados. Cria a pasta de destino se nao existir.
 #'
-#' @param df Um dataframe processado por \code{processar_extracto_sistafe()}
-#'   com \code{include_meta = TRUE}. Deve conter as colunas \code{reporte_tipo},
-#'   \code{ano} e \code{mes}.
+#' @param df Um dataframe processado contendo pelo menos as colunas \code{ano}
+#'   e \code{mes}.
 #' @param output_folder Caractere. Caminho para a pasta de destino onde o
 #'   ficheiro Excel sera gravado. Por padrao \code{"Dataout"}. A pasta e
 #'   criada automaticamente se nao existir.
@@ -20,17 +19,13 @@
 #'
 #' @details
 #' O nome do ficheiro e construido automaticamente no formato:
-#' \code{<reporte_tipo>_<ano>_<mes>_<YYYYMMDD>.xlsx}
+#' \code{eSISTAFE_<YYYYMM>.xlsx}, onde \code{YYYY} e o ano mais recente e
+#' \code{MM} o mes mais recente presentes no dataframe.
 #'
-#' Por exemplo: \code{Funcionamento_2025_Dezembro_20260320.xlsx}
+#' Por exemplo: \code{eSISTAFE_202512.xlsx}
 #'
-#' Se o dataframe contiver multiplos valores para \code{reporte_tipo},
-#' \code{ano} ou \code{mes} (por exemplo, quando se combinam varios meses),
-#' os valores sao concatenados com \code{"-"} no nome do ficheiro.
-#'
-#' Esta funcao requer que \code{processar_extracto_sistafe()} tenha sido
-#' chamado com \code{include_meta = TRUE}. Se as colunas de metadados
-#' estiverem em falta, a funcao para com uma mensagem de erro informativa.
+#' Se o dataframe abranger varios meses ou anos, e sempre utilizado o valor
+#' mais recente para construir o nome do ficheiro.
 #'
 #' @examples
 #' \dontrun{
@@ -47,15 +42,17 @@
 #' path <- gravar_extracto_sistafe(df, quiet = FALSE)
 #' }
 #'
-#' @importFrom dplyr distinct pull
+#' @importFrom dplyr pull
 #' @importFrom glue glue
+#' @importFrom purrr map_int
+#' @importFrom stringr str_pad
 #' @importFrom writexl write_xlsx
 #'
 #' @export
 
 gravar_extracto_sistafe <- function(
     df,
-    output_folder = "Dataout",
+    output_folder = "Data/processed/",
     quiet         = TRUE
 ) {
   # --- Mensagens internas ---
@@ -70,25 +67,23 @@ gravar_extracto_sistafe <- function(
   if (base::length(missing_cols) > 0) {
     stop(glue::glue(
       "Colunas de metadados em falta: {paste(missing_cols, collapse = ', ')}. ",
-      "Certifique-se de que include_meta = TRUE foi usado ao processar o ficheiro."
+      "Certifique-se de que o dataframe contem as colunas 'ano' e 'mes'."
     ))
   }
 
   # --- Remover trailing slash se presente ---
   output_folder <- base::gsub("/$", "", output_folder)
 
-  # --- Extrair valores unicos dos metadados ---
-  today        <- base::format(base::Sys.Date(), "%Y%m%d")
-
   # --- Construir nome do ficheiro ---
-  ano_num <- df |> dplyr::distinct(ano) |> dplyr::pull() |> base::paste(collapse = "-")
-  mes_num <- df |> dplyr::distinct(mes) |> dplyr::pull() |>
-    purrr::map_chr(~ stringr::str_pad(
-      match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
-                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")),
-      2, pad = "0")) |>
-    base::paste(collapse = "-")
-  file_name <- glue::glue("eSISTAFE_{ano_num}{mes_num}_{today}.xlsx")
+  latest_ano <- df |> dplyr::pull(ano) |> max(na.rm = TRUE)
+  latest_mes <- df |>
+    dplyr::pull(mes) |>
+    purrr::map_int(~ match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+                                 "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"))) |>
+    max(na.rm = TRUE) |>
+    stringr::str_pad(2, pad = "0")
+
+  file_name <- glue::glue("eSISTAFE_{latest_ano}{latest_mes}.xlsx")
   file_path <- base::file.path(output_folder, file_name)
 
   # --- Criar pasta se nao existir ---
@@ -133,9 +128,10 @@ gravar_extracto_sistafe <- function(
 #'
 #' @details
 #' O nome do ficheiro e construido automaticamente no formato:
-#' \code{Razao_C_<data_inicio>_a_<data_fim>_<YYYYMMDD>.xlsx}
+#' \code{RazaoCont_<YYYYMM>.xlsx}, onde \code{YYYYMM} corresponde ao ano e
+#' mes da data final do intervalo presente no atributo \code{date_range_txt}.
 #'
-#' Por exemplo: \code{Razao_C_2025-01-01_a_2025-12-31_20260323.xlsx}
+#' Por exemplo: \code{RazaoCont_202512.xlsx}
 #'
 #' Se o atributo \code{date_range_txt} nao estiver presente no dataframe
 #' (por exemplo, se o objeto foi modificado apos o processamento), o nome
@@ -163,7 +159,7 @@ gravar_extracto_sistafe <- function(
 
 gravar_extracto_razao_c <- function(
     df,
-    output_folder = "Dataout",
+    output_folder = "Data/processed",
     quiet         = TRUE
 ) {
   # --- Mensagens internas ---
@@ -186,10 +182,9 @@ gravar_extracto_razao_c <- function(
   output_folder <- base::gsub("/$", "", output_folder)
 
   # --- Construir nome do ficheiro ---
-  today   <- base::format(base::Sys.Date(), "%Y%m%d")
-  date_ym <- stringr::str_extract(date_range_txt, "\\d{4}-\\d{2}") |>
+  date_ym <- stringr::str_extract(date_range_txt, "\\d{4}-\\d{2}-\\d{2}_a_(\\d{4}-\\d{2})", group = 1) |>
     stringr::str_remove("-")
-  file_name <- glue::glue("RazaoCont_{date_ym}_{today}.xlsx")
+  file_name <- glue::glue("RazaoCont_{date_ym}.xlsx")
   file_path <- base::file.path(output_folder, file_name)
 
   # --- Criar pasta se nao existir ---
@@ -206,6 +201,7 @@ gravar_extracto_razao_c <- function(
 
   # --- Retornar caminho invisivel para uso posterior ---
   base::invisible(file_path)
+
 }
 
 
@@ -233,14 +229,15 @@ gravar_extracto_razao_c <- function(
 #' O nome do ficheiro e construido da seguinte forma:
 #'
 #' \preformatted{
-#' <prefix>_<ano>_<mes>_<YYYYMMDD>.xlsx
-#' # exemplo: extracto_absa_2026_February_20260401.xlsx
+#' ABSA_<YYYYMM>.xlsx
+#' # exemplo: ABSA_202602.xlsx
 #' }
 #'
 #' Os valores de \code{ano} e \code{mes} sao extraidos das linhas
 #' \code{MOVIMENTO} do dataframe (excluindo as linhas de saldo, que podem ter
 #' datas atipicas). Se o dataframe nao contiver movimentos, os valores sao
-#' retirados de todas as linhas.
+#' retirados de todas as linhas. E sempre utilizado o ano e mes mais recentes
+#' para construir o nome do ficheiro.
 #'
 #' @examples
 #' \dontrun{
@@ -248,15 +245,18 @@ gravar_extracto_razao_c <- function(
 #'
 #' # Gravar com as definicoes predefinidas
 #' gravar_extracto_absa(df_absa)
-#' # -> Dataout/extracto_absa_2026_February_20260401.xlsx
+#' # -> Dataout/ABSA_202602.xlsx
 #'
-#' # Pasta de destino personalizada, sem data no nome
-#' gravar_extracto_absa(df_absa, output_path = "Dataout/banco", include_date = FALSE)
-#' # -> Dataout/banco/extracto_absa_2026_February.xlsx
+#' # Pasta de destino personalizada
+#' gravar_extracto_absa(df_absa, output_folder = "Dataout/banco")
+#' # -> Dataout/banco/ABSA_202602.xlsx
 #' }
 #'
-#' @importFrom writexl write_xlsx
 #' @importFrom dplyr filter pull
+#' @importFrom glue glue
+#' @importFrom purrr map_int
+#' @importFrom stringr str_pad
+#' @importFrom writexl write_xlsx
 #' @export
 
 gravar_extracto_absa <- function(
@@ -290,19 +290,16 @@ gravar_extracto_absa <- function(
   if (nrow(df_meta) == 0) df_meta <- df
 
   # --- Construir nome do ficheiro ---
-  today   <- base::format(base::Sys.Date(), "%Y%m%d")
-  ano_num <- df_meta |> dplyr::pull(ano) |> stats::na.omit() |> unique() |> sort() |> base::paste(collapse = "-")
-  mes_num <- df_meta |> dplyr::pull(mes) |> stats::na.omit() |> unique() |>
-    purrr::map_chr(~ stringr::str_pad(
-      match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
-                  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")),
-      2, pad = "0")) |>
-    base::paste(collapse = "-")
-
-  if (nchar(ano_num) == 0) ano_num <- "ano_desconhecido"
-  if (nchar(mes_num) == 0) mes_num <- "mes_desconhecido"
-
-  file_name <- glue::glue("ABSA_{ano_num}{mes_num}_{today}.xlsx")
+  latest_ano <- df_meta |> dplyr::pull(ano) |> max(na.rm = TRUE)
+  latest_mes <- df_meta |>
+    dplyr::pull(mes) |>
+    purrr::map_int(~ match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+                                 "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"))) |>
+    max(na.rm = TRUE) |>
+    stringr::str_pad(2, pad = "0")
+  if (is.infinite(latest_ano)) latest_ano <- "ano_desconhecido"
+  if (is.infinite(as.numeric(latest_mes))) latest_mes <- "mes_desconhecido"
+  file_name <- glue::glue("ABSA_{latest_ano}{latest_mes}.xlsx")
   file_path <- base::file.path(output_folder, file_name)
 
   # --- Criar pasta se nao existir ---

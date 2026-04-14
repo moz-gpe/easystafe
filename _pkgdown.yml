@@ -43,6 +43,7 @@ reference:
     contents:
       - recodificar_esistafe_vars
       - recode_programa_tipo
+      - aplicar_conversao_moeda
 
   - title: "Gravação"
     desc: "Funções para gravar outputs processados"

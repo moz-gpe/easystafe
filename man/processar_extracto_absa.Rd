@@ -9,18 +9,19 @@ processar_extracto_absa(
   pattern = "EXTRACTO ABSA",
   recursive = FALSE,
   y_tolerance = 2,
-  quiet = TRUE
+  quiet = TRUE,
+  usd_to_mt = 63.86,
+  eur_to_mt = 70,
+  eur_to_usd = 1.1
 )
 }
 \arguments{
 \item{source_path}{\code{character(1)}. Caminho para a pasta que contem os
-ficheiros PDF dos extractos ABSA.}
+ficheiros PDF dos extractos ABSA. Obrigatorio.}
 
 \item{pattern}{\code{character(1)}. Padrao regex usado para identificar os
-ficheiros ABSA dentro de \code{source_path}. O padrao predefinido
-\code{"EXTRACTO ABSA"} corresponde ao nome de ficheiro padrao dos
-extractos ABSA Mocambique. Nao faz distincao entre maiusculas e
-minusculas. Default: \code{"EXTRACTO ABSA"}.}
+ficheiros ABSA dentro de \code{source_path}. Nao faz distincao entre
+maiusculas e minusculas. Default: \code{"EXTRACTO ABSA"}.}
 
 \item{recursive}{\code{logical(1)}. Se \code{TRUE}, pesquisa tambem nas
 subpastas de \code{source_path}. Default: \code{FALSE}.}
@@ -30,14 +31,28 @@ para agrupar palavras na mesma linha durante a reconstrucao por
 coordenadas. O valor predefinido de \code{2} funciona para os extractos
 ABSA padrao. Default: \code{2}.}
 
-\item{quiet}{Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
-por ficheiro durante o processamento. Se \code{FALSE}, e emitida uma
-mensagem por ficheiro processado. Independentemente deste parametro,
-e sempre emitida uma mensagem final com o numero de linhas e ficheiros
-processados.}
+\item{quiet}{\code{logical(1)}. Se \code{TRUE} (padrao), suprime as
+mensagens emitidas por ficheiro durante o processamento. Se \code{FALSE},
+e emitida uma mensagem por ficheiro processado. Independentemente deste
+parametro, e sempre emitida uma mensagem final com o numero de linhas e
+ficheiros processados. Default: \code{TRUE}.}
+
+\item{usd_to_mt}{\code{numeric(1)}. Taxa de cambio USD para MZN. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{63.86}
+(valor indicativo; actualizar conforme necessario).}
+
+\item{eur_to_mt}{\code{numeric(1)}. Taxa de cambio EUR para MZN. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
+(valor indicativo; actualizar conforme necessario).}
+
+\item{eur_to_usd}{\code{numeric(1)}. Taxa de cambio EUR para USD. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{1.10}
+(valor indicativo; actualizar conforme necessario).}
 }
 \value{
-Um tibble com 12 colunas correspondentes ao esquema \code{df_razao}:
+Um tibble com 18 colunas: as 12 colunas base do esquema
+\code{df_razao} mais as 6 colunas de conversao de moeda produzidas por
+\code{\link{aplicar_conversao_moeda}}:
 \describe{
 \item{source_file}{\code{character}. Nome do ficheiro PDF de origem.}
 \item{unidade_gestao}{\code{character}. Sempre \code{NA} -- a preencher
@@ -46,23 +61,32 @@ downstream.}
 (\code{01/01/1900}) e remapeada para o primeiro dia do periodo do
 extracto.}
 \item{ano}{\code{integer}. Ano extraido de \code{data}.}
-\item{mes}{\code{character}. Nome completo do mes em ingles (e.g.
-\code{"February"}).}
+\item{mes}{\code{character}. Nome completo do mes em portugues (ex:
+\code{"Fevereiro"}).}
 \item{tipo}{\code{character}. Um de \code{"SALDO_INICIAL"},
 \code{"MOVIMENTO"} ou \code{"SALDO_FINAL"}.}
 \item{codigo_documento}{\code{character}. Numero de referencia do
 movimento, quando presente. \code{NA} caso contrario.}
 \item{valor_lancamento}{\code{double}. Valor assinado do movimento:
-positivo para creditos, negativo para debitos. \code{NA} nas linhas de
-saldo.}
+positivo para creditos, negativo para debitos. \code{NA} nas linhas
+de saldo.}
+\item{valor_lancamento_mt}{\code{double}. Valor do lancamento em MZN.}
+\item{valor_lancamento_usd}{\code{double}. Valor do lancamento em USD.}
+\item{valor_lancamento_eur}{\code{double}. Valor do lancamento em EUR.}
 \item{dc1}{\code{character}. Indicador debito/credito do movimento:
 \code{"C"}, \code{"D"} ou \code{NA}.}
 \item{saldo_atual}{\code{double}. Saldo corrente apos o movimento.}
 \item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
 \code{"D"} para este tipo de conta.}
 \item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
-\code{SALDO_INICIAL}; saldo calculado (abertura + creditos - debitos)
-em \code{SALDO_FINAL}; \code{NA} nos movimentos.}
+\code{SALDO_INICIAL}; saldo calculado em \code{SALDO_FINAL};
+\code{NA} nos movimentos.}
+\item{saldo_inicial_fim_mt}{\code{double}. Saldo inicial ou final
+em MZN.}
+\item{saldo_inicial_fim_usd}{\code{double}. Saldo inicial ou final
+em USD.}
+\item{saldo_inicial_fim_eur}{\code{double}. Saldo inicial ou final
+em EUR.}
 }
 }
 \description{
@@ -87,21 +111,50 @@ linhas sao detectadas e concatenadas a linha de transaccao anterior.
 A linha de fecho (\code{SALDO_FINAL}) e acrescentada programaticamente e
 nao extraida do rodape do PDF. O seu \code{saldo_inicial_fim} e calculado
 como \code{saldo_abertura + sum(creditos) - sum(debitos)}.
+
+Apos extrair e combinar todos os PDFs, chama internamente
+\code{\link{aplicar_conversao_moeda}} com as taxas fornecidas. Para
+re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
+use \code{\link{aplicar_conversao_moeda}} directamente sobre o tibble
+ja processado.
+
+O helper interno \code{parse_single_absa()} e definido dentro desta funcao
+e nao e exportado.
 }
 \examples{
 \dontrun{
 # Processar todos os extractos ABSA numa pasta
-df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/")
+df_absa <- processar_extracto_absa(
+  source_path = "Data/razao_cont/2026_02/outro/",
+  usd_to_mt   = 63.86,
+  eur_to_mt   = 70.00,
+  eur_to_usd  = 1.10
+)
 
 # Combinar com outros extractos do razao
-df_razao <- bind_rows(df_razao, df_absa)
+df_razao <- dplyr::bind_rows(df_razao, df_absa)
 
-# Usar um padrao diferente ou pesquisar em subpastas
+# Pesquisar em subpastas com padrao alternativo
 df_absa <- processar_extracto_absa(
   source_path = "Data/razao_cont/",
   pattern     = "ABSA",
-  recursive   = TRUE
+  recursive   = TRUE,
+  usd_to_mt   = 63.86,
+  eur_to_mt   = 70.00,
+  eur_to_usd  = 1.10
 )
+
+# Re-aplicar conversoes com taxas actualizadas sem re-processar PDFs
+df_absa_revalorizado <- df_absa |>
+  dplyr::select(-valor_lancamento_mt, -valor_lancamento_usd,
+                -valor_lancamento_eur, -saldo_inicial_fim_mt,
+                -saldo_inicial_fim_usd, -saldo_inicial_fim_eur) |>
+  aplicar_conversao_moeda(usd_to_mt = 64.10, eur_to_mt = 71.20,
+                          eur_to_usd = 1.11)
 }
 
+}
+\seealso{
+\code{\link{aplicar_conversao_moeda}},
+\code{\link{processar_extracto_razao_c}}
 }

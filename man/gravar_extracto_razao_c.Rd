@@ -4,7 +4,7 @@
 \alias{gravar_extracto_razao_c}
 \title{Gravar extracto da razao contabilistico processado em Excel}
 \usage{
-gravar_extracto_razao_c(df, output_folder = "Dataout", quiet = TRUE)
+gravar_extracto_razao_c(df, output_folder = "Data/processed", quiet = TRUE)
 }
 \arguments{
 \item{df}{Um tibble processado por \code{processar_extracto_razao_c()}.
@@ -31,9 +31,10 @@ se nao existir.
 }
 \details{
 O nome do ficheiro e construido automaticamente no formato:
-\code{Razao_C_<data_inicio>_a_<data_fim>_<YYYYMMDD>.xlsx}
+\code{RazaoCont_<YYYYMM>.xlsx}, onde \code{YYYYMM} corresponde ao ano e
+mes da data final do intervalo presente no atributo \code{date_range_txt}.
 
-Por exemplo: \code{Razao_C_2025-01-01_a_2025-12-31_20260323.xlsx}
+Por exemplo: \code{RazaoCont_202512.xlsx}
 
 Se o atributo \code{date_range_txt} nao estiver presente no dataframe
 (por exemplo, se o objeto foi modificado apos o processamento), o nome

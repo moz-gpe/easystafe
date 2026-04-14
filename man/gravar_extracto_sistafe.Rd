@@ -4,12 +4,11 @@
 \alias{gravar_extracto_sistafe}
 \title{Gravar extracto processado do e-SISTAFE em Excel}
 \usage{
-gravar_extracto_sistafe(df, output_folder = "Dataout", quiet = TRUE)
+gravar_extracto_sistafe(df, output_folder = "Data/processed/", quiet = TRUE)
 }
 \arguments{
-\item{df}{Um dataframe processado por \code{processar_extracto_sistafe()}
-com \code{include_meta = TRUE}. Deve conter as colunas \code{reporte_tipo},
-\code{ano} e \code{mes}.}
+\item{df}{Um dataframe processado contendo pelo menos as colunas \code{ano}
+e \code{mes}.}
 
 \item{output_folder}{Caractere. Caminho para a pasta de destino onde o
 ficheiro Excel sera gravado. Por padrao \code{"Dataout"}. A pasta e
@@ -26,22 +25,18 @@ uso posterior se necessario.
 }
 \description{
 Grava um dataframe processado do e-SISTAFE num ficheiro Excel, construindo
-automaticamente o nome do ficheiro a partir dos metadados do relatorio
-(tipo, ano e mes) e da data actual. Cria a pasta de destino se nao existir.
+automaticamente o nome do ficheiro a partir do ano e mes mais recentes
+presentes nos dados. Cria a pasta de destino se nao existir.
 }
 \details{
 O nome do ficheiro e construido automaticamente no formato:
-\code{<reporte_tipo>_<ano>_<mes>_<YYYYMMDD>.xlsx}
+\code{eSISTAFE_<YYYYMM>.xlsx}, onde \code{YYYY} e o ano mais recente e
+\code{MM} o mes mais recente presentes no dataframe.
 
-Por exemplo: \code{Funcionamento_2025_Dezembro_20260320.xlsx}
+Por exemplo: \code{eSISTAFE_202512.xlsx}
 
-Se o dataframe contiver multiplos valores para \code{reporte_tipo},
-\code{ano} ou \code{mes} (por exemplo, quando se combinam varios meses),
-os valores sao concatenados com \code{"-"} no nome do ficheiro.
-
-Esta funcao requer que \code{processar_extracto_sistafe()} tenha sido
-chamado com \code{include_meta = TRUE}. Se as colunas de metadados
-estiverem em falta, a funcao para com uma mensagem de erro informativa.
+Se o dataframe abranger varios meses ou anos, e sempre utilizado o valor
+mais recente para construir o nome do ficheiro.
 }
 \examples{
 \dontrun{

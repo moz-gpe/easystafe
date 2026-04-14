@@ -8,7 +8,10 @@ processar_extracto_razao_c(
   source_path,
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
-  quiet = TRUE
+  quiet = TRUE,
+  usd_to_mt = 63.86,
+  eur_to_mt = 70,
+  eur_to_usd = 1.1
 )
 }
 \arguments{
@@ -17,7 +20,7 @@ PDF a processar. Obrigatorio.}
 
 \item{exclude_pattern}{Caractere. Expressao regular para excluir ficheiros
 pelo nome. Por padrao exclui ficheiros FOREX:
-\code{"CENTRAL USD|EXTRACTO DA CONTA FOREX EUR|EXTRACTO DA CONTA FOREX USD"}.
+\code{"CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado"}.
 Para nao excluir nenhum ficheiro, usar \code{NULL}.}
 
 \item{recursive}{Logico. Se \code{TRUE}, a pesquisa de ficheiros PDF
@@ -26,24 +29,24 @@ inclui subpastas. Por padrao \code{FALSE}.}
 \item{quiet}{Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
 por ficheiro durante o processamento (por exemplo, quando um PDF nao
 contem transaccoes). Se \code{FALSE}, as mensagens sao apresentadas.}
+
+\item{usd_to_mt}{Numerico. Taxa de cambio USD para MZN. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{63.86}
+(valor indicativo; actualizar conforme necessario).}
+
+\item{eur_to_mt}{Numerico. Taxa de cambio EUR para MZN. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
+(valor indicativo; actualizar conforme necessario).}
+
+\item{eur_to_usd}{Numerico. Taxa de cambio EUR para USD. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{1.10}
+(valor indicativo; actualizar conforme necessario).}
 }
 \value{
 Um tibble com uma linha por registo (movimentos, saldo inicial e
-saldo final) de todos os PDFs processados, contendo as colunas:
-\describe{
-\item{source_file}{Nome do ficheiro PDF de origem.}
-\item{unidade_gestao}{Nome da unidade de gestao extraido do cabecalho.}
-\item{data}{Data do registo (\code{Date}).}
-\item{ano}{Ano extraido da data do registo (\code{integer}).}
-\item{mes}{Mes extraido da data do registo (\code{integer}).}
-\item{tipo}{Tipo de registo: \code{"MOVIMENTO"}, \code{"SALDO_INICIAL"} ou \code{"SALDO_FINAL"}.}
-\item{codigo_documento}{Codigo do documento (apenas em movimentos).}
-\item{valor_lancamento}{Valor do lancamento em MZN, negativo para creditos (C).}
-\item{dc1}{Indicador debito/credito do lancamento (\code{"D"} ou \code{"C"}).}
-\item{saldo_atual}{Saldo acumulado apos o lancamento.}
-\item{dc2}{Indicador debito/credito do saldo.}
-\item{saldo_inicial_fim}{Valor do saldo inicial ou final (apenas nessas linhas).}
-}
+saldo final) de todos os PDFs processados. Ver
+\code{\link{aplicar_conversao_moeda}} para descricao das colunas
+\code{valor_lancamento_mt} e \code{valor_lancamento_usd}.
 }
 \description{
 Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
@@ -52,39 +55,19 @@ unico tibble. Ficheiros com formato FOREX (USD/EUR) sao excluidos por
 padrao.
 }
 \details{
-A logica de extraccao trata os seguintes casos:
-\itemize{
-\item PDFs com transaccoes: extrai movimentos linha a linha e calcula
-saldos inicial e final.
-\item PDFs sem transaccoes: retorna apenas as linhas SALDO_INICIAL e
-SALDO_FINAL com base nos valores do cabecalho.
-\item Datas com espacos irregulares (ex: \code{"01 / 12 / 2025"}): sao
-normalizadas automaticamente.
-\item Valores em formato portugues (ponto como separador de milhares,
-virgula como decimal): convertidos correctamente.
-\item Creditos (C) sao convertidos para valores negativos.
-}
-
-O intervalo de datas do conjunto processado e guardado como atributo do
-tibble retornado, acessivel via \code{attr(df, "date_range_txt")}.
+Apos extrair e combinar todos os PDFs, chama internamente
+\code{\link{aplicar_conversao_moeda}} com as taxas fornecidas. Para
+re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
+use \code{\link{aplicar_conversao_moeda}} directamente sobre o tibble
+ja processado.
 }
 \examples{
 \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path = path_folder_source
-)
-
-# Com mensagens visiveis e subpastas incluidas
-df_razao <- processar_extracto_razao_c(
   source_path = path_folder_source,
-  recursive   = TRUE,
-  quiet       = FALSE
-)
-
-# Sem exclusao de ficheiros FOREX
-df_razao <- processar_extracto_razao_c(
-  source_path     = path_folder_source,
-  exclude_pattern = NULL
+  usd_to_mt   = 63.86,
+  eur_to_mt   = 70.00,
+  eur_to_usd  = 1.10
 )
 }
 
