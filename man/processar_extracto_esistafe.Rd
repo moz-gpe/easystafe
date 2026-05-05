@@ -91,6 +91,23 @@ subtraccao hierarquica.
 \item Reinclusao opcional das linhas \code{"Metrica"} via \code{include_metrica}.
 \item Seleccao das colunas finais a partir de um vector explicito,
 garantindo que \code{data_tipo} e sempre incluido antes de \code{ugb}.
+\item Deteccao e correccao de valores negativos nas 11 colunas numericas
+principais (apenas em linhas \code{"Valor"}):
+\itemize{
+\item Calculo do denominador: soma total das colunas numericas em linhas
+\code{"Valor"} antes de qualquer correccao.
+\item Identificacao dos \code{ugb_funcao_prog_fr} distintos com pelo
+menos um valor negativo em qualquer coluna numerica.
+\item Criacao de uma copia dessas linhas com \code{data_tipo} recodificado
+para \code{"Corregido"}, preservando os valores negativos originais
+como registo de auditoria.
+\item Substituicao dos valores negativos por zero nas linhas originais
+\code{"Valor"} (cirurgicamente, coluna a coluna).
+\item Anexacao da copia \code{"Corregido"} ao dataset final.
+\item Emissao de mensagem de resumo com o numero de grupos corrigidos,
+a soma absoluta dos valores corrigidos, e a respectiva percentagem
+da soma total \code{"Valor"}.
+}
 }
 }
 \examples{

@@ -9,7 +9,8 @@ processar_extracto_razao_c(
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
   quiet = TRUE,
-  usd_to_mt = 63.86,
+  usd_to_mt = 63.91,
+  cut_usd_to_mt = 63.27,
   eur_to_mt = 70,
   eur_to_usd = 1.1
 )
@@ -30,9 +31,13 @@ inclui subpastas. Por padrao \code{FALSE}.}
 por ficheiro durante o processamento (por exemplo, quando um PDF nao
 contem transaccoes). Se \code{FALSE}, as mensagens sao apresentadas.}
 
-\item{usd_to_mt}{Numerico. Taxa de cambio USD para MZN. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{63.86}
-(valor indicativo; actualizar conforme necessario).}
+\item{usd_to_mt}{Numerico. Taxa de cambio USD para MZN. Utilizada para
+ficheiros \code{"EXTRACTO ABSA BANK USD"}. Passado a
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015647}.}
+
+\item{cut_usd_to_mt}{Numerico. Taxa de cambio USD para MZN especifica para
+ficheiros \code{"CENTRAL USD"}. Passado adevt
+\code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015805}.}
 
 \item{eur_to_mt}{Numerico. Taxa de cambio EUR para MZN. Passado a
 \code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
@@ -64,10 +69,11 @@ ja processado.
 \examples{
 \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path = path_folder_source,
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  source_path   = path_folder_source,
+  usd_to_mt     = 63.91,
+  cut_usd_to_mt = 63.27,
+  eur_to_mt     = 70.00,
+  eur_to_usd    = 1.10
 )
 }
 

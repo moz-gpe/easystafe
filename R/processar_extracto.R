@@ -68,6 +68,23 @@
 #'   \item Reinclusao opcional das linhas \code{"Metrica"} via \code{include_metrica}.
 #'   \item Seleccao das colunas finais a partir de um vector explicito,
 #'     garantindo que \code{data_tipo} e sempre incluido antes de \code{ugb}.
+#'   \item Deteccao e correccao de valores negativos nas 11 colunas numericas
+#'     principais (apenas em linhas \code{"Valor"}):
+#'     \itemize{
+#'       \item Calculo do denominador: soma total das colunas numericas em linhas
+#'         \code{"Valor"} antes de qualquer correccao.
+#'       \item Identificacao dos \code{ugb_funcao_prog_fr} distintos com pelo
+#'         menos um valor negativo em qualquer coluna numerica.
+#'       \item Criacao de uma copia dessas linhas com \code{data_tipo} recodificado
+#'         para \code{"Corregido"}, preservando os valores negativos originais
+#'         como registo de auditoria.
+#'       \item Substituicao dos valores negativos por zero nas linhas originais
+#'         \code{"Valor"} (cirurgicamente, coluna a coluna).
+#'       \item Anexacao da copia \code{"Corregido"} ao dataset final.
+#'       \item Emissao de mensagem de resumo com o numero de grupos corrigidos,
+#'         a soma absoluta dos valores corrigidos, e a respectiva percentagem
+#'         da soma total \code{"Valor"}.
+#'     }
 #' }
 #'
 #' @examples
@@ -113,6 +130,7 @@
 #' @importFrom janitor clean_names
 #' @importFrom glue glue
 #' @importFrom tibble tibble
+#' @importFrom scales comma percent
 #'
 #' @export
 
@@ -304,8 +322,13 @@ processar_extracto_esistafe <- function(
 
   final_cols <- c(
     # metadados de ficheiro (removidos se include_file_metadata = FALSE)
-    "file_name", "reporte_tipo", "data_reporte", "data_extraido",
-    "ano", "mes",
+    "file_name",
+    "ugb_funcao_prog_fr",
+    "reporte_tipo",
+    "data_reporte",
+    "data_extraido",
+    "ano",
+    "mes",
     # classificacao da linha -- sempre presente
     "data_tipo",
     "ugb_id",
@@ -350,11 +373,91 @@ processar_extracto_esistafe <- function(
       dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ano", "mes", "ugb_id")))
   }
 
+
+  # --- 17. Detectar e corrigir valores negativos ---
+
+  neg_cols <- c(
+    "dotacao_inicial", "dotacao_revista", "dotacao_actualizada_da",
+    "dotacao_disponivel", "dotacao_cabimentada_dc", "ad_fundos_concedidos_af",
+    "despesa_paga_via_directa_dp", "ad_fundos_desp_paga_vd_afdp",
+    "ad_fundos_liquidados_laf", "despesa_liquidada_via_directa_lvd",
+    "liq_ad_fundos_via_directa_lafvd"
+  ) |>
+    purrr::keep(~ .x %in% names(df_limpeza_final))
+
+  # -- 17a. Calcular denominador (soma total de "Valor" antes de qualquer correccao) --
+  total_sum_valor <- df_limpeza_final |>
+    dplyr::filter(data_tipo == "Valor") |>
+    dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(.x, na.rm = TRUE))) |>
+    dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
+    dplyr::pull(total)
+
+  # -- 17b. Identificar ugb_funcao_prog_fr com pelo menos um valor negativo (apenas "Valor") --
+  ugb_com_negativos <- df_limpeza_final |>
+    dplyr::filter(
+      data_tipo == "Valor",
+      dplyr::if_any(dplyr::all_of(neg_cols), ~ .x < 0)
+    ) |>
+    dplyr::distinct(ugb_funcao_prog_fr) |>
+    dplyr::pull(ugb_funcao_prog_fr)
+
+  # -- 17c. Calcular soma absoluta dos negativos (antes de corrigir) --
+  soma_negativos <- df_limpeza_final |>
+    dplyr::filter(
+      data_tipo == "Valor",
+      ugb_funcao_prog_fr %in% ugb_com_negativos
+    ) |>
+    dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(pmin(.x, 0), na.rm = TRUE))) |>
+    dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
+    dplyr::pull(total) |>
+    abs()
+
+  # -- 17d. Criar copia "Corregido" com valores negativos preservados --
+  df_corregido <- df_limpeza_final |>
+    dplyr::filter(
+      data_tipo == "Valor",
+      ugb_funcao_prog_fr %in% ugb_com_negativos
+    ) |>
+    dplyr::mutate(data_tipo = "Corregido")
+
+  # -- 17e. Zerar negativos no dataset original apenas em linhas "Valor" --
+  df_limpeza_final <- df_limpeza_final |>
+    dplyr::mutate(
+      dplyr::across(
+        dplyr::all_of(neg_cols),
+        ~ dplyr::if_else(data_tipo == "Valor" & .x < 0, 0, .x)
+      )
+    )
+
+  # -- 17f. Anexar copia "Corregido" --
+  df_limpeza_final <- dplyr::bind_rows(df_limpeza_final, df_corregido)
+
   # --- Resumo final ---
   n_files   <- length(files)
   file_list <- base::paste(base::paste0("  - ", base::basename(files)), collapse = "\n")
   message(glue::glue(
     "Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n{file_list}"
+  ))
+
+  message("")
+
+  # -- 17f.2. Criar variavel valor_corregido --
+  df_limpeza_final <- df_limpeza_final |>
+    dplyr::mutate(
+      valor_corregido = dplyr::if_else(ugb_funcao_prog_fr %in% ugb_com_negativos, 1L, 0L)
+    ) |>
+    dplyr::relocate(valor_corregido, .after = ugb_funcao_prog_fr)
+
+  # -- 17g. Mensagem de resumo (sempre visivel) --
+  pct_negativos <- if (total_sum_valor != 0) {
+    scales::percent(soma_negativos / abs(total_sum_valor), accuracy = 0.01)
+  } else {
+    "N/A (soma total == 0)"
+  }
+
+  message(glue::glue(
+    "Correccao de negativos: {length(ugb_com_negativos)} ugb_funcao_prog_fr(s) identificado(s) e corrigido(s).\n",
+    "  Soma absoluta dos valores negativos convertidos a zero: {scales::comma(soma_negativos)} ({pct_negativos} da soma total de colunas numericas [data_tipo == 'Valor'])."
   ))
 
   # --- Verificar completude de UGBs ---
@@ -366,16 +469,13 @@ processar_extracto_esistafe <- function(
 
 
 
-
-
-
-
 #' Processar extractos do razao contabilistico do e-SISTAFE a partir de ficheiros PDF
 #'
 #' Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
 #' de cada extracto da razao contabilistico, e combina os resultados num
 #' unico tibble. Ficheiros com formato FOREX (USD/EUR) sao excluidos por
 #' padrao.
+#'
 #'
 #' @param source_path Caractere. Caminho para a pasta que contem os ficheiros
 #'   PDF a processar. Obrigatorio.
@@ -388,9 +488,12 @@ processar_extracto_esistafe <- function(
 #' @param quiet Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
 #'   por ficheiro durante o processamento (por exemplo, quando um PDF nao
 #'   contem transaccoes). Se \code{FALSE}, as mensagens sao apresentadas.
-#' @param usd_to_mt Numerico. Taxa de cambio USD para MZN. Passado a
-#'   \code{\link{aplicar_conversao_moeda}}. Por padrao \code{63.86}
-#'   (valor indicativo; actualizar conforme necessario).
+#' @param usd_to_mt Numerico. Taxa de cambio USD para MZN. Utilizada para
+#'   ficheiros \code{"EXTRACTO ABSA BANK USD"}. Passado a
+#'   \code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015647}.
+#' @param cut_usd_to_mt Numerico. Taxa de cambio USD para MZN especifica para
+#'   ficheiros \code{"CENTRAL USD"}. Passado adevt
+#'   \code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015805}.
 #' @param eur_to_mt Numerico. Taxa de cambio EUR para MZN. Passado a
 #'   \code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
 #'   (valor indicativo; actualizar conforme necessario).
@@ -413,10 +516,11 @@ processar_extracto_esistafe <- function(
 #' @examples
 #' \dontrun{
 #' df_razao <- processar_extracto_razao_c(
-#'   source_path = path_folder_source,
-#'   usd_to_mt   = 63.86,
-#'   eur_to_mt   = 70.00,
-#'   eur_to_usd  = 1.10
+#'   source_path   = path_folder_source,
+#'   usd_to_mt     = 63.91,
+#'   cut_usd_to_mt = 63.27,
+#'   eur_to_mt     = 70.00,
+#'   eur_to_usd    = 1.10
 #' )
 #' }
 #'
@@ -427,7 +531,8 @@ processar_extracto_razao_c <- function(
     exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
     recursive       = FALSE,
     quiet           = TRUE,
-    usd_to_mt       = 63.86,
+    usd_to_mt       = 63.91,
+    cut_usd_to_mt   = 63.27,
     eur_to_mt       = 70.00,
     eur_to_usd      = 1.10
 ) {
@@ -631,10 +736,11 @@ processar_extracto_razao_c <- function(
 
   # ---- Conversao de moeda ----
   df <- aplicar_conversao_moeda(
-    df         = df,
-    usd_to_mt  = usd_to_mt,
-    eur_to_mt  = eur_to_mt,
-    eur_to_usd = eur_to_usd
+    df            = df,
+    usd_to_mt     = usd_to_mt,
+    cut_usd_to_mt = cut_usd_to_mt,
+    eur_to_mt     = eur_to_mt,
+    eur_to_usd    = eur_to_usd
   )
 
   # ---- Calcular intervalo de datas ----
