@@ -68,6 +68,7 @@ Antes de executar o pipeline, certifique-se de que:
 ## Carregar pacotes no R
 
 ``` r
+
 library(easystafe)
 library(readxl)
 library(dplyr)
@@ -81,6 +82,7 @@ Isto permite que o conjunto de dados seja reduzido às linhas relevantes
 para o MEC.
 
 ``` r
+
 # Este código importa os UGBs relevantes da área da educação para o ambiente R, para que possam ser utilizados.
 
 ugb_lookup <- read_excel(
@@ -96,6 +98,7 @@ etapa de filtragem.
 ## Passo 2: Definir Caminho aos Ficheiros e-SISTAFE
 
 ``` r
+
 # Este código define a pasta na qual são guardadas as exportações do e-SISTAFE em formato Excel
 pasta_extractos <- "Data/extractos/"
 ```
@@ -111,6 +114,7 @@ Com apenas a função `processar_extracto_sistafe()` o pacote executa
 todas as etapas de filtragem e desduplicação:
 
 ``` r
+
 df_processado <- processar_extracto_sistafe(
   source_path    = pasta_extractos,
   ugb_lookup     = ugb_lookup,
@@ -242,6 +246,7 @@ Antes de guardar, é boa prática verificar o resultado com uma breve
 inspecção. O código abaixo mostra um resumo por tipo de relatório e mês:
 
 ``` r
+
 df_processado |>
   count(reporte_tipo, ano, mes, name = "n_linhas") |>
   gt() |>
@@ -270,6 +275,7 @@ automaticamente o nome do ficheiro a partir dos metadados (tipo de
 relatório, ano, mês e data de hoje):
 
 ``` r
+
 gravar_extracto_sistafe(
   df            = df_processado,
   output_folder = "Dataout/"
@@ -291,6 +297,7 @@ Com o pacote `easystafe`, o processamento completo de um mês de
 extractos do e-SISTAFE pode ser feito com menos de 10 linhas de código:
 
 ``` r
+
 library(easystafe)
 library(readxl)
 

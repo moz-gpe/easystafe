@@ -125,6 +125,28 @@ O processamento segue as seguintes etapas principais:
 13. Seleccao das colunas finais a partir de um vector explicito,
     garantindo que `data_tipo` e sempre incluido antes de `ugb`.
 
+14. Deteccao e correccao de valores negativos nas 11 colunas numericas
+    principais (apenas em linhas `"Valor"`):
+
+    - Calculo do denominador: soma total das colunas numericas em linhas
+      `"Valor"` antes de qualquer correccao.
+
+    - Identificacao dos `ugb_funcao_prog_fr` distintos com pelo menos um
+      valor negativo em qualquer coluna numerica.
+
+    - Criacao de uma copia dessas linhas com `data_tipo` recodificado
+      para `"Corregido"`, preservando os valores negativos originais
+      como registo de auditoria.
+
+    - Substituicao dos valores negativos por zero nas linhas originais
+      `"Valor"` (cirurgicamente, coluna a coluna).
+
+    - Anexacao da copia `"Corregido"` ao dataset final.
+
+    - Emissao de mensagem de resumo com o numero de grupos corrigidos, a
+      soma absoluta dos valores corrigidos, e a respectiva percentagem
+      da soma total `"Valor"`.
+
 ## Examples
 
 ``` r

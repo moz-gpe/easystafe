@@ -47,6 +47,7 @@ ficheiros encontrados sao lidos e combinados por
 
 O nome do ficheiro de saida segue o formato:
 
+
     eSISTAFE_<ano_min>-<ano_max>.xlsx  # quando ha multiplos anos
     eSISTAFE_<ano>.xlsx                # quando todos os dados sao do mesmo ano
 

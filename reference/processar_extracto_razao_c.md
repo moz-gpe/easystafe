@@ -13,7 +13,8 @@ processar_extracto_razao_c(
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
   quiet = TRUE,
-  usd_to_mt = 63.86,
+  usd_to_mt = 63.91,
+  cut_usd_to_mt = 63.27,
   eur_to_mt = 70,
   eur_to_usd = 1.1
 )
@@ -46,9 +47,17 @@ processar_extracto_razao_c(
 
 - usd_to_mt:
 
-  Numerico. Taxa de cambio USD para MZN. Passado a
+  Numerico. Taxa de cambio USD para MZN. Utilizada para ficheiros
+  `"EXTRACTO ABSA BANK USD"`. Passado a
   [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `63.86` (valor indicativo; actualizar conforme necessario).
+  Por padrao `0.015647`.
+
+- cut_usd_to_mt:
+
+  Numerico. Taxa de cambio USD para MZN especifica para ficheiros
+  `"CENTRAL USD"`. Passado adevt
+  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
+  Por padrao `0.015805`.
 
 - eur_to_mt:
 
@@ -84,10 +93,11 @@ directamente sobre o tibble ja processado.
 ``` r
 if (FALSE) { # \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path = path_folder_source,
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  source_path   = path_folder_source,
+  usd_to_mt     = 63.91,
+  cut_usd_to_mt = 63.27,
+  eur_to_mt     = 70.00,
+  eur_to_usd    = 1.10
 )
 } # }
 ```

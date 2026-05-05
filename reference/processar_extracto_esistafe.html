@@ -150,6 +150,21 @@ subtraccao hierarquica.</p></li>
 <li><p>Reinclusao opcional das linhas <code>"Metrica"</code> via <code>include_metrica</code>.</p></li>
 <li><p>Seleccao das colunas finais a partir de um vector explicito,
 garantindo que <code>data_tipo</code> e sempre incluido antes de <code>ugb</code>.</p></li>
+<li><p>Deteccao e correccao de valores negativos nas 11 colunas numericas
+principais (apenas em linhas <code>"Valor"</code>):</p><ul><li><p>Calculo do denominador: soma total das colunas numericas em linhas
+<code>"Valor"</code> antes de qualquer correccao.</p></li>
+<li><p>Identificacao dos <code>ugb_funcao_prog_fr</code> distintos com pelo
+menos um valor negativo em qualquer coluna numerica.</p></li>
+<li><p>Criacao de uma copia dessas linhas com <code>data_tipo</code> recodificado
+para <code>"Corregido"</code>, preservando os valores negativos originais
+como registo de auditoria.</p></li>
+<li><p>Substituicao dos valores negativos por zero nas linhas originais
+<code>"Valor"</code> (cirurgicamente, coluna a coluna).</p></li>
+<li><p>Anexacao da copia <code>"Corregido"</code> ao dataset final.</p></li>
+<li><p>Emissao de mensagem de resumo com o numero de grupos corrigidos,
+a soma absoluta dos valores corrigidos, e a respectiva percentagem
+da soma total <code>"Valor"</code>.</p></li>
+</ul></li>
 </ol></div>
 
     <div class="section level2">
