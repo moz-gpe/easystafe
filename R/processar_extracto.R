@@ -27,11 +27,21 @@
 #'   \code{FALSE}, metadata are not added and the \code{file_name} column is
 #'   also removed from the final result.
 #' @param include_metrica Logical. If \code{TRUE} (default), rows of type
-#'   \code{"Metrica"} are excluded from the final output, retaining only
-#'   \code{"Valor"} rows after hierarchical subtraction. If \code{TRUE},
-#'   \code{"Metrica"} rows are reincluded in the final output after
-#'   processing, useful for comparisons and validation. The \code{data_tipo}
-#'   column is always included in the output regardless of this parameter.
+#'   \code{"Metrica"} are reincluded in the final output after hierarchical
+#'   subtraction, useful for comparisons and validation. If \code{FALSE},
+#'   only \code{"Valor"} rows are retained in the final output. The
+#'   \code{data_tipo} column is always included in the output regardless of
+#'   this parameter.
+#' @param correct_negatives Logical. If \code{TRUE} (default), negative values
+#'   in the 11 main numeric columns are detected and corrected: they are set to
+#'   zero in the original \code{"Valor"} rows, audit copies of the affected
+#'   rows are appended with \code{data_tipo == "Corregido"}, and two flag
+#'   columns are added -- \code{valor_corregido} (\code{1L} for any row whose
+#'   \code{ugb_funcao_prog_fr} contained a negative of any magnitude) and
+#'   \code{valor_negativo} (\code{1L} only where the absolute value of the
+#'   negative was \eqn{\geq 1}). If \code{FALSE}, this entire block is
+#'   skipped: negative values are left as-is, no \code{"Corregido"} rows are
+#'   added, and the two flag columns are not created.
 #' @param quiet Logical. If \code{TRUE} (default), progress messages are
 #'   suppressed. If \code{FALSE}, a message is emitted for each processing
 #'   step. Regardless of this parameter, a final message with the number of
@@ -68,8 +78,8 @@
 #'   \item Reinclusao opcional das linhas \code{"Metrica"} via \code{include_metrica}.
 #'   \item Seleccao das colunas finais a partir de um vector explicito,
 #'     garantindo que \code{data_tipo} e sempre incluido antes de \code{ugb}.
-#'   \item Deteccao e correccao de valores negativos nas 11 colunas numericas
-#'     principais (apenas em linhas \code{"Valor"}):
+#'   \item Deteccao e correccao de valores negativos (apenas quando
+#'     \code{correct_negatives = TRUE}):
 #'     \itemize{
 #'       \item Calculo do denominador: soma total das colunas numericas em linhas
 #'         \code{"Valor"} antes de qualquer correccao.
@@ -81,6 +91,12 @@
 #'       \item Substituicao dos valores negativos por zero nas linhas originais
 #'         \code{"Valor"} (cirurgicamente, coluna a coluna).
 #'       \item Anexacao da copia \code{"Corregido"} ao dataset final.
+#'       \item Criacao de \code{valor_corregido}: \code{1L} para todas as linhas
+#'         cujo \code{ugb_funcao_prog_fr} continha pelo menos um valor negativo
+#'         (qualquer magnitude); \code{0L} caso contrario.
+#'       \item Criacao de \code{valor_negativo}: \code{1L} apenas para linhas
+#'         onde pelo menos uma coluna numerica tinha valor \eqn{\leq -1}
+#'         (valor absoluto \eqn{\geq 1}); \code{0L} caso contrario.
 #'       \item Emissao de mensagem de resumo com o numero de grupos corrigidos,
 #'         a soma absoluta dos valores corrigidos, e a respectiva percentagem
 #'         da soma total \code{"Valor"}.
@@ -89,42 +105,49 @@
 #'
 #' @examples
 #' \dontrun{
-#' ugb_lookup    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
-#' path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
+#' ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 #'
-#' # Padrao -- com metadados e colunas percent, sem linhas Metrica
+#' # Padrao -- com correccao de negativos activa
 #' df <- processar_extracto_esistafe(
-#'   source_path = path_files,
-#'   df_ugb_lookup  = ugb_lookup
+#'   source_path   = "Data/",
+#'   df_ugb_lookup = ugb_lookup
+#' )
+#'
+#' # Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+#' df <- processar_extracto_esistafe(
+#'   source_path        = "Data/",
+#'   df_ugb_lookup      = ugb_lookup,
+#'   correct_negatives  = FALSE
 #' )
 #'
 #' # Sem metadados, sem colunas percent
 #' df <- processar_extracto_esistafe(
-#'   source_path     = path_files,
-#'   df_ugb_lookup      = ugb_lookup,
-#'   include_percent = FALSE,
-#'   include_file_metadata    = FALSE
+#'   source_path           = "Data/",
+#'   df_ugb_lookup         = ugb_lookup,
+#'   include_percent       = FALSE,
+#'   include_file_metadata = FALSE
 #' )
 #'
 #' # Com linhas Metrica incluidas para comparacao
 #' df <- processar_extracto_esistafe(
-#'   source_path      = path_files,
-#'   df_ugb_lookup       = ugb_lookup,
-#'   include_metrica  = TRUE
+#'   source_path     = "Data/",
+#'   df_ugb_lookup   = ugb_lookup,
+#'   include_metrica = TRUE
 #' )
 #'
 #' # Com mensagens de progresso
 #' df <- processar_extracto_esistafe(
-#'   source_path = path_files,
-#'   df_ugb_lookup  = ugb_lookup,
-#'   quiet       = FALSE
+#'   source_path   = "Data/",
+#'   df_ugb_lookup = ugb_lookup,
+#'   quiet         = FALSE
 #' )
 #' }
 #'
-#' @importFrom purrr map
+#' @importFrom purrr map keep
 #' @importFrom readxl read_excel
 #' @importFrom dplyr n_distinct mutate across relocate filter select left_join
-#'   if_else case_when group_by ungroup bind_rows distinct
+#'   if_else case_when group_by ungroup bind_rows distinct row_number pull
+#'   summarise pick
 #' @importFrom tidyr unite
 #' @importFrom stringr str_ends str_sub str_c
 #' @importFrom janitor clean_names
@@ -133,18 +156,16 @@
 #' @importFrom scales comma percent
 #'
 #' @export
-
 processar_extracto_esistafe <- function(
-    source_path = "Data/",
+    source_path        = "Data/",
     df_ugb_lookup,
-    include_pattern  = "DemonstrativoConsolidado",
-    include_percent  = TRUE,
-    include_file_metadata     = TRUE,
-    include_metrica  = TRUE,
-    quiet            = TRUE
+    include_pattern    = "DemonstrativoConsolidado",
+    include_percent    = TRUE,
+    include_file_metadata = TRUE,
+    include_metrica    = TRUE,
+    correct_negatives  = TRUE,
+    quiet              = TRUE
 ) {
-
-
   # --- Mensagens internas ---
   msg <- function(...) {
     if (!quiet) message(...)
@@ -152,33 +173,25 @@ processar_extracto_esistafe <- function(
 
   # --- 1. Identificar e carregar ficheiros ---
   msg("A identificar ficheiros...")
-
   files <- base::list.files(
     path       = source_path,
     pattern    = include_pattern,
     full.names = TRUE
   )
-
   if (length(files) == 0) {
     stop(glue::glue("Nenhum ficheiro encontrado em '{source_path}' com o padrao '{include_pattern}'."))
   }
-
   msg(glue::glue("{length(files)} ficheiro(s) encontrado(s). A carregar..."))
-
   df <- purrr::map(files, ~readxl::read_excel(.x, col_types = "text")) |>
     purrr::set_names(base::basename(files)) |>
     purrr::list_rbind(names_to = "file_name")
-
   msg(glue::glue("Ficheiros carregados: {dplyr::n_distinct(df$file_name)} | Linhas: {nrow(df)}"))
-
 
   # --- 2. Adicionar ou remover metadados ---
   if (include_file_metadata) {
     msg("A extrair e adicionar metadados...")
-
     paths_meta <- extrair_meta_extracto(files) |>
-      dplyr::rename_with(~ gsub(".*_meta$", "", .x))
-
+      dplyr::rename_with(~ gsub("_meta$", "", .x))
     df <- df |>
       dplyr::left_join(paths_meta, by = "file_name") |>
       dplyr::relocate(names(paths_meta)[-1], .after = file_name)
@@ -186,18 +199,15 @@ processar_extracto_esistafe <- function(
 
   # --- 3. Renomear colunas ---
   msg("A limpar nomes de colunas...")
-
   df_limpeza_1 <- janitor::clean_names(df)
 
   # --- 4. Remover colunas percent ---
   msg("A remover colunas percentuais...")
-
   df_limpeza_2 <- df_limpeza_1 |>
     dplyr::select(!dplyr::ends_with("percent"))
 
   # --- 5. Extrair codigo UGB ---
   msg("A extrair c\u00f3digo UGB...")
-
   df_limpeza_3 <- df_limpeza_2 |>
     dplyr::mutate(
       dplyr::across(dotacao_inicial:liq_ad_fundos_via_directa_lafvd,
@@ -208,11 +218,9 @@ processar_extracto_esistafe <- function(
 
   # --- 6. Filtrar UGBs de educacao ---
   msg("A filtrar UGB's de educa\u00e7\u00e3o...")
-
   vec_ugb <- df_ugb_lookup |>
     dplyr::distinct(codigo_ugb) |>
     dplyr::pull()
-
   df_limpeza_4 <- df_limpeza_3 |>
     dplyr::mutate(mec_ugb_class = base::ifelse(ugb_id %in% vec_ugb, "Keep", "Remove")) |>
     dplyr::filter(mec_ugb_class == "Keep") |>
@@ -220,7 +228,6 @@ processar_extracto_esistafe <- function(
 
   # --- 7. Remover linhas com CED e funcao/programa/FR em branco ---
   msg("A remover linhas com CED e campos-chave em branco...")
-
   df_limpeza_5 <- df_limpeza_4 |>
     dplyr::filter(!base::is.na(ced) | (!base::is.na(funcao) & !base::is.na(programa) & !base::is.na(fr))) |>
     dplyr::mutate(data_tipo = dplyr::if_else(base::is.na(ced), "Metrica", "Valor")) |>
@@ -228,7 +235,6 @@ processar_extracto_esistafe <- function(
 
   # --- 8. Classificar grupos CED e remover grupo D ---
   msg("A classificar grupos CED e remover grupo D...")
-
   df_limpeza_6 <- df_limpeza_5 |>
     dplyr::mutate(
       ced_group = dplyr::case_when(
@@ -243,7 +249,6 @@ processar_extracto_esistafe <- function(
 
   # --- 9. Criar variaveis hierarquicas ---
   msg("A criar vari\u00e1veis hier\u00e1rquicas...")
-
   df_limpeza_7 <- df_limpeza_6 |>
     dplyr::mutate(
       ced_b4    = stringr::str_sub(ced, 1, 4),
@@ -264,14 +269,12 @@ processar_extracto_esistafe <- function(
 
   # --- 10b. Separar linhas Metrica antes da subtraccao hierarquica ---
   msg("A separar linhas Metrica e Valor...")
-
   df_metrica <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Metrica")
 
   # --- 11. Subtracao hierarquica: Passo 1 (A -> B dentro de ced_b4) ---
   # Nota: apenas linhas "Valor" entram na subtraccao -- comportamento agora explicito
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 1 (A \u2192 B)...")
-
   df_step1 <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Valor") |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_b4) |>
@@ -285,7 +288,6 @@ processar_extracto_esistafe <- function(
 
   # --- 12. Subtracao hierarquica: Passo 2 (B ajustado -> C dentro de ced_b3) ---
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 2 (B \u2192 C)...")
-
   df_step2 <- df_step1 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
     dplyr::mutate(
@@ -298,7 +300,6 @@ processar_extracto_esistafe <- function(
 
   # --- 13. Subtracao hierarquica: Passo 3 (A directo -> C dentro de ced_b3) ---
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 3 (A directo \u2192 C)...")
-
   df_limpeza_9 <- df_step2 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
     dplyr::mutate(
@@ -319,7 +320,6 @@ processar_extracto_esistafe <- function(
   # data_tipo e sempre incluido, posicionado antes de ugb.
   # percent e file_name sao incluidos ou excluidos conforme os argumentos.
   msg("A finalizar estrutura do dataset...")
-
   final_cols <- c(
     # metadados de ficheiro (removidos se include_file_metadata = FALSE)
     "file_name",
@@ -350,7 +350,6 @@ processar_extracto_esistafe <- function(
     "afdp_da_percent",
     "laf_af_percent"
   )
-
   df_limpeza_final <- df_limpeza_9 |>
     dplyr::mutate(
       dc_da_percent   = NA_real_,
@@ -373,64 +372,102 @@ processar_extracto_esistafe <- function(
       dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ano", "mes", "ugb_id")))
   }
 
+  # --- 17. Detectar e corrigir valores negativos (apenas se correct_negatives = TRUE) ---
+  if (correct_negatives) {
 
-  # --- 17. Detectar e corrigir valores negativos ---
-
-  neg_cols <- c(
-    "dotacao_inicial", "dotacao_revista", "dotacao_actualizada_da",
-    "dotacao_disponivel", "dotacao_cabimentada_dc", "ad_fundos_concedidos_af",
-    "despesa_paga_via_directa_dp", "ad_fundos_desp_paga_vd_afdp",
-    "ad_fundos_liquidados_laf", "despesa_liquidada_via_directa_lvd",
-    "liq_ad_fundos_via_directa_lafvd"
-  ) |>
-    purrr::keep(~ .x %in% names(df_limpeza_final))
-
-  # -- 17a. Calcular denominador (soma total de "Valor" antes de qualquer correccao) --
-  total_sum_valor <- df_limpeza_final |>
-    dplyr::filter(data_tipo == "Valor") |>
-    dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(.x, na.rm = TRUE))) |>
-    dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
-    dplyr::pull(total)
-
-  # -- 17b. Identificar ugb_funcao_prog_fr com pelo menos um valor negativo (apenas "Valor") --
-  ugb_com_negativos <- df_limpeza_final |>
-    dplyr::filter(
-      data_tipo == "Valor",
-      dplyr::if_any(dplyr::all_of(neg_cols), ~ .x < 0)
+    neg_cols <- c(
+      "dotacao_inicial", "dotacao_revista", "dotacao_actualizada_da",
+      "dotacao_disponivel", "dotacao_cabimentada_dc", "ad_fundos_concedidos_af",
+      "despesa_paga_via_directa_dp", "ad_fundos_desp_paga_vd_afdp",
+      "ad_fundos_liquidados_laf", "despesa_liquidada_via_directa_lvd",
+      "liq_ad_fundos_via_directa_lafvd"
     ) |>
-    dplyr::distinct(ugb_funcao_prog_fr) |>
-    dplyr::pull(ugb_funcao_prog_fr)
+      purrr::keep(~ .x %in% names(df_limpeza_final))
 
-  # -- 17c. Calcular soma absoluta dos negativos (antes de corrigir) --
-  soma_negativos <- df_limpeza_final |>
-    dplyr::filter(
-      data_tipo == "Valor",
-      ugb_funcao_prog_fr %in% ugb_com_negativos
-    ) |>
-    dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(pmin(.x, 0), na.rm = TRUE))) |>
-    dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
-    dplyr::pull(total) |>
-    abs()
+    # -- 17a. Calcular denominador (soma total de "Valor" antes de qualquer correccao) --
+    total_sum_valor <- df_limpeza_final |>
+      dplyr::filter(data_tipo == "Valor") |>
+      dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(.x, na.rm = TRUE))) |>
+      dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
+      dplyr::pull(total)
 
-  # -- 17d. Criar copia "Corregido" com valores negativos preservados --
-  df_corregido <- df_limpeza_final |>
-    dplyr::filter(
-      data_tipo == "Valor",
-      ugb_funcao_prog_fr %in% ugb_com_negativos
-    ) |>
-    dplyr::mutate(data_tipo = "Corregido")
+    # -- 17b. Adicionar row ID temporario e identificar grupos/linhas com negativos --
+    df_limpeza_final <- df_limpeza_final |>
+      dplyr::mutate(.row_id = dplyr::row_number())
 
-  # -- 17e. Zerar negativos no dataset original apenas em linhas "Valor" --
-  df_limpeza_final <- df_limpeza_final |>
-    dplyr::mutate(
-      dplyr::across(
-        dplyr::all_of(neg_cols),
-        ~ dplyr::if_else(data_tipo == "Valor" & .x < 0, 0, .x)
+    # Grupos (ugb_funcao_prog_fr) com pelo menos um valor negativo de qualquer magnitude
+    ugb_com_negativos <- df_limpeza_final |>
+      dplyr::filter(
+        data_tipo == "Valor",
+        dplyr::if_any(dplyr::all_of(neg_cols), ~ .x < 0)
+      ) |>
+      dplyr::distinct(ugb_funcao_prog_fr) |>
+      dplyr::pull(ugb_funcao_prog_fr)
+
+    # Linhas com pelo menos um valor negativo com valor absoluto >= 1 (valor <= -1)
+    rows_sig_correccao <- df_limpeza_final |>
+      dplyr::filter(
+        data_tipo == "Valor",
+        dplyr::if_any(dplyr::all_of(neg_cols), ~ !is.na(.x) & .x <= -1)
+      ) |>
+      dplyr::pull(.row_id)
+
+    # -- 17c. Calcular soma absoluta dos negativos (antes de corrigir) --
+    soma_negativos <- df_limpeza_final |>
+      dplyr::filter(
+        data_tipo == "Valor",
+        ugb_funcao_prog_fr %in% ugb_com_negativos
+      ) |>
+      dplyr::summarise(dplyr::across(dplyr::all_of(neg_cols), ~ sum(pmin(.x, 0), na.rm = TRUE))) |>
+      dplyr::summarise(total = rowSums(dplyr::pick(dplyr::everything()))) |>
+      dplyr::pull(total) |>
+      abs()
+
+    # -- 17d. Criar copia "Corregido" com valores negativos preservados --
+    df_corregido <- df_limpeza_final |>
+      dplyr::filter(
+        data_tipo == "Valor",
+        ugb_funcao_prog_fr %in% ugb_com_negativos
+      ) |>
+      dplyr::mutate(data_tipo = "Corregido")
+
+    # -- 17e. Zerar negativos no dataset original apenas em linhas "Valor" --
+    df_limpeza_final <- df_limpeza_final |>
+      dplyr::mutate(
+        dplyr::across(
+          dplyr::all_of(neg_cols),
+          ~ dplyr::if_else(data_tipo == "Valor" & .x < 0, 0, .x)
+        )
       )
-    )
 
-  # -- 17f. Anexar copia "Corregido" --
-  df_limpeza_final <- dplyr::bind_rows(df_limpeza_final, df_corregido)
+    # -- 17f. Anexar copia "Corregido" --
+    df_limpeza_final <- dplyr::bind_rows(df_limpeza_final, df_corregido)
+
+    # -- 17f.2. Criar variaveis valor_corregido e valor_negativo --
+    # valor_corregido: 1 para todas as linhas cujo ugb_funcao_prog_fr tinha
+    #   qualquer valor negativo (independentemente da magnitude)
+    # valor_negativo:  1 apenas para linhas onde pelo menos uma coluna numerica
+    #   tinha valor absoluto >= 1 (i.e., valor <= -1)
+    df_limpeza_final <- df_limpeza_final |>
+      dplyr::mutate(
+        valor_corregido = dplyr::if_else(ugb_funcao_prog_fr %in% ugb_com_negativos, 1L, 0L),
+        valor_negativo  = dplyr::if_else(.row_id %in% rows_sig_correccao, 1L, 0L)
+      ) |>
+      dplyr::select(-.row_id) |>
+      dplyr::relocate(c(valor_corregido, valor_negativo), .after = ugb_funcao_prog_fr)
+
+    # -- 17g. Mensagem de resumo (sempre visivel) --
+    pct_negativos <- if (total_sum_valor != 0) {
+      scales::percent(soma_negativos / abs(total_sum_valor), accuracy = 0.01)
+    } else {
+      "N/A (soma total == 0)"
+    }
+    message(glue::glue(
+      "Correccao de negativos: {length(ugb_com_negativos)} ugb_funcao_prog_fr(s) identificado(s) e corrigido(s).\n",
+      "  Soma absoluta dos valores negativos convertidos a zero: {scales::comma(soma_negativos)} ({pct_negativos} da soma total de colunas numericas [data_tipo == 'Valor'])."
+    ))
+
+  } # fim do bloco correct_negatives
 
   # --- Resumo final ---
   n_files   <- length(files)
@@ -439,33 +476,12 @@ processar_extracto_esistafe <- function(
     "Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n{file_list}"
   ))
 
-  message("")
-
-  # -- 17f.2. Criar variavel valor_corregido --
-  df_limpeza_final <- df_limpeza_final |>
-    dplyr::mutate(
-      valor_corregido = dplyr::if_else(ugb_funcao_prog_fr %in% ugb_com_negativos, 1L, 0L)
-    ) |>
-    dplyr::relocate(valor_corregido, .after = ugb_funcao_prog_fr)
-
-  # -- 17g. Mensagem de resumo (sempre visivel) --
-  pct_negativos <- if (total_sum_valor != 0) {
-    scales::percent(soma_negativos / abs(total_sum_valor), accuracy = 0.01)
-  } else {
-    "N/A (soma total == 0)"
-  }
-
-  message(glue::glue(
-    "Correccao de negativos: {length(ugb_com_negativos)} ugb_funcao_prog_fr(s) identificado(s) e corrigido(s).\n",
-    "  Soma absoluta dos valores negativos convertidos a zero: {scales::comma(soma_negativos)} ({pct_negativos} da soma total de colunas numericas [data_tipo == 'Valor'])."
-  ))
-
   # --- Verificar completude de UGBs ---
   verificar_ugb_completude(df_limpeza_final, df_ugb_lookup, quiet = quiet)
 
   return(df_limpeza_final)
-
 }
+
 
 
 

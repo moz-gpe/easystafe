@@ -11,6 +11,7 @@ processar_extracto_esistafe(
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
+  correct_negatives = TRUE,
   quiet = TRUE
 )
 }
@@ -41,11 +42,22 @@ to the dataframe immediately after the \code{file_name} column. If
 also removed from the final result.}
 
 \item{include_metrica}{Logical. If \code{TRUE} (default), rows of type
-\code{"Metrica"} are excluded from the final output, retaining only
-\code{"Valor"} rows after hierarchical subtraction. If \code{TRUE},
-\code{"Metrica"} rows are reincluded in the final output after
-processing, useful for comparisons and validation. The \code{data_tipo}
-column is always included in the output regardless of this parameter.}
+\code{"Metrica"} are reincluded in the final output after hierarchical
+subtraction, useful for comparisons and validation. If \code{FALSE},
+only \code{"Valor"} rows are retained in the final output. The
+\code{data_tipo} column is always included in the output regardless of
+this parameter.}
+
+\item{correct_negatives}{Logical. If \code{TRUE} (default), negative values
+in the 11 main numeric columns are detected and corrected: they are set to
+zero in the original \code{"Valor"} rows, audit copies of the affected
+rows are appended with \code{data_tipo == "Corregido"}, and two flag
+columns are added -- \code{valor_corregido} (\code{1L} for any row whose
+\code{ugb_funcao_prog_fr} contained a negative of any magnitude) and
+\code{valor_negativo} (\code{1L} only where the absolute value of the
+negative was \eqn{\geq 1}). If \code{FALSE}, this entire block is
+skipped: negative values are left as-is, no \code{"Corregido"} rows are
+added, and the two flag columns are not created.}
 
 \item{quiet}{Logical. If \code{TRUE} (default), progress messages are
 suppressed. If \code{FALSE}, a message is emitted for each processing
@@ -91,8 +103,8 @@ subtraccao hierarquica.
 \item Reinclusao opcional das linhas \code{"Metrica"} via \code{include_metrica}.
 \item Seleccao das colunas finais a partir de um vector explicito,
 garantindo que \code{data_tipo} e sempre incluido antes de \code{ugb}.
-\item Deteccao e correccao de valores negativos nas 11 colunas numericas
-principais (apenas em linhas \code{"Valor"}):
+\item Deteccao e correccao de valores negativos (apenas quando
+\code{correct_negatives = TRUE}):
 \itemize{
 \item Calculo do denominador: soma total das colunas numericas em linhas
 \code{"Valor"} antes de qualquer correccao.
@@ -104,6 +116,12 @@ como registo de auditoria.
 \item Substituicao dos valores negativos por zero nas linhas originais
 \code{"Valor"} (cirurgicamente, coluna a coluna).
 \item Anexacao da copia \code{"Corregido"} ao dataset final.
+\item Criacao de \code{valor_corregido}: \code{1L} para todas as linhas
+cujo \code{ugb_funcao_prog_fr} continha pelo menos um valor negativo
+(qualquer magnitude); \code{0L} caso contrario.
+\item Criacao de \code{valor_negativo}: \code{1L} apenas para linhas
+onde pelo menos uma coluna numerica tinha valor \eqn{\leq -1}
+(valor absoluto \eqn{\geq 1}); \code{0L} caso contrario.
 \item Emissao de mensagem de resumo com o numero de grupos corrigidos,
 a soma absoluta dos valores corrigidos, e a respectiva percentagem
 da soma total \code{"Valor"}.
@@ -112,35 +130,41 @@ da soma total \code{"Valor"}.
 }
 \examples{
 \dontrun{
-ugb_lookup    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
-path_files <- list.files("Data/", pattern = "\\\\.xlsx$", full.names = TRUE)
+ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 
-# Padrao -- com metadados e colunas percent, sem linhas Metrica
+# Padrao -- com correccao de negativos activa
 df <- processar_extracto_esistafe(
-  source_path = path_files,
-  df_ugb_lookup  = ugb_lookup
+  source_path   = "Data/",
+  df_ugb_lookup = ugb_lookup
+)
+
+# Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+df <- processar_extracto_esistafe(
+  source_path        = "Data/",
+  df_ugb_lookup      = ugb_lookup,
+  correct_negatives  = FALSE
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_esistafe(
-  source_path     = path_files,
-  df_ugb_lookup      = ugb_lookup,
-  include_percent = FALSE,
-  include_file_metadata    = FALSE
+  source_path           = "Data/",
+  df_ugb_lookup         = ugb_lookup,
+  include_percent       = FALSE,
+  include_file_metadata = FALSE
 )
 
 # Com linhas Metrica incluidas para comparacao
 df <- processar_extracto_esistafe(
-  source_path      = path_files,
-  df_ugb_lookup       = ugb_lookup,
-  include_metrica  = TRUE
+  source_path     = "Data/",
+  df_ugb_lookup   = ugb_lookup,
+  include_metrica = TRUE
 )
 
 # Com mensagens de progresso
 df <- processar_extracto_esistafe(
-  source_path = path_files,
-  df_ugb_lookup  = ugb_lookup,
-  quiet       = FALSE
+  source_path   = "Data/",
+  df_ugb_lookup = ugb_lookup,
+  quiet         = FALSE
 )
 }
 
