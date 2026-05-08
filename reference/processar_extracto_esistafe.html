@@ -61,6 +61,7 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.</p>
 <span>  include_percent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_file_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  include_metrica <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  correct_negatives <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -106,11 +107,24 @@ also removed from the final result.</p></dd>
 
 <dt id="arg-include-metrica">include_metrica<a class="anchor" aria-label="anchor" href="#arg-include-metrica"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default), rows of type
-<code>"Metrica"</code> are excluded from the final output, retaining only
-<code>"Valor"</code> rows after hierarchical subtraction. If <code>TRUE</code>,
-<code>"Metrica"</code> rows are reincluded in the final output after
-processing, useful for comparisons and validation. The <code>data_tipo</code>
-column is always included in the output regardless of this parameter.</p></dd>
+<code>"Metrica"</code> are reincluded in the final output after hierarchical
+subtraction, useful for comparisons and validation. If <code>FALSE</code>,
+only <code>"Valor"</code> rows are retained in the final output. The
+<code>data_tipo</code> column is always included in the output regardless of
+this parameter.</p></dd>
+
+
+<dt id="arg-correct-negatives">correct_negatives<a class="anchor" aria-label="anchor" href="#arg-correct-negatives"></a></dt>
+<dd><p>Logical. If <code>TRUE</code> (default), negative values
+in the 11 main numeric columns are detected and corrected: they are set to
+zero in the original <code>"Valor"</code> rows, audit copies of the affected
+rows are appended with <code>data_tipo == "Corregido"</code>, and two flag
+columns are added – <code>valor_corregido</code> (<code>1L</code> for any row whose
+<code>ugb_funcao_prog_fr</code> contained a negative of any magnitude) and
+<code>valor_negativo</code> (<code>1L</code> only where the absolute value of the
+negative was \(\geq 1\)). If <code>FALSE</code>, this entire block is
+skipped: negative values are left as-is, no <code>"Corregido"</code> rows are
+added, and the two flag columns are not created.</p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
@@ -150,8 +164,8 @@ subtraccao hierarquica.</p></li>
 <li><p>Reinclusao opcional das linhas <code>"Metrica"</code> via <code>include_metrica</code>.</p></li>
 <li><p>Seleccao das colunas finais a partir de um vector explicito,
 garantindo que <code>data_tipo</code> e sempre incluido antes de <code>ugb</code>.</p></li>
-<li><p>Deteccao e correccao de valores negativos nas 11 colunas numericas
-principais (apenas em linhas <code>"Valor"</code>):</p><ul><li><p>Calculo do denominador: soma total das colunas numericas em linhas
+<li><p>Deteccao e correccao de valores negativos (apenas quando
+<code>correct_negatives = TRUE</code>):</p><ul><li><p>Calculo do denominador: soma total das colunas numericas em linhas
 <code>"Valor"</code> antes de qualquer correccao.</p></li>
 <li><p>Identificacao dos <code>ugb_funcao_prog_fr</code> distintos com pelo
 menos um valor negativo em qualquer coluna numerica.</p></li>
@@ -161,6 +175,12 @@ como registo de auditoria.</p></li>
 <li><p>Substituicao dos valores negativos por zero nas linhas originais
 <code>"Valor"</code> (cirurgicamente, coluna a coluna).</p></li>
 <li><p>Anexacao da copia <code>"Corregido"</code> ao dataset final.</p></li>
+<li><p>Criacao de <code>valor_corregido</code>: <code>1L</code> para todas as linhas
+cujo <code>ugb_funcao_prog_fr</code> continha pelo menos um valor negativo
+(qualquer magnitude); <code>0L</code> caso contrario.</p></li>
+<li><p>Criacao de <code>valor_negativo</code>: <code>1L</code> apenas para linhas
+onde pelo menos uma coluna numerica tinha valor \(\leq -1\)
+(valor absoluto \(\geq 1\)); <code>0L</code> caso contrario.</p></li>
 <li><p>Emissao de mensagem de resumo com o numero de grupos corrigidos,
 a soma absoluta dos valores corrigidos, e a respectiva percentagem
 da soma total <code>"Valor"</code>.</p></li>
@@ -170,35 +190,41 @@ da soma total <code>"Valor"</code>.</p></li>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">ugb_lookup</span>    <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"Data/ugb/Codigos de UGBs.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"UGBS"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">path_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"Data/"</span>, pattern <span class="op">=</span> <span class="st">"\\.xlsx$"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ugb_lookup</span> <span class="op">&lt;-</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_excel</a></span><span class="op">(</span><span class="st">"Data/ugb/Codigos de UGBs.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"UGBS"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Padrao -- com metadados e colunas percent, sem linhas Metrica</span></span></span>
+<span class="r-in"><span><span class="co"># Padrao -- com correccao de negativos activa</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_lookup</span></span></span>
+<span class="r-in"><span>  source_path   <span class="op">=</span> <span class="st">"Data/"</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup <span class="op">=</span> <span class="va">ugb_lookup</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  source_path        <span class="op">=</span> <span class="st">"Data/"</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup      <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
+<span class="r-in"><span>  correct_negatives  <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Sem metadados, sem colunas percent</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  source_path     <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup      <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
-<span class="r-in"><span>  include_percent <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  include_file_metadata    <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  source_path           <span class="op">=</span> <span class="st">"Data/"</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup         <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
+<span class="r-in"><span>  include_percent       <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  include_file_metadata <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com linhas Metrica incluidas para comparacao</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  source_path      <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup       <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
-<span class="r-in"><span>  include_metrica  <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  source_path     <span class="op">=</span> <span class="st">"Data/"</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup   <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
+<span class="r-in"><span>  include_metrica <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Com mensagens de progresso</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_esistafe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_files</span>,</span></span>
-<span class="r-in"><span>  df_ugb_lookup  <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
-<span class="r-in"><span>  quiet       <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  source_path   <span class="op">=</span> <span class="st">"Data/"</span>,</span></span>
+<span class="r-in"><span>  df_ugb_lookup <span class="op">=</span> <span class="va">ugb_lookup</span>,</span></span>
+<span class="r-in"><span>  quiet         <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

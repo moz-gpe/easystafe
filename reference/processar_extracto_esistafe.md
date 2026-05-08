@@ -17,6 +17,7 @@ processar_extracto_esistafe(
   include_percent = TRUE,
   include_file_metadata = TRUE,
   include_metrica = TRUE,
+  correct_negatives = TRUE,
   quiet = TRUE
 )
 ```
@@ -59,12 +60,24 @@ processar_extracto_esistafe(
 
 - include_metrica:
 
-  Logical. If `TRUE` (default), rows of type `"Metrica"` are excluded
-  from the final output, retaining only `"Valor"` rows after
-  hierarchical subtraction. If `TRUE`, `"Metrica"` rows are reincluded
-  in the final output after processing, useful for comparisons and
-  validation. The `data_tipo` column is always included in the output
-  regardless of this parameter.
+  Logical. If `TRUE` (default), rows of type `"Metrica"` are reincluded
+  in the final output after hierarchical subtraction, useful for
+  comparisons and validation. If `FALSE`, only `"Valor"` rows are
+  retained in the final output. The `data_tipo` column is always
+  included in the output regardless of this parameter.
+
+- correct_negatives:
+
+  Logical. If `TRUE` (default), negative values in the 11 main numeric
+  columns are detected and corrected: they are set to zero in the
+  original `"Valor"` rows, audit copies of the affected rows are
+  appended with `data_tipo == "Corregido"`, and two flag columns are
+  added – `valor_corregido` (`1L` for any row whose `ugb_funcao_prog_fr`
+  contained a negative of any magnitude) and `valor_negativo` (`1L` only
+  where the absolute value of the negative was \\\geq 1\\). If `FALSE`,
+  this entire block is skipped: negative values are left as-is, no
+  `"Corregido"` rows are added, and the two flag columns are not
+  created.
 
 - quiet:
 
@@ -125,8 +138,8 @@ O processamento segue as seguintes etapas principais:
 13. Seleccao das colunas finais a partir de um vector explicito,
     garantindo que `data_tipo` e sempre incluido antes de `ugb`.
 
-14. Deteccao e correccao de valores negativos nas 11 colunas numericas
-    principais (apenas em linhas `"Valor"`):
+14. Deteccao e correccao de valores negativos (apenas quando
+    `correct_negatives = TRUE`):
 
     - Calculo do denominador: soma total das colunas numericas em linhas
       `"Valor"` antes de qualquer correccao.
@@ -143,6 +156,14 @@ O processamento segue as seguintes etapas principais:
 
     - Anexacao da copia `"Corregido"` ao dataset final.
 
+    - Criacao de `valor_corregido`: `1L` para todas as linhas cujo
+      `ugb_funcao_prog_fr` continha pelo menos um valor negativo
+      (qualquer magnitude); `0L` caso contrario.
+
+    - Criacao de `valor_negativo`: `1L` apenas para linhas onde pelo
+      menos uma coluna numerica tinha valor \\\leq -1\\ (valor absoluto
+      \\\geq 1\\); `0L` caso contrario.
+
     - Emissao de mensagem de resumo com o numero de grupos corrigidos, a
       soma absoluta dos valores corrigidos, e a respectiva percentagem
       da soma total `"Valor"`.
@@ -151,35 +172,41 @@ O processamento segue as seguintes etapas principais:
 
 ``` r
 if (FALSE) { # \dontrun{
-ugb_lookup    <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
-path_files <- list.files("Data/", pattern = "\\.xlsx$", full.names = TRUE)
+ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 
-# Padrao -- com metadados e colunas percent, sem linhas Metrica
+# Padrao -- com correccao de negativos activa
 df <- processar_extracto_esistafe(
-  source_path = path_files,
-  df_ugb_lookup  = ugb_lookup
+  source_path   = "Data/",
+  df_ugb_lookup = ugb_lookup
+)
+
+# Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+df <- processar_extracto_esistafe(
+  source_path        = "Data/",
+  df_ugb_lookup      = ugb_lookup,
+  correct_negatives  = FALSE
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_esistafe(
-  source_path     = path_files,
-  df_ugb_lookup      = ugb_lookup,
-  include_percent = FALSE,
-  include_file_metadata    = FALSE
+  source_path           = "Data/",
+  df_ugb_lookup         = ugb_lookup,
+  include_percent       = FALSE,
+  include_file_metadata = FALSE
 )
 
 # Com linhas Metrica incluidas para comparacao
 df <- processar_extracto_esistafe(
-  source_path      = path_files,
-  df_ugb_lookup       = ugb_lookup,
-  include_metrica  = TRUE
+  source_path     = "Data/",
+  df_ugb_lookup   = ugb_lookup,
+  include_metrica = TRUE
 )
 
 # Com mensagens de progresso
 df <- processar_extracto_esistafe(
-  source_path = path_files,
-  df_ugb_lookup  = ugb_lookup,
-  quiet       = FALSE
+  source_path   = "Data/",
+  df_ugb_lookup = ugb_lookup,
+  quiet         = FALSE
 )
 } # }
 ```
