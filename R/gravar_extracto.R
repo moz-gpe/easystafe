@@ -1,58 +1,56 @@
-#' Gravar extracto processado do e-SISTAFE em Excel
+#' Gravar extracto processado do e-SISTAFE em Parquet e Excel
 #'
-#' Grava um dataframe processado do e-SISTAFE num ficheiro Excel, construindo
-#' automaticamente o nome do ficheiro a partir do ano e mes mais recentes
+#' Grava um dataframe processado do e-SISTAFE em dois formatos (Parquet e Excel),
+#' construindo automaticamente o nome dos ficheiros a partir de todos os anos
 #' presentes nos dados. Cria a pasta de destino se nao existir.
 #'
-#' @param df Um dataframe processado contendo pelo menos as colunas \code{ano}
-#'   e \code{mes}.
-#' @param output_folder Caractere. Caminho para a pasta de destino onde o
-#'   ficheiro Excel sera gravado. Por padrao \code{"Dataout"}. A pasta e
-#'   criada automaticamente se nao existir.
+#' @param df Um dataframe processado contendo pelo menos a coluna \code{ano}.
+#' @param output_folder Caractere. Caminho para a pasta de destino. Por padrao
+#'   \code{"Dataout/"}. A pasta e criada automaticamente se nao existir.
 #' @param quiet Logico. Se \code{TRUE} (padrao), as mensagens de progresso
-#'   sao suprimidas. Se \code{FALSE}, sao emitidas mensagens sobre a criacao
-#'   da pasta e o caminho do ficheiro gravado.
+#'   sao suprimidas. Se \code{FALSE}, sao emitidas mensagens sobre o progresso.
 #'
-#' @return O caminho completo do ficheiro gravado, retornado de forma invisivel.
-#'   Pode ser capturado com \code{path <- gravar_extracto_sistafe(df)} para
-#'   uso posterior se necessario.
+#' @return Um named list com os caminhos completos dos ficheiros gravados
+#'   (\code{parquet} e \code{excel}), retornado de forma invisivel.
 #'
 #' @details
-#' O nome do ficheiro e construido automaticamente no formato:
-#' \code{eSISTAFE_<YYYYMM>.xlsx}, onde \code{YYYY} e o ano mais recente e
-#' \code{MM} o mes mais recente presentes no dataframe.
+#' O nome dos ficheiros e construido automaticamente no formato:
+#' \code{esistafe_<YYYY_YYYY>.parquet} e \code{esistafe_<YYYY_YYYY>.xlsx},
+#' onde os anos sao todos os valores unicos presentes na coluna \code{ano},
+#' ordenados e separados por underscores.
 #'
-#' Por exemplo: \code{eSISTAFE_202512.xlsx}
+#' Por exemplo, dados abrangendo 2025 e 2026 produzem:
+#' \code{esistafe_2025_2026.parquet} e \code{esistafe_2025_2026.xlsx}
 #'
-#' Se o dataframe abranger varios meses ou anos, e sempre utilizado o valor
-#' mais recente para construir o nome do ficheiro.
+#' Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
+#' de ser substituido.
 #'
 #' @examples
 #' \dontrun{
 #' # Gravar com pasta padrao
-#' gravar_extracto_sistafe(df)
+#' gravar_esistafe(df_esistafe)
 #'
 #' # Gravar numa pasta personalizada
-#' gravar_extracto_sistafe(df, output_folder = "Data/processed")
+#' gravar_esistafe(df_esistafe, output_folder = "Data/final")
 #'
 #' # Gravar com mensagens de progresso
-#' gravar_extracto_sistafe(df, quiet = FALSE)
+#' gravar_esistafe(df_esistafe, quiet = FALSE)
 #'
-#' # Capturar o caminho do ficheiro gravado
-#' path <- gravar_extracto_sistafe(df, quiet = FALSE)
+#' # Capturar os caminhos dos ficheiros gravados
+#' paths <- gravar_esistafe(df_esistafe, quiet = FALSE)
+#' paths$parquet
+#' paths$excel
 #' }
 #'
+#' @importFrom arrow write_parquet
 #' @importFrom dplyr pull
 #' @importFrom glue glue
-#' @importFrom purrr map_int
-#' @importFrom stringr str_pad
 #' @importFrom writexl write_xlsx
 #'
 #' @export
-
-gravar_extracto_sistafe <- function(
+gravar_esistafe <- function(
     df,
-    output_folder = "Data/processed/",
+    output_folder = "Dataout/",
     quiet         = TRUE
 ) {
   # --- Mensagens internas ---
@@ -60,31 +58,25 @@ gravar_extracto_sistafe <- function(
     if (!quiet) message(...)
   }
 
-  # --- Verificar que colunas de metadados existem ---
-  required_cols <- c("ano", "mes")
-  missing_cols  <- base::setdiff(required_cols, base::names(df))
-
-  if (base::length(missing_cols) > 0) {
-    stop(glue::glue(
-      "Colunas de metadados em falta: {paste(missing_cols, collapse = ', ')}. ",
-      "Certifique-se de que o dataframe contem as colunas 'ano' e 'mes'."
-    ))
+  # --- Validar coluna obrigatoria ---
+  if (!"ano" %in% base::names(df)) {
+    stop("Coluna 'ano' nao encontrada no dataframe. ",
+         "Certifique-se de que o dataframe contem a coluna 'ano'.")
   }
 
   # --- Remover trailing slash se presente ---
   output_folder <- base::gsub("/$", "", output_folder)
 
-  # --- Construir nome do ficheiro ---
-  latest_ano <- df |> dplyr::pull(ano) |> max(na.rm = TRUE)
-  latest_mes <- df |>
-    dplyr::pull(mes) |>
-    purrr::map_int(~ match(.x, c("Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
-                                 "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"))) |>
-    max(na.rm = TRUE) |>
-    stringr::str_pad(2, pad = "0")
+  # --- Construir nome dos ficheiros a partir de todos os anos presentes ---
+  years_str <- df |>
+    dplyr::pull(ano) |>
+    base::unique() |>
+    base::sort() |>
+    base::paste(collapse = "_")
 
-  file_name <- glue::glue("eSISTAFE_{latest_ano}{latest_mes}.xlsx")
-  file_path <- base::file.path(output_folder, file_name)
+  base_name     <- glue::glue("esistafe_{years_str}")
+  path_parquet  <- base::file.path(output_folder, glue::glue("{base_name}.parquet"))
+  path_excel    <- base::file.path(output_folder, glue::glue("{base_name}.xlsx"))
 
   # --- Criar pasta se nao existir ---
   if (!base::dir.exists(output_folder)) {
@@ -92,16 +84,28 @@ gravar_extracto_sistafe <- function(
     base::dir.create(output_folder, recursive = TRUE)
   }
 
-  # --- Guardar ficheiro ---
-  msg(glue::glue("A guardar ficheiro: {file_path}"))
-  writexl::write_xlsx(df, file_path)
-  message(glue::glue("Ficheiro do e-SISTAFE gravado: {file_path}"))
-  msg("Concluido.")
+  # --- Avisar se ficheiros ja existem ---
+  for (fp in c(path_parquet, path_excel)) {
+    if (base::file.exists(fp)) {
+      warning(glue::glue("Ficheiro ja existe e sera substituido: {fp}"))
+    }
+  }
 
-  # --- Retornar caminho invisivel para uso posterior se necessario ---
-  base::invisible(file_path)
+  # --- Guardar Parquet ---
+  msg(glue::glue("A guardar Parquet: {path_parquet}"))
+  arrow::write_parquet(df, path_parquet)
+
+  # --- Guardar Excel ---
+  msg(glue::glue("A guardar Excel: {path_excel}"))
+  writexl::write_xlsx(df, path_excel)
+
+  message(glue::glue("Ficheiros do e-SISTAFE gravados em '{output_folder}':"))
+  message(glue::glue("  - {base_name}.parquet"))
+  message(glue::glue("  - {base_name}.xlsx"))
+
+  # --- Retornar caminhos invisivelmente ---
+  base::invisible(list(parquet = path_parquet, excel = path_excel))
 }
-
 
 
 
