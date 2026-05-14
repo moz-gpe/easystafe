@@ -15,12 +15,13 @@
 #'
 #' @details
 #' O nome dos ficheiros e construido automaticamente no formato:
-#' \code{esistafe_<YYYY_YYYY>.parquet} e \code{esistafe_<YYYY_YYYY>.xlsx},
+#' \code{e-SISTAFE_<YYYY-YYYY>_<YYYY-MM-DD>.parquet} e
+#' \code{e-SISTAFE_<YYYY-YYYY>_<YYYY-MM-DD>.xlsx}
 #' onde os anos sao todos os valores unicos presentes na coluna \code{ano},
-#' ordenados e separados por underscores.
+#' ordenados e separados por hifen.
 #'
 #' Por exemplo, dados abrangendo 2025 e 2026 produzem:
-#' \code{esistafe_2025_2026.parquet} e \code{esistafe_2025_2026.xlsx}
+#' \code{e-SISTAFE_2025-2026_2026-02-24.parquet} e \code{e-SISTAFE_2025-2026_2026-02-24.xlsx}
 #'
 #' Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
 #' de ser substituido.
@@ -48,6 +49,7 @@
 #' @importFrom writexl write_xlsx
 #'
 #' @export
+
 gravar_esistafe <- function(
     df,
     output_folder = "Dataout/",
@@ -67,16 +69,38 @@ gravar_esistafe <- function(
   # --- Remover trailing slash se presente ---
   output_folder <- base::gsub("/$", "", output_folder)
 
-  # --- Construir nome dos ficheiros a partir de todos os anos presentes ---
-  years_str <- df |>
+  # --- Construir nome dos ficheiros a partir dos anos presentes ---
+  years <- df |>
     dplyr::pull(ano) |>
+    stats::na.omit() |>
     base::unique() |>
-    base::sort() |>
-    base::paste(collapse = "_")
+    base::sort()
 
-  base_name     <- glue::glue("esistafe_{years_str}")
-  path_parquet  <- base::file.path(output_folder, glue::glue("{base_name}.parquet"))
-  path_excel    <- base::file.path(output_folder, glue::glue("{base_name}.xlsx"))
+  if (length(years) == 0) {
+    stop(
+      "A coluna 'ano' nao contem valores validos."
+    )
+  }
+
+  years_str <- base::paste(years, collapse = "-")
+
+  # --- Data de criacao do extracto ---
+  created_date <- base::format(base::Sys.Date(), "%Y-%m-%d")
+
+  # --- Nome base dos ficheiros ---
+  base_name <- glue::glue(
+    "e-SISTAFE_{years_str}_{created_date}"
+  )
+
+  path_parquet <- base::file.path(
+    output_folder,
+    glue::glue("{base_name}.parquet")
+  )
+
+  path_excel <- base::file.path(
+    output_folder,
+    glue::glue("{base_name}.xlsx")
+  )
 
   # --- Criar pasta se nao existir ---
   if (!base::dir.exists(output_folder)) {
@@ -99,9 +123,9 @@ gravar_esistafe <- function(
   msg(glue::glue("A guardar Excel: {path_excel}"))
   writexl::write_xlsx(df, path_excel)
 
-  message(glue::glue("Ficheiros do e-SISTAFE gravados em '{output_folder}':"))
-  message(glue::glue("  - {base_name}.parquet"))
-  message(glue::glue("  - {base_name}.xlsx"))
+  msg(glue::glue("Ficheiros do e-SISTAFE gravados em '{output_folder}':"))
+  msg(glue::glue("  - {base_name}.parquet"))
+  msg(glue::glue("  - {base_name}.xlsx"))
 
   # --- Retornar caminhos invisivelmente ---
   base::invisible(list(parquet = path_parquet, excel = path_excel))

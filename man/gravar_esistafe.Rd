@@ -26,12 +26,13 @@ presentes nos dados. Cria a pasta de destino se nao existir.
 }
 \details{
 O nome dos ficheiros e construido automaticamente no formato:
-\code{esistafe_<YYYY_YYYY>.parquet} e \code{esistafe_<YYYY_YYYY>.xlsx},
+\code{e-SISTAFE_<YYYY-YYYY>_<YYYY-MM-DD>.parquet} e
+\code{e-SISTAFE_<YYYY-YYYY>_<YYYY-MM-DD>.xlsx}
 onde os anos sao todos os valores unicos presentes na coluna \code{ano},
-ordenados e separados por underscores.
+ordenados e separados por hifen.
 
 Por exemplo, dados abrangendo 2025 e 2026 produzem:
-\code{esistafe_2025_2026.parquet} e \code{esistafe_2025_2026.xlsx}
+\code{e-SISTAFE_2025-2026_2026-02-24.parquet} e \code{e-SISTAFE_2025-2026_2026-02-24.xlsx}
 
 Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
 de ser substituido.
