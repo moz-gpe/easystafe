@@ -25,14 +25,12 @@ do ficheiro.}
 \item{data_extraido}{Data de extracção do ficheiro como objecto
 \code{Date}, extraída do segundo padrão \code{YYYYMMDD} no nome
 do ficheiro.}
-\item{ano}{Ano da data de referência como inteiro.}
-\item{mes}{Mês da data de referência em português (ex. \code{"Janeiro"}).}
 }
 }
 \description{
 Extrai metadados relevantes a partir dos nomes de ficheiros de exportação
-do e-SISTAFE, incluindo o tipo de relatório, datas de referência e de
-extracção, ano e mês em português. Suporta um ou múltiplos ficheiros.
+do e-SISTAFE, incluindo o tipo de relatório e datas de referência e de
+extracção. Suporta um ou múltiplos ficheiros.
 }
 \details{
 A classificação do tipo de relatório é feita por detecção de padrões no
@@ -47,6 +45,10 @@ Se nenhum padrão for reconhecido, \code{reporte_tipo} é \code{NA}.
 As datas são extraídas pelo padrão regex \code{\\d{8}} — espera-se que o
 primeiro match corresponda à data de referência do relatório e o segundo
 à data de extracção.
+
+Nota: as colunas \code{ano} e \code{mes} foram removidas desta função.
+São agora derivadas diretamente do nome da pasta de origem (\code{pasta_fonte})
+em \code{processar_extracto_esistafe()}, com base no formato \code{YYYYMM}.
 }
 \examples{
 \dontrun{

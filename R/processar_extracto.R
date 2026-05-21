@@ -22,10 +22,10 @@
 #'   \code{NA}). If \code{FALSE}, those columns are removed from the final
 #'   result.
 #' @param include_file_metadata Logical. If \code{TRUE} (default), metadata
-#'   extracted from the file name (report type, year, month, dates) are added
-#'   to the dataframe immediately after the \code{file_name} column. If
-#'   \code{FALSE}, metadata are not added and the \code{file_name} column is
-#'   also removed from the final result.
+#'   extracted from the file name (report type, dates) are added to the
+#'   dataframe immediately after the \code{file_name} column. If \code{FALSE},
+#'   metadata are not added and the \code{file_name} column is also removed
+#'   from the final result.
 #' @param include_metrica Logical. If \code{TRUE} (default), rows of type
 #'   \code{"Metrica"} are reincluded in the final output after hierarchical
 #'   subtraction, useful for comparisons and validation. If \code{FALSE},
@@ -52,13 +52,22 @@
 #'   hierarquica. A coluna \code{data_tipo} esta sempre presente e posicionada
 #'   imediatamente antes de \code{ugb}. As colunas de percentagem sao sempre
 #'   incluidas na estrutura original (preenchidas com \code{NA}) salvo se
-#'   \code{include_percent = FALSE}.
+#'   \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem o
+#'   nome da pasta imediata de onde os dados foram carregados. As colunas
+#'   \code{ano} (numerico) e \code{mes} (caracter em portugues) sao derivadas
+#'   do nome da pasta quando este segue o formato \code{YYYYMM}; caso
+#'   contrario sao preenchidas com \code{NA} e e emitido um aviso.
 #'
 #' @details
 #' O processamento segue as seguintes etapas principais:
 #' \enumerate{
 #'   \item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
-#'   \item Adicao opcional de metadados via \code{extrair_meta_extracto()}.
+#'   \item Adicao de \code{pasta_fonte}, \code{ano} e \code{mes} derivados do
+#'     nome da pasta de origem. Se o nome da pasta nao seguir o formato
+#'     \code{YYYYMM}, \code{ano} e \code{mes} sao \code{NA} e e emitido um
+#'     \code{warning()}.
+#'   \item Adicao opcional de metadados via \code{extrair_meta_extracto()}
+#'     (reporte_tipo, data_reporte, data_extraido -- sem ano nem mes).
 #'   \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
 #'   \item Remocao de colunas \code{percent}.
 #'   \item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
@@ -107,37 +116,30 @@
 #' \dontrun{
 #' ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 #'
-#' # Padrao -- com correccao de negativos activa
+#' # Padrao -- pasta com formato YYYYMM, correccao de negativos activa
 #' df <- processar_extracto_esistafe(
-#'   source_path   = "Data/",
+#'   source_path   = "Data/202602/",
 #'   df_ugb_lookup = ugb_lookup
 #' )
 #'
-#' # Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+#' # Sem correccao de negativos
 #' df <- processar_extracto_esistafe(
-#'   source_path        = "Data/",
+#'   source_path        = "Data/202602/",
 #'   df_ugb_lookup      = ugb_lookup,
 #'   correct_negatives  = FALSE
 #' )
 #'
 #' # Sem metadados, sem colunas percent
 #' df <- processar_extracto_esistafe(
-#'   source_path           = "Data/",
+#'   source_path           = "Data/202602/",
 #'   df_ugb_lookup         = ugb_lookup,
 #'   include_percent       = FALSE,
 #'   include_file_metadata = FALSE
 #' )
 #'
-#' # Com linhas Metrica incluidas para comparacao
-#' df <- processar_extracto_esistafe(
-#'   source_path     = "Data/",
-#'   df_ugb_lookup   = ugb_lookup,
-#'   include_metrica = TRUE
-#' )
-#'
 #' # Com mensagens de progresso
 #' df <- processar_extracto_esistafe(
-#'   source_path   = "Data/",
+#'   source_path   = "Data/202602/",
 #'   df_ugb_lookup = ugb_lookup,
 #'   quiet         = FALSE
 #' )
@@ -145,9 +147,7 @@
 #'
 #' @importFrom purrr map keep
 #' @importFrom readxl read_excel
-#' @importFrom dplyr n_distinct mutate across relocate filter select left_join
-#'   if_else case_when group_by ungroup bind_rows distinct row_number pull
-#'   summarise pick
+#' @importFrom dplyr n_distinct mutate across relocate filter select left_join if_else case_when group_by ungroup bind_rows distinct row_number pull summarise pick
 #' @importFrom tidyr unite
 #' @importFrom stringr str_ends str_sub str_c
 #' @importFrom janitor clean_names
@@ -187,7 +187,41 @@ processar_extracto_esistafe <- function(
     purrr::list_rbind(names_to = "file_name")
   msg(glue::glue("Ficheiros carregados: {dplyr::n_distinct(df$file_name)} | Linhas: {nrow(df)}"))
 
+  # --- 1b. Adicionar pasta_fonte, ano e mes ---
+  # ano e mes sao derivados do nome da pasta se seguir o formato YYYYMM.
+  # Caso contrario, sao NA e e emitido um aviso.
+  msg("A adicionar pasta_fonte, ano e mes...")
+  pasta <- base::basename(base::normalizePath(source_path, mustWork = FALSE))
+
+  meses_pt <- c(
+    "Janeiro", "Fevereiro", "Mar\u00e7o", "Abril",
+    "Maio", "Junho", "Julho", "Agosto",
+    "Setembro", "Outubro", "Novembro", "Dezembro"
+  )
+
+  if (base::grepl("^\\d{6}$", pasta)) {
+    ano_fonte <- base::as.numeric(base::substr(pasta, 1, 4))
+    mes_num   <- base::as.numeric(base::substr(pasta, 5, 6))
+    mes_fonte <- meses_pt[mes_num]
+  } else {
+    ano_fonte <- NA_real_
+    mes_fonte <- NA_character_
+    warning(glue::glue(
+      "O nome da pasta '{pasta}' nao segue o formato YYYYMM. ",
+      "As colunas 'ano' e 'mes' foram preenchidas com NA."
+    ))
+  }
+
+  df <- df |>
+    dplyr::mutate(
+      pasta_fonte = pasta,
+      ano         = ano_fonte,
+      mes         = mes_fonte
+    )
+
   # --- 2. Adicionar ou remover metadados ---
+  # Nota: extrair_meta_extracto() ja nao devolve ano nem mes --
+  # essas colunas sao agora derivadas de pasta_fonte (Step 1b).
   if (include_file_metadata) {
     msg("A extrair e adicionar metadados...")
     paths_meta <- extrair_meta_extracto(files) |>
@@ -273,7 +307,6 @@ processar_extracto_esistafe <- function(
     dplyr::filter(data_tipo == "Metrica")
 
   # --- 11. Subtracao hierarquica: Passo 1 (A -> B dentro de ced_b4) ---
-  # Nota: apenas linhas "Valor" entram na subtraccao -- comportamento agora explicito
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 1 (A \u2192 B)...")
   df_step1 <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Valor") |>
@@ -317,12 +350,15 @@ processar_extracto_esistafe <- function(
   }
 
   # --- 14. Seleccionar colunas finais a partir de vector explicito ---
+  # pasta_fonte e sempre retido independentemente de include_file_metadata.
+  # ano e mes sao sempre retidos (podem ser NA se pasta_fonte nao for YYYYMM).
   # data_tipo e sempre incluido, posicionado antes de ugb.
   # percent e file_name sao incluidos ou excluidos conforme os argumentos.
   msg("A finalizar estrutura do dataset...")
   final_cols <- c(
     # metadados de ficheiro (removidos se include_file_metadata = FALSE)
     "file_name",
+    "pasta_fonte",
     "ugb_funcao_prog_fr",
     "reporte_tipo",
     "data_reporte",
@@ -367,9 +403,11 @@ processar_extracto_esistafe <- function(
   }
 
   # --- 16. Remover file_name e metadados se include_file_metadata = FALSE ---
+  # Nota: pasta_fonte, ano e mes sao sempre retidos independentemente de
+  # include_file_metadata, pois identificam a origem temporal dos dados.
   if (!include_file_metadata) {
     df_limpeza_final <- df_limpeza_final |>
-      dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ano", "mes", "ugb_id")))
+      dplyr::select(-dplyr::any_of(c("file_name", "reporte_tipo", "data_reporte", "data_extraido", "ugb_id")))
   }
 
   # --- 17. Detectar e corrigir valores negativos (apenas se correct_negatives = TRUE) ---
@@ -481,7 +519,6 @@ processar_extracto_esistafe <- function(
 
   return(df_limpeza_final)
 }
-
 
 
 
@@ -931,11 +968,9 @@ processar_extracto_razao_c <- function(
 #'   \code{\link{processar_extracto_razao_c}}
 #'
 #' @importFrom pdftools pdf_data
-#' @importFrom dplyr mutate case_when arrange group_by summarise bind_rows
-#'   select first
+#' @importFrom dplyr mutate case_when arrange group_by summarise bind_rows select first
 #' @importFrom purrr map map_dfr discard set_names list_rbind
-#' @importFrom stringr str_trim str_detect str_extract str_extract_all
-#'   str_remove str_remove_all str_subset regex
+#' @importFrom stringr str_trim str_detect str_extract str_extract_all str_remove str_remove_all str_subset regex
 #' @importFrom lubridate dmy year month floor_date ceiling_date days
 #' @importFrom tibble tibble
 #'

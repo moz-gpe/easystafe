@@ -1,8 +1,8 @@
 #' Extrair metadados de ficheiros de extracto e-SISTAFE
 #'
 #' Extrai metadados relevantes a partir dos nomes de ficheiros de exportação
-#' do e-SISTAFE, incluindo o tipo de relatório, datas de referência e de
-#' extracção, ano e mês em português. Suporta um ou múltiplos ficheiros.
+#' do e-SISTAFE, incluindo o tipo de relatório e datas de referência e de
+#' extracção. Suporta um ou múltiplos ficheiros.
 #'
 #' @param caminho Um vector de caracteres com um ou mais caminhos completos ou
 #'   relativos para ficheiros de exportação e-SISTAFE. Os nomes dos ficheiros
@@ -21,8 +21,6 @@
 #'   \item{data_extraido}{Data de extracção do ficheiro como objecto
 #'     \code{Date}, extraída do segundo padrão \code{YYYYMMDD} no nome
 #'     do ficheiro.}
-#'   \item{ano}{Ano da data de referência como inteiro.}
-#'   \item{mes}{Mês da data de referência em português (ex. \code{"Janeiro"}).}
 #' }
 #'
 #' @details
@@ -39,6 +37,10 @@
 #' primeiro match corresponda à data de referência do relatório e o segundo
 #' à data de extracção.
 #'
+#' Nota: as colunas \code{ano} e \code{mes} foram removidas desta função.
+#' São agora derivadas diretamente do nome da pasta de origem (\code{pasta_fonte})
+#' em \code{processar_extracto_esistafe()}, com base no formato \code{YYYYMM}.
+#'
 #' @examples
 #' \dontrun{
 #' # Ficheiro único
@@ -53,7 +55,6 @@
 #' @importFrom dplyr coalesce
 #' @importFrom stringr str_detect str_extract_all
 #' @importFrom tibble tibble
-#' @importFrom lubridate year month
 #'
 #' @export
 
@@ -80,39 +81,24 @@ extrair_meta_extracto <- function(caminho) {
     # Extract dates (YYYYMMDD patterns)
     # ------------------------------------------------------------
     dates <- stringr::str_extract_all(fname, "\\d{8}")[[1]]
-    ref_date    <- dplyr::coalesce(dates[1], NA_character_)
+    ref_date     <- dplyr::coalesce(dates[1], NA_character_)
     extract_date <- dplyr::coalesce(dates[2], NA_character_)
     # Convert to real Date objects
     ref_dt     <- base::as.Date(ref_date,     format = "%Y%m%d")
     extract_dt <- base::as.Date(extract_date, format = "%Y%m%d")
     # ------------------------------------------------------------
-    # Portuguese month names (ASCII-safe)
-    # ------------------------------------------------------------
-    meses_pt <- c(
-      "Janeiro", "Fevereiro", "Mar\u00E7o", "Abril",
-      "Maio", "Junho", "Julho", "Agosto",
-      "Setembro", "Outubro", "Novembro", "Dezembro"
-    )
-    # ------------------------------------------------------------
-    # Extract year + month
-    # ------------------------------------------------------------
-    ano <- if (!base::is.na(ref_dt)) lubridate::year(ref_dt)          else NA_integer_
-    mes <- if (!base::is.na(ref_dt)) meses_pt[lubridate::month(ref_dt)] else NA_character_
-    # ------------------------------------------------------------
     # Return metadata tibble
+    # ano e mes removidos -- sao agora derivados de pasta_fonte
+    # em processar_extracto_esistafe()
     # ------------------------------------------------------------
     tibble::tibble(
       file_name     = fname,
       reporte_tipo  = report_type,
       data_reporte  = ref_dt,
-      data_extraido = extract_dt,
-      ano           = ano,
-      mes           = mes
+      data_extraido = extract_dt
     )
   }
 
   purrr::map(caminho, extrair_um) |> purrr::list_rbind()
 
 }
-
-

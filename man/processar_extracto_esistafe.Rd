@@ -36,10 +36,10 @@ loaded files regardless of name.}
 result.}
 
 \item{include_file_metadata}{Logical. If \code{TRUE} (default), metadata
-extracted from the file name (report type, year, month, dates) are added
-to the dataframe immediately after the \code{file_name} column. If
-\code{FALSE}, metadata are not added and the \code{file_name} column is
-also removed from the final result.}
+extracted from the file name (report type, dates) are added to the
+dataframe immediately after the \code{file_name} column. If \code{FALSE},
+metadata are not added and the \code{file_name} column is also removed
+from the final result.}
 
 \item{include_metrica}{Logical. If \code{TRUE} (default), rows of type
 \code{"Metrica"} are reincluded in the final output after hierarchical
@@ -70,7 +70,11 @@ as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 hierarquica. A coluna \code{data_tipo} esta sempre presente e posicionada
 imediatamente antes de \code{ugb}. As colunas de percentagem sao sempre
 incluidas na estrutura original (preenchidas com \code{NA}) salvo se
-\code{include_percent = FALSE}.
+\code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem o
+nome da pasta imediata de onde os dados foram carregados. As colunas
+\code{ano} (numerico) e \code{mes} (caracter em portugues) sao derivadas
+do nome da pasta quando este segue o formato \code{YYYYMM}; caso
+contrario sao preenchidas com \code{NA} e e emitido um aviso.
 }
 \description{
 Carrega, limpa e processa um ou mais ficheiros de exportacao do e-SISTAFE
@@ -83,7 +87,12 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.
 O processamento segue as seguintes etapas principais:
 \enumerate{
 \item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
-\item Adicao opcional de metadados via \code{extrair_meta_extracto()}.
+\item Adicao de \code{pasta_fonte}, \code{ano} e \code{mes} derivados do
+nome da pasta de origem. Se o nome da pasta nao seguir o formato
+\code{YYYYMM}, \code{ano} e \code{mes} sao \code{NA} e e emitido um
+\code{warning()}.
+\item Adicao opcional de metadados via \code{extrair_meta_extracto()}
+(reporte_tipo, data_reporte, data_extraido -- sem ano nem mes).
 \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
 \item Remocao de colunas \code{percent}.
 \item Conversao de colunas numericas e extraccao do codigo \code{ugb_id}.
@@ -132,37 +141,30 @@ da soma total \code{"Valor"}.
 \dontrun{
 ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 
-# Padrao -- com correccao de negativos activa
+# Padrao -- pasta com formato YYYYMM, correccao de negativos activa
 df <- processar_extracto_esistafe(
-  source_path   = "Data/",
+  source_path   = "Data/202602/",
   df_ugb_lookup = ugb_lookup
 )
 
-# Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+# Sem correccao de negativos
 df <- processar_extracto_esistafe(
-  source_path        = "Data/",
+  source_path        = "Data/202602/",
   df_ugb_lookup      = ugb_lookup,
   correct_negatives  = FALSE
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_esistafe(
-  source_path           = "Data/",
+  source_path           = "Data/202602/",
   df_ugb_lookup         = ugb_lookup,
   include_percent       = FALSE,
   include_file_metadata = FALSE
 )
 
-# Com linhas Metrica incluidas para comparacao
-df <- processar_extracto_esistafe(
-  source_path     = "Data/",
-  df_ugb_lookup   = ugb_lookup,
-  include_metrica = TRUE
-)
-
 # Com mensagens de progresso
 df <- processar_extracto_esistafe(
-  source_path   = "Data/",
+  source_path   = "Data/202602/",
   df_ugb_lookup = ugb_lookup,
   quiet         = FALSE
 )
