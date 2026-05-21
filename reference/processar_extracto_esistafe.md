@@ -53,10 +53,9 @@ processar_extracto_esistafe(
 - include_file_metadata:
 
   Logical. If `TRUE` (default), metadata extracted from the file name
-  (report type, year, month, dates) are added to the dataframe
-  immediately after the `file_name` column. If `FALSE`, metadata are not
-  added and the `file_name` column is also removed from the final
-  result.
+  (report type, dates) are added to the dataframe immediately after the
+  `file_name` column. If `FALSE`, metadata are not added and the
+  `file_name` column is also removed from the final result.
 
 - include_metrica:
 
@@ -93,7 +92,11 @@ colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 hierarquica. A coluna `data_tipo` esta sempre presente e posicionada
 imediatamente antes de `ugb`. As colunas de percentagem sao sempre
 incluidas na estrutura original (preenchidas com `NA`) salvo se
-`include_percent = FALSE`.
+`include_percent = FALSE`. A coluna `pasta_fonte` contem o nome da pasta
+imediata de onde os dados foram carregados. As colunas `ano` (numerico)
+e `mes` (caracter em portugues) sao derivadas do nome da pasta quando
+este segue o formato `YYYYMM`; caso contrario sao preenchidas com `NA` e
+e emitido um aviso.
 
 ## Details
 
@@ -101,28 +104,34 @@ O processamento segue as seguintes etapas principais:
 
 1.  Carregamento e combinacao de todos os ficheiros em `source_path`.
 
-2.  Adicao opcional de metadados via
-    [`extrair_meta_extracto()`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md).
+2.  Adicao de `pasta_fonte`, `ano` e `mes` derivados do nome da pasta de
+    origem. Se o nome da pasta nao seguir o formato `YYYYMM`, `ano` e
+    `mes` sao `NA` e e emitido um
+    [`warning()`](https://rdrr.io/r/base/warning.html).
 
-3.  Limpeza de nomes de colunas com
+3.  Adicao opcional de metadados via
+    [`extrair_meta_extracto()`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md)
+    (reporte_tipo, data_reporte, data_extraido – sem ano nem mes).
+
+4.  Limpeza de nomes de colunas com
     [`janitor::clean_names()`](https://sfirke.github.io/janitor/reference/clean_names.html).
 
-4.  Remocao de colunas `percent`.
+5.  Remocao de colunas `percent`.
 
-5.  Conversao de colunas numericas e extraccao do codigo `ugb_id`.
+6.  Conversao de colunas numericas e extraccao do codigo `ugb_id`.
 
-6.  Filtragem de UGBs validos de educacao a partir de `df_ugb_lookup`.
+7.  Filtragem de UGBs validos de educacao a partir de `df_ugb_lookup`.
 
-7.  Remocao de linhas com CED e campos-chave em branco.
+8.  Remocao de linhas com CED e campos-chave em branco.
 
-8.  Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
+9.  Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
 
-9.  Criacao de variaveis hierarquicas auxiliares.
+10. Criacao de variaveis hierarquicas auxiliares.
 
-10. Separacao de linhas `"Metrica"` e `"Valor"` antes da subtraccao
+11. Separacao de linhas `"Metrica"` e `"Valor"` antes da subtraccao
     hierarquica.
 
-11. Subtraccao hierarquica em tres passos para eliminar dupla contagem
+12. Subtraccao hierarquica em tres passos para eliminar dupla contagem
     (aplicada apenas a linhas `"Valor"`):
 
     - Passo 1: Subtrair grupo A do grupo B (dentro de `ced_b4`).
@@ -133,12 +142,12 @@ O processamento segue as seguintes etapas principais:
     - Passo 3: Subtrair grupo A directamente do grupo C (dentro de
       `ced_b3`).
 
-12. Reinclusao opcional das linhas `"Metrica"` via `include_metrica`.
+13. Reinclusao opcional das linhas `"Metrica"` via `include_metrica`.
 
-13. Seleccao das colunas finais a partir de um vector explicito,
+14. Seleccao das colunas finais a partir de um vector explicito,
     garantindo que `data_tipo` e sempre incluido antes de `ugb`.
 
-14. Deteccao e correccao de valores negativos (apenas quando
+15. Deteccao e correccao de valores negativos (apenas quando
     `correct_negatives = TRUE`):
 
     - Calculo do denominador: soma total das colunas numericas em linhas
@@ -174,37 +183,30 @@ O processamento segue as seguintes etapas principais:
 if (FALSE) { # \dontrun{
 ugb_lookup <- readxl::read_excel("Data/ugb/Codigos de UGBs.xlsx", sheet = "UGBS")
 
-# Padrao -- com correccao de negativos activa
+# Padrao -- pasta com formato YYYYMM, correccao de negativos activa
 df <- processar_extracto_esistafe(
-  source_path   = "Data/",
+  source_path   = "Data/202602/",
   df_ugb_lookup = ugb_lookup
 )
 
-# Sem correccao de negativos -- valores negativos preservados, sem flags nem linhas Corregido
+# Sem correccao de negativos
 df <- processar_extracto_esistafe(
-  source_path        = "Data/",
+  source_path        = "Data/202602/",
   df_ugb_lookup      = ugb_lookup,
   correct_negatives  = FALSE
 )
 
 # Sem metadados, sem colunas percent
 df <- processar_extracto_esistafe(
-  source_path           = "Data/",
+  source_path           = "Data/202602/",
   df_ugb_lookup         = ugb_lookup,
   include_percent       = FALSE,
   include_file_metadata = FALSE
 )
 
-# Com linhas Metrica incluidas para comparacao
-df <- processar_extracto_esistafe(
-  source_path     = "Data/",
-  df_ugb_lookup   = ugb_lookup,
-  include_metrica = TRUE
-)
-
 # Com mensagens de progresso
 df <- processar_extracto_esistafe(
-  source_path   = "Data/",
+  source_path   = "Data/202602/",
   df_ugb_lookup = ugb_lookup,
   quiet         = FALSE
 )

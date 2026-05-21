@@ -6,6 +6,8 @@ Funções para carregar ficheiros e extrair metadados
 
 - [`extrair_meta_extracto()`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md)
   : Extrair metadados de ficheiros de extracto e-SISTAFE
+- [`adicionar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/adicionar_lookups_esistafe.md)
+  : Adicionar metados ao dataframe e-SISTAFE com lookups descritivos
 
 ## Processamento
 
@@ -25,6 +27,8 @@ Funções para recodificar e classificar variáveis
 
 - [`recodificar_esistafe_vars()`](https://moz-gpe.github.io/easystafe/reference/recodificar_esistafe_vars.md)
   : Recodificar variaveis padrao de exportacoes e-SISTAFE
+- [`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
+  : Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
 - [`recode_programa_tipo()`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
   : Recode programa column to programa_tipo
 - [`aplicar_conversao_moeda()`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
@@ -34,8 +38,8 @@ Funções para recodificar e classificar variáveis
 
 Funções para gravar outputs processados
 
-- [`gravar_extracto_sistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_sistafe.md)
-  : Gravar extracto processado do e-SISTAFE em Excel
+- [`gravar_esistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_esistafe.md)
+  : Gravar extracto processado do e-SISTAFE em Parquet e Excel
 - [`gravar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_razao_c.md)
   : Gravar extracto da razao contabilistico processado em Excel
 - [`gravar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_absa.md)

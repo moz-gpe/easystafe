@@ -28,6 +28,8 @@ Useful links:
 
 Authors:
 
+- Joe Lara <joseph.lara@giz.de>
+
 - Damiano Stella <damiano.stella@giz.de>
 
 - Adolores Guimaraes <adolores.guimaraes@giz.de>

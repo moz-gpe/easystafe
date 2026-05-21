@@ -268,11 +268,9 @@ df_processado |>
 
 ## Passo 5: Guardar o Resultado em Excel
 
-A função
-[`gravar_extracto_sistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_sistafe.md)
-guarda o dataframe processado num ficheiro Excel, construindo
-automaticamente o nome do ficheiro a partir dos metadados (tipo de
-relatório, ano, mês e data de hoje):
+A função `gravar_extracto_sistafe()` guarda o dataframe processado num
+ficheiro Excel, construindo automaticamente o nome do ficheiro a partir
+dos metadados (tipo de relatório, ano, mês e data de hoje):
 
 ``` r
 

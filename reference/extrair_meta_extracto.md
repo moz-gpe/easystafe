@@ -1,9 +1,8 @@
 # Extrair metadados de ficheiros de extracto e-SISTAFE
 
 Extrai metadados relevantes a partir dos nomes de ficheiros de
-exportação do e-SISTAFE, incluindo o tipo de relatório, datas de
-referência e de extracção, ano e mês em português. Suporta um ou
-múltiplos ficheiros.
+exportação do e-SISTAFE, incluindo o tipo de relatório e datas de
+referência e de extracção. Suporta um ou múltiplos ficheiros.
 
 ## Usage
 
@@ -44,14 +43,6 @@ Um tibble com uma linha por ficheiro e as seguintes colunas:
   Data de extracção do ficheiro como objecto `Date`, extraída do segundo
   padrão `YYYYMMDD` no nome do ficheiro.
 
-- ano:
-
-  Ano da data de referência como inteiro.
-
-- mes:
-
-  Mês da data de referência em português (ex. `"Janeiro"`).
-
 ## Details
 
 A classificação do tipo de relatório é feita por detecção de padrões no
@@ -68,6 +59,11 @@ Se nenhum padrão for reconhecido, `reporte_tipo` é `NA`.
 As datas são extraídas pelo padrão regex `\d{8}` — espera-se que o
 primeiro match corresponda à data de referência do relatório e o segundo
 à data de extracção.
+
+Nota: as colunas `ano` e `mes` foram removidas desta função. São agora
+derivadas diretamente do nome da pasta de origem (`pasta_fonte`) em
+[`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md),
+com base no formato `YYYYMM`.
 
 ## Examples
 
