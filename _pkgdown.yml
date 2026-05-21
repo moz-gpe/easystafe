@@ -50,7 +50,7 @@ reference:
   - title: "Gravação"
     desc: "Funções para gravar outputs processados"
     contents:
-      - gravar_extracto_sistafe
+      - gravar_esistafe
       - gravar_extracto_razao_c
       - gravar_extracto_absa
       - gravar_compilacao_sistafe
