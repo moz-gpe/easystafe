@@ -30,6 +30,7 @@ reference:
     desc: "Funções para carregar ficheiros e extrair metadados"
     contents:
       - extrair_meta_extracto
+      - adicionar_lookups_esistafe
 
   - title: "Processamento"
     desc: "Funções principais de limpeza e processamento"
@@ -42,6 +43,7 @@ reference:
     desc: "Funções para recodificar e classificar variáveis"
     contents:
       - recodificar_esistafe_vars
+      - carregar_lookups_esistafe
       - recode_programa_tipo
       - aplicar_conversao_moeda
 
