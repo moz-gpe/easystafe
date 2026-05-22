@@ -41,8 +41,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/easystafe-vignette.html">Processar dados do e-SISTAFE</a></li>
-    <li><a class="dropdown-item" href="../articles/processar-esistafe.html">Processar dados do e-SISTAFE</a></li>
+<li><a class="dropdown-item" href="../articles/processar-esistafe.html">Processar dados do e-SISTAFE</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -78,31 +77,26 @@
 </h2>
 <p>Este documento explica como utilizar o pacote <code>easystafe</code>
 para automatizar a criação de um conjunto de dados analíticos a partir
-de exportações do e-SISTAFE no contexto do Ministério da Educação e
-Cultura (MEC). Com um conjunto reduzido de funções encadeadas, o pacote
-elimina a necessidade de realizar trabalhos manuais morosos, tais como
-filtrar exportações para obter apenas os dados do MEC, eliminar
-duplicações hierárquicas e adicionar metadados descritivos para
-análise.</p>
+de exportações do e-SISTAFE. Com um conjunto reduzido de funções
+encadeadas, o pacote elimina a necessidade de realizar trabalhos manuais
+morosos, tais como filtrar exportações para obter apenas os dados
+sectoriais, eliminar duplicações hierárquicas e adicionar metadados
+descritivos para análise.</p>
 <p>O pipeline actual do <code>easystafe</code> permite:</p>
 <ul>
-<li>Carregar todas as tabelas de referência (UGBs, funções e programas)
-a partir de um único ficheiro Excel de lookup;</li>
-<li>Processar múltiplas pastas de extractos e-SISTAFE em sequência,
-combinando os resultados automaticamente;</li>
-<li>Limpar, padronizar e filtrar os dados por UGB do sector da
-Educação;</li>
+<li>Carregar e processar múltiplas pastas de extractos e-SISTAFE em
+sequência, juntando os resultados automaticamente;</li>
+<li>Limpar, padronizar e filtrar os dados por UGB do sector;</li>
 <li>Classificar e desduplicar as entradas CED através de subtracção
 hierárquica;</li>
-<li>Corrigir valores negativos com registo de auditoria;</li>
 <li>Enriquecer o dataset com informação descritiva (província, distrito,
 nível funcional, tipo de programa);</li>
 <li>Gravar os dados processados em formato Parquet e Excel, prontos para
 análise.</li>
 </ul>
-<p>Esta abordagem baseada em código processa vários meses de dados em
-segundos, em comparação com os dias necessários para realizar o mesmo
-trabalho manualmente.</p>
+<p>Esta abordagem baseada em código processa vários periodos de dados em
+segundos, em comparação com os dias ou semanas necessárias para realizar
+o mesmo trabalho manualmente em Excel.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -111,10 +105,7 @@ trabalho manualmente.</p>
 <pre><code>Ficheiros e-SISTAFE (em pastas YYYYMM/)
           │
           ▼
-  1. Carregar lookups (UGB, Função, Programa)
-          │
-          ▼
-  2. Iterar sobre pastas com map()
+  2. Detectar extractos e-SISTAFE gravados em pastas
           │
           ▼
   3. Para cada pasta:
@@ -122,19 +113,19 @@ trabalho manualmente.</p>
      b. Extrair ano/mês do nome da pasta
      c. Extrair metadados do nome do ficheiro
      d. Limpar e padronizar colunas
-     e. Filtrar UGBs do sector da Educação
-     f. Classificação CED e remoção do Grupo D
+     e. Filtrar UGBs do sector
+     f. Classificação CED
      g. Subtracção hierárquica (desduplicação)
-     h. Correcção de valores negativos
+     h. Identificação e correcção de valores negativos
           │
           ▼
-  4. Combinar todas as pastas (list_rbind)
+  4. Juntar dados dos periodos contidos nos ficheiros
           │
           ▼
-  5. Enriquecer com lookups descritivos
+  5. Enriquecer com metadados descritivos
           │
           ▼
-  6. Gravar ficheiros (Parquet + Excel)</code></pre>
+  6. Gravar ficheiro final (Parquet + Excel)</code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -145,9 +136,8 @@ trabalho manualmente.</p>
 <li>O pacote <code>easystafe</code> está instalado e carregado.</li>
 <li>Os ficheiros de extracto do e-SISTAFE estão organizados em pastas
 com o formato <code>YYYYMM</code> (por exemplo,
-<code>Data/202602/</code>). <strong>Este formato é obrigatório</strong>
-para que o pacote consiga derivar automaticamente o ano e o mês de cada
-extracto.</li>
+<code>Data/202602/</code>). Este formato é obrigatório para que o pacote
+consiga derivar automaticamente o ano e o mês de cada extracto.</li>
 <li>O ficheiro de lookup (<code>lookup.xlsx</code>) está disponível e
 contém as folhas <code>ugb</code>, <code>funcao</code> e
 <code>programa</code>.</li>
@@ -179,17 +169,13 @@ processar.</p>
 <span></span>
 <span><span class="co"># Vector de pastas — cada uma corresponde a um mês de extractos</span></span>
 <span><span class="va">paths_esistafe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Data/202502"</span>,</span>
-<span>  <span class="st">"Data/202503"</span>,</span>
-<span>  <span class="st">"Data/202504"</span>,</span>
-<span>  <span class="st">"Data/202512"</span>,</span>
 <span>  <span class="st">"Data/202601"</span>,</span>
 <span>  <span class="st">"Data/202602"</span>,</span>
 <span>  <span class="st">"Data/202603"</span>,</span>
 <span>  <span class="st">"Data/202604"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>A convenção de nomenclatura <code>YYYYMM</code> não é apenas
-organização — o pacote lê o nome da pasta para extrair automaticamente
+organização. O pacote lê o nome da pasta para extrair automaticamente
 <code>ano</code> e <code>mes</code> para cada linha do dataset. Se uma
 pasta não seguir este formato, as colunas serão preenchidas com
 <code>NA</code> e será emitido um aviso.</p>
@@ -199,8 +185,8 @@ pasta não seguir este formato, as colunas serão preenchidas com
 <h2 id="passo-2-carregar-os-lookups">Passo 2: Carregar os Lookups<a class="anchor" aria-label="anchor" href="#passo-2-carregar-os-lookups"></a>
 </h2>
 <p>A função <code><a href="../reference/carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code> lê as três folhas
-obrigatórias do ficheiro de referência e devolve uma lista nomeada
-pronta a ser utilizada no resto do pipeline.</p>
+obrigatórias do ficheiro de referência e devolve uma lista pronta a ser
+utilizada no resto do pipeline.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lookups</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/carregar_lookups_esistafe.html">carregar_lookups_esistafe</a></span><span class="op">(</span><span class="va">metadata_lookup</span><span class="op">)</span></span></code></pre></div>
 <p>A lista <code>lookups</code> contém três elementos:</p>
@@ -224,7 +210,7 @@ pronta a ser utilizada no resto do pipeline.</p>
 <td align="center"><code>codigo_ugb</code></td>
 <td>
 <code>provincia</code>, <code>distrito</code>, <code>ambito</code>,
-<code>descricao</code>, colunas <code>adm*</code>
+<code>descricao</code>
 </td>
 </tr>
 <tr class="even">
@@ -242,7 +228,7 @@ pronta a ser utilizada no resto do pipeline.</p>
 </tbody>
 </table>
 <p>A função valida a presença das três folhas antes de tentar ler
-qualquer dado — se alguma estiver ausente, é emitido um erro claro com o
+qualquer dado. Se alguma estiver ausente, é emitido um erro claro com o
 nome da folha em falta.</p>
 <hr>
 </div>
@@ -251,7 +237,7 @@ nome da folha em falta.</p>
 </h2>
 <p>Esta é a etapa central do pipeline. A função
 <code><a href="../reference/processar_extracto_esistafe.html">processar_extracto_esistafe()</a></code> é aplicada a cada pasta
-através de <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code>, e os resultados são combinados com
+através de <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map()</a></code>, e os resultados são combinados com
 <code><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind()</a></code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_esistafe</span> <span class="op">&lt;-</span> <span class="va">paths_esistafe</span> <span class="op">|&gt;</span></span>
@@ -276,7 +262,7 @@ através de <code><a href="https://purrr.tidyverse.org/reference/map.html" class
 </colgroup>
 <thead><tr class="header">
 <th>Argumento</th>
-<th align="center">Valor no exemplo</th>
+<th align="center">Argumento port Defeito</th>
 <th>O que faz</th>
 </tr></thead>
 <tbody>
@@ -340,74 +326,43 @@ A executar subtracção hierárquica — Passo 3 (A directo → C)...
 Correcção de negativos: 4 ugb_funcao_prog_fr(s) identificado(s) e corrigido(s).
   Soma absoluta dos valores negativos convertidos a zero: 12,340 (0.03% da soma total)
 Processamento concluído: 3 ficheiro(s) processado(s) com sucesso.</code></pre>
-</div>
-<div class="section level3">
-<h3 id="porque-map-em-vez-de-uma-única-chamada">Porque <code>map()</code> em vez de uma única chamada?<a class="anchor" aria-label="anchor" href="#porque-map-em-vez-de-uma-%C3%BAnica-chamada"></a>
-</h3>
-<p>No pipeline anterior, <code><a href="../reference/processar_extracto_esistafe.html">processar_extracto_esistafe()</a></code>
-aceitava um único <code>source_path</code>. A abordagem actual com
-<code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map()</a></code> oferece várias vantagens:</p>
-<ul>
-<li>
-<strong>Controlo granular:</strong> cada pasta é processada
-independentemente, tornando mais fácil identificar problemas num mês
-específico.</li>
-<li>
-<strong>Derivação automática de ano/mês:</strong> o nome da pasta
-(ex: <code>"202602"</code>) é lido para criar as colunas
-<code>ano</code> e <code>mes</code> em cada linha — algo que não seria
-possível com um único caminho genérico.</li>
-<li>
-<strong>Escalabilidade:</strong> adicionar um novo mês ao pipeline é
-tão simples como acrescentar uma linha ao vector
-<code>paths_esistafe</code>.</li>
-</ul>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="passo-4-enriquecer-com-lookups-descritivos">Passo 4: Enriquecer com Lookups Descritivos<a class="anchor" aria-label="anchor" href="#passo-4-enriquecer-com-lookups-descritivos"></a>
+<h2 id="passo-4-enriquecer-com-metadados-descritivos">Passo 4: Enriquecer com Metadados Descritivos<a class="anchor" aria-label="anchor" href="#passo-4-enriquecer-com-metadados-descritivos"></a>
 </h2>
 <p>Após combinar todos os meses, a função
 <code><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe()</a></code> junta informação descritiva ao
-dataset através de três <code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join()</a></code> automáticos.</p>
+dataset.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_esistafe</span> <span class="op">&lt;-</span> <span class="va">df_esistafe</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe</a></span><span class="op">(</span><span class="va">lookups</span><span class="op">)</span></span></code></pre></div>
 <p>As colunas adicionadas e o seu posicionamento no dataset:</p>
 <table class="table">
 <colgroup>
-<col width="14%">
-<col width="60%">
-<col width="24%">
+<col width="19%">
+<col width="80%">
 </colgroup>
 <thead><tr class="header">
 <th>Origem</th>
 <th>Colunas adicionadas</th>
-<th>Posição no dataset</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td><code>lookups$ugb</code></td>
 <td>
 <code>provincia</code>, <code>distrito</code>, <code>ambito</code>,
-colunas <code>adm*</code>, <code>nivel_da_instituicao</code>,
-<code>descricao</code>
-</td>
-<td>Após <code>ced</code>
+<code>nivel_da_instituicao</code>, <code>descricao</code>
 </td>
 </tr>
 <tr class="even">
 <td><code>lookups$funcao</code></td>
 <td><code>funcao_nivel</code></td>
-<td>Após <code>funcao</code>
-</td>
 </tr>
 <tr class="odd">
 <td><code>lookups$programa</code></td>
 <td><code>programa_tipo</code></td>
-<td>Após <code>ced</code>
-</td>
 </tr>
 </tbody>
 </table>
@@ -417,9 +372,8 @@ colunas <code>adm*</code>, <code>nivel_da_instituicao</code>,
 <h2 id="passo-5-gravar-o-resultado">Passo 5: Gravar o Resultado<a class="anchor" aria-label="anchor" href="#passo-5-gravar-o-resultado"></a>
 </h2>
 <p>A função <code><a href="../reference/gravar_esistafe.html">gravar_esistafe()</a></code> grava o dataset final em dois
-formatos simultaneamente: <strong>Parquet</strong> (para análise
-eficiente em R ou Python) e <strong>Excel</strong> (para partilha e
-revisão manual).</p>
+formatos simultaneamente: Parquet (para análise eficiente) e Excel (para
+partilha e revisão manual).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gravar_esistafe.html">gravar_esistafe</a></span><span class="op">(</span></span>
 <span>  df            <span class="op">=</span> <span class="va">df_esistafe</span>,</span>

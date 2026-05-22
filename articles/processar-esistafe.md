@@ -4,30 +4,27 @@
 
 Este documento explica como utilizar o pacote `easystafe` para
 automatizar a criação de um conjunto de dados analíticos a partir de
-exportações do e-SISTAFE no contexto do Ministério da Educação e Cultura
-(MEC). Com um conjunto reduzido de funções encadeadas, o pacote elimina
-a necessidade de realizar trabalhos manuais morosos, tais como filtrar
-exportações para obter apenas os dados do MEC, eliminar duplicações
-hierárquicas e adicionar metadados descritivos para análise.
+exportações do e-SISTAFE. Com um conjunto reduzido de funções
+encadeadas, o pacote elimina a necessidade de realizar trabalhos manuais
+morosos, tais como filtrar exportações para obter apenas os dados
+sectoriais, eliminar duplicações hierárquicas e adicionar metadados
+descritivos para análise.
 
 O pipeline actual do `easystafe` permite:
 
-- Carregar todas as tabelas de referência (UGBs, funções e programas) a
-  partir de um único ficheiro Excel de lookup;
-- Processar múltiplas pastas de extractos e-SISTAFE em sequência,
-  combinando os resultados automaticamente;
-- Limpar, padronizar e filtrar os dados por UGB do sector da Educação;
+- Carregar e processar múltiplas pastas de extractos e-SISTAFE em
+  sequência, juntando os resultados automaticamente;
+- Limpar, padronizar e filtrar os dados por UGB do sector;
 - Classificar e desduplicar as entradas CED através de subtracção
   hierárquica;
-- Corrigir valores negativos com registo de auditoria;
 - Enriquecer o dataset com informação descritiva (província, distrito,
   nível funcional, tipo de programa);
 - Gravar os dados processados em formato Parquet e Excel, prontos para
   análise.
 
-Esta abordagem baseada em código processa vários meses de dados em
-segundos, em comparação com os dias necessários para realizar o mesmo
-trabalho manualmente.
+Esta abordagem baseada em código processa vários periodos de dados em
+segundos, em comparação com os dias ou semanas necessárias para realizar
+o mesmo trabalho manualmente em Excel.
 
 ------------------------------------------------------------------------
 
@@ -36,10 +33,7 @@ trabalho manualmente.
     Ficheiros e-SISTAFE (em pastas YYYYMM/)
               │
               ▼
-      1. Carregar lookups (UGB, Função, Programa)
-              │
-              ▼
-      2. Iterar sobre pastas com map()
+      2. Detectar extractos e-SISTAFE gravados em pastas
               │
               ▼
       3. Para cada pasta:
@@ -47,19 +41,19 @@ trabalho manualmente.
          b. Extrair ano/mês do nome da pasta
          c. Extrair metadados do nome do ficheiro
          d. Limpar e padronizar colunas
-         e. Filtrar UGBs do sector da Educação
-         f. Classificação CED e remoção do Grupo D
+         e. Filtrar UGBs do sector
+         f. Classificação CED
          g. Subtracção hierárquica (desduplicação)
-         h. Correcção de valores negativos
+         h. Identificação e correcção de valores negativos
               │
               ▼
-      4. Combinar todas as pastas (list_rbind)
+      4. Juntar dados dos periodos contidos nos ficheiros
               │
               ▼
-      5. Enriquecer com lookups descritivos
+      5. Enriquecer com metadados descritivos
               │
               ▼
-      6. Gravar ficheiros (Parquet + Excel)
+      6. Gravar ficheiro final (Parquet + Excel)
 
 ------------------------------------------------------------------------
 
@@ -69,9 +63,9 @@ Antes de executar o pipeline, certifique-se de que:
 
 1.  O pacote `easystafe` está instalado e carregado.
 2.  Os ficheiros de extracto do e-SISTAFE estão organizados em pastas
-    com o formato `YYYYMM` (por exemplo, `Data/202602/`). **Este formato
-    é obrigatório** para que o pacote consiga derivar automaticamente o
-    ano e o mês de cada extracto.
+    com o formato `YYYYMM` (por exemplo, `Data/202602/`). Este formato é
+    obrigatório para que o pacote consiga derivar automaticamente o ano
+    e o mês de cada extracto.
 3.  O ficheiro de lookup (`lookup.xlsx`) está disponível e contém as
     folhas `ugb`, `funcao` e `programa`.
 
@@ -104,10 +98,6 @@ metadata_lookup <- "Documents/lookup.xlsx"
 
 # Vector de pastas — cada uma corresponde a um mês de extractos
 paths_esistafe <- c(
-  "Data/202502",
-  "Data/202503",
-  "Data/202504",
-  "Data/202512",
   "Data/202601",
   "Data/202602",
   "Data/202603",
@@ -115,7 +105,7 @@ paths_esistafe <- c(
 )
 ```
 
-A convenção de nomenclatura `YYYYMM` não é apenas organização — o pacote
+A convenção de nomenclatura `YYYYMM` não é apenas organização. O pacote
 lê o nome da pasta para extrair automaticamente `ano` e `mes` para cada
 linha do dataset. Se uma pasta não seguir este formato, as colunas serão
 preenchidas com `NA` e será emitido um aviso.
@@ -127,7 +117,7 @@ preenchidas com `NA` e será emitido um aviso.
 A função
 [`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
 lê as três folhas obrigatórias do ficheiro de referência e devolve uma
-lista nomeada pronta a ser utilizada no resto do pipeline.
+lista pronta a ser utilizada no resto do pipeline.
 
 ``` r
 
@@ -138,12 +128,12 @@ A lista `lookups` contém três elementos:
 
 | Elemento | Folha Excel | Chave de ligação | Colunas principais adicionadas |
 |----|:--:|:--:|----|
-| `lookups$ugb` | `ugb` | `codigo_ugb` | `provincia`, `distrito`, `ambito`, `descricao`, colunas `adm*` |
+| `lookups$ugb` | `ugb` | `codigo_ugb` | `provincia`, `distrito`, `ambito`, `descricao` |
 | `lookups$funcao` | `funcao` | `funcao` | `funcao_nivel` |
 | `lookups$programa` | `programa` | `programa` | `programa_tipo` |
 
 A função valida a presença das três folhas antes de tentar ler qualquer
-dado — se alguma estiver ausente, é emitido um erro claro com o nome da
+dado. Se alguma estiver ausente, é emitido um erro claro com o nome da
 folha em falta.
 
 ------------------------------------------------------------------------
@@ -153,7 +143,7 @@ folha em falta.
 Esta é a etapa central do pipeline. A função
 [`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md)
 é aplicada a cada pasta através de
-[`purrr::map()`](https://purrr.tidyverse.org/reference/map.html), e os
+[`map()`](https://purrr.tidyverse.org/reference/map.html), e os
 resultados são combinados com
 [`list_rbind()`](https://purrr.tidyverse.org/reference/list_c.html).
 
@@ -174,7 +164,7 @@ df_esistafe <- paths_esistafe |>
 
 ### Argumentos Principais
 
-| Argumento | Valor no exemplo | O que faz |
+| Argumento | Argumento port Defeito | O que faz |
 |----|:--:|----|
 | `source_path` | cada `path` | Pasta com os ficheiros `.xlsx` a processar |
 | `df_ugb_lookup` | `lookups$ugb` | Tabela de referência de UGBs do MEC |
@@ -203,31 +193,13 @@ Enquanto cada pasta é processada, verá mensagens como:
       Soma absoluta dos valores negativos convertidos a zero: 12,340 (0.03% da soma total)
     Processamento concluído: 3 ficheiro(s) processado(s) com sucesso.
 
-### Porque `map()` em vez de uma única chamada?
-
-No pipeline anterior,
-[`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md)
-aceitava um único `source_path`. A abordagem actual com
-[`map()`](https://purrr.tidyverse.org/reference/map.html) oferece várias
-vantagens:
-
-- **Controlo granular:** cada pasta é processada independentemente,
-  tornando mais fácil identificar problemas num mês específico.
-- **Derivação automática de ano/mês:** o nome da pasta (ex: `"202602"`)
-  é lido para criar as colunas `ano` e `mes` em cada linha — algo que
-  não seria possível com um único caminho genérico.
-- **Escalabilidade:** adicionar um novo mês ao pipeline é tão simples
-  como acrescentar uma linha ao vector `paths_esistafe`.
-
 ------------------------------------------------------------------------
 
-## Passo 4: Enriquecer com Lookups Descritivos
+## Passo 4: Enriquecer com Metadados Descritivos
 
 Após combinar todos os meses, a função
 [`adicionar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/adicionar_lookups_esistafe.md)
-junta informação descritiva ao dataset através de três
-[`left_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html)
-automáticos.
+junta informação descritiva ao dataset.
 
 ``` r
 
@@ -237,11 +209,11 @@ df_esistafe <- df_esistafe |>
 
 As colunas adicionadas e o seu posicionamento no dataset:
 
-| Origem | Colunas adicionadas | Posição no dataset |
-|----|----|----|
-| `lookups$ugb` | `provincia`, `distrito`, `ambito`, colunas `adm*`, `nivel_da_instituicao`, `descricao` | Após `ced` |
-| `lookups$funcao` | `funcao_nivel` | Após `funcao` |
-| `lookups$programa` | `programa_tipo` | Após `ced` |
+| Origem | Colunas adicionadas |
+|----|----|
+| `lookups$ugb` | `provincia`, `distrito`, `ambito`, `nivel_da_instituicao`, `descricao` |
+| `lookups$funcao` | `funcao_nivel` |
+| `lookups$programa` | `programa_tipo` |
 
 ------------------------------------------------------------------------
 
@@ -249,9 +221,8 @@ As colunas adicionadas e o seu posicionamento no dataset:
 
 A função
 [`gravar_esistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_esistafe.md)
-grava o dataset final em dois formatos simultaneamente: **Parquet**
-(para análise eficiente em R ou Python) e **Excel** (para partilha e
-revisão manual).
+grava o dataset final em dois formatos simultaneamente: Parquet (para
+análise eficiente) e Excel (para partilha e revisão manual).
 
 ``` r
 
