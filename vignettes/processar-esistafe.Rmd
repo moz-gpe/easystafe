@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
   warning  = FALSE
 )
 library(easystafe)
-library(tidyverse)
+library(dplyr)
+library(purrr)
 library(readxl)
 library(writexl)
 library(janitor)
@@ -36,7 +37,7 @@ O pipeline actual do `easystafe` permite:
 
 - Carregar todas as tabelas de referência (UGBs, funções e programas) a partir de um
   único ficheiro Excel de lookup;
-- Processar múltiplas pastas de extractos e-SISTAFE em sequência, juntando os
+- Processar múltiplas pastas de extractos e-SISTAFE em sequência, combinando os
   resultados automaticamente;
 - Limpar, padronizar e filtrar os dados por UGB do sector da Educação;
 - Classificar e desduplicar as entradas CED através de subtracção hierárquica;
@@ -73,10 +74,10 @@ Ficheiros e-SISTAFE (em pastas YYYYMM/)
      h. Correcção de valores negativos
           │
           ▼
-  4. Juntar todos os conjuntos de dados processados (list_rbind)
+  4. Combinar todas as pastas (list_rbind)
           │
           ▼
-  5. Adicionar dimensões de metadados (lookup)
+  5. Enriquecer com lookups descritivos
           │
           ▼
   6. Gravar ficheiros (Parquet + Excel)
@@ -98,7 +99,8 @@ Antes de executar o pipeline, certifique-se de que:
 ## Carregar Pacotes
 
 ```{r carregar-pacotes, eval = FALSE}
-library(tidyverse)
+library(dplyr)
+library(purrr)
 library(readxl)
 library(writexl)
 library(janitor)
@@ -163,10 +165,10 @@ alguma estiver ausente, é emitido um erro claro com o nome da folha em falta.
 ## Passo 3: Processar os Extractos
 
 Esta é a etapa central do pipeline. A função `processar_extracto_esistafe()` é aplicada
-a cada pasta através de `purrr::map()`, e os resultados são fundidos com `list_rbind()`.
+a cada pasta através de `purrr::map()`, e os resultados são combinados com `list_rbind()`.
 
 ```{r processar, eval = FALSE}
-df_esistafe <- paths_esistafe %>%
+df_esistafe <- paths_esistafe |>
   map(\(path) processar_extracto_esistafe(
     source_path           = path,
     df_ugb_lookup         = lookups$ugb,
@@ -229,7 +231,7 @@ A abordagem actual com `map()` oferece várias vantagens:
 
 ## Passo 4: Enriquecer com Lookups Descritivos
 
-Após juntar todos os meses, a função `adicionar_lookups_esistafe()` junta informação
+Após combinar todos os meses, a função `adicionar_lookups_esistafe()` junta informação
 descritiva ao dataset através de três `left_join()` automáticos.
 
 ```{r adicionar-lookups, eval = FALSE}
@@ -401,7 +403,8 @@ O pipeline completo para processar oito meses de extractos do e-SISTAFE cabe em 
 de 20 linhas de código:
 
 ```{r resumo-final, eval = FALSE}
-library(tidyverse)
+library(dplyr)
+library(purrr)
 library(readxl)
 library(writexl)
 library(janitor)
@@ -420,7 +423,7 @@ paths_esistafe <- c(
 lookups <- carregar_lookups_esistafe(metadata_lookup)
 
 # Processar, combinar e enriquecer
-df_esistafe <- paths_esistafe %>%
+df_esistafe <- paths_esistafe |>
   map(\(path) processar_extracto_esistafe(
     source_path           = path,
     df_ugb_lookup         = lookups$ugb,
