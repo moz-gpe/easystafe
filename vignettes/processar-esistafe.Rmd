@@ -81,15 +81,15 @@ Ficheiros e-SISTAFE (gravados em pastas nomeadas 'YYYYMM/')
 ### 1. Instalar R e RStudio
  
 Este código encadeado requer que tanto o **R** como o **RStudio** estejam instalados no seu
-computador. Ambos são gratuitos e podem ser descarregados a partir de:
+computador. Ambos são gratuitos e podem ser descarregados a partir do link abaixo. Instale 
+primeiro o R e depois o RStudio.
  
 [**https://posit.co/download/rstudio-desktop**](https://posit.co/download/rstudio-desktop)
  
-Instale primeiro o R e depois o RStudio.
- 
+
 ### 2. Instalar os Pacotes Necessários
  
-O código encadeado depende dos seguintes pacotes R. Execute o código abaixo na consola do RStudio
+O código tambem depende dos seguintes pacotes R. Execute o código abaixo na consola do RStudio
 uma única vez para os instalar todos:
  
 ```{r instalar-dependencias, eval = FALSE}
@@ -103,17 +103,13 @@ install.packages(c(
   "arrow",     # leitura/escrita de ficheiros Parquet
   "pak"        # instalação de pacotes do GitHub
 ))
-```
- 
-### 3. Instalar o Pacote `easystafe`
- 
-O pacote `easystafe` está alojado no GitHub e é instalado com o `pak`:
- 
-```{r instalar-easystafe, eval = FALSE}
+
 pak::pak("moz-gpe/easystafe")
+
 ```
  
-### 4. Organizar os Ficheiros de Extracto
+
+### 3. Organizar os Ficheiros do e-SISTAFE
  
 Os extractos do e-SISTAFE devem estar guardados em pastas com a seguinte convenção de nomenclatura
 `YYYYMM` (por exemplo, `Data/202602/`). Esta nomenclatura das pastas é obrigatório pois o pacote lê
@@ -121,7 +117,7 @@ o nome da pasta para derivar automaticamente as colunas `ano` e `mes` em cada li
 dataset. Se uma pasta não seguir este formato, essas colunas serão preenchidas com `NA`
 e será emitido um aviso.
  
-### 5. Disponibilizar o Ficheiro de Lookup
+### 4. Disponibilizar o Ficheiro de Lookup
  
 O ficheiro de referência (`lookup.xlsx`) deve estar disponível e conter exactamente três
 folhas com os nomes seguintes:
