@@ -61,8 +61,8 @@ trabalho manualmente em Excel.
 
 ### 1. Instalar R e RStudio
 
-Este código encadeado requer que tanto o **R** como o **RStudio**
-estejam instalados no seu computador. Ambos são gratuitos e podem ser
+Este código encadeado requer que o **R** e **RStudio** estejam
+instalados no seu computador. Ambos são gratuitos e podem ser
 descarregados a partir do link abaixo. Instale primeiro o R e depois o
 RStudio.
 
@@ -70,8 +70,10 @@ RStudio.
 
 ### 2. Instalar os Pacotes Necessários
 
-O código tambem depende dos seguintes pacotes R. Execute o código abaixo
-na consola do RStudio uma única vez para os instalar todos:
+O código também depende dos seguintes pacotes R. Execute o código abaixo
+na consola do RStudio para instalar todos eles. Notar que os pacotes
+devem ser actualizados regularmente utilizando o mesmo código
+(trimestralmente é suficiente)
 
 ``` r
 
@@ -101,7 +103,10 @@ preenchidas com `NA` e será emitido um aviso.
 ### 4. Disponibilizar o Ficheiro de Lookup
 
 O ficheiro de referência (`lookup.xlsx`) deve estar disponível e conter
-exactamente três folhas com os nomes seguintes:
+exactamente três folhas com os nomes abaixo. Se alguma das folhas
+estiver ausente,
+[`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
+emite um erro imediato com o nome da folha em falta.
 
 | Folha      | Conteúdo                               |
 |------------|----------------------------------------|
@@ -109,11 +114,13 @@ exactamente três folhas com os nomes seguintes:
 | `funcao`   | Classificação funcional por nível      |
 | `programa` | Tipo de programa por código            |
 
-Se alguma das folhas estiver ausente,
-[`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
-emite um erro imediato com o nome da folha em falta.
-
 ## Passo 1: Carregar Pacotes
+
+Depois de ter efetuado todas as instalações e configurações explicadas
+acima, já está pronto para começar a processar ficheiros e-SISTAFE.
+Comece por abrir o RStudio e criar um novo script (Ficheiro -\> Novo
+Ficheiro -\> Script R). Assim que o ficheiro de script em branco estiver
+aberto, cole o código abaixo.
 
 ``` r
 
@@ -131,12 +138,13 @@ library(easystafe)
 
 ## Passo 2: Definir Variáveis Globais
 
-O código encadeado começa com a definição de dois objectos: o caminho
-para o ficheiro de lookup e um vector com os caminhos das pastas de
-extractos a processar. A convenção de nomenclatura `YYYYMM` não é apenas
-organização. O pacote lê o nome da pasta para extrair automaticamente
-`ano` e `mes` para cada linha do dataset. Se uma pasta não seguir este
-formato, as colunas serão preenchidas com `NA` e será emitido um aviso.
+O código encadeado para o processamento dos ficheiros começa com a
+definição de dois objectos: o caminho para o ficheiro de lookup e um
+vector com os caminhos das pastas de extractos a processar. convenção de
+nomenclatura `YYYYMM` não é apenas organização. O pacote lê o nome da
+pasta para extrair automaticamente `ano` e `mes` para cada linha do
+dataset. Se uma pasta não seguir este formato, as colunas serão
+preenchidas com `NA` e será emitido um aviso.
 
 ``` r
 

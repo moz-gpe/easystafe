@@ -135,7 +135,7 @@ trabalho manualmente em Excel.</p>
 <div class="section level3">
 <h3 id="instalar-r-e-rstudio">1. Instalar R e RStudio<a class="anchor" aria-label="anchor" href="#instalar-r-e-rstudio"></a>
 </h3>
-<p>Este código encadeado requer que tanto o <strong>R</strong> como o
+<p>Este código encadeado requer que o <strong>R</strong> e
 <strong>RStudio</strong> estejam instalados no seu computador. Ambos são
 gratuitos e podem ser descarregados a partir do link abaixo. Instale
 primeiro o R e depois o RStudio.</p>
@@ -144,8 +144,10 @@ primeiro o R e depois o RStudio.</p>
 <div class="section level3">
 <h3 id="instalar-os-pacotes-necessários">2. Instalar os Pacotes Necessários<a class="anchor" aria-label="anchor" href="#instalar-os-pacotes-necess%C3%A1rios"></a>
 </h3>
-<p>O código tambem depende dos seguintes pacotes R. Execute o código
-abaixo na consola do RStudio uma única vez para os instalar todos:</p>
+<p>O código também depende dos seguintes pacotes R. Execute o código
+abaixo na consola do RStudio para instalar todos eles. Notar que os
+pacotes devem ser actualizados regularmente utilizando o mesmo código
+(trimestralmente é suficiente)</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"dplyr"</span>,     <span class="co"># manipulação de dados</span></span>
@@ -175,7 +177,10 @@ pasta não seguir este formato, essas colunas serão preenchidas com
 <h3 id="disponibilizar-o-ficheiro-de-lookup">4. Disponibilizar o Ficheiro de Lookup<a class="anchor" aria-label="anchor" href="#disponibilizar-o-ficheiro-de-lookup"></a>
 </h3>
 <p>O ficheiro de referência (<code>lookup.xlsx</code>) deve estar
-disponível e conter exactamente três folhas com os nomes seguintes:</p>
+disponível e conter exactamente três folhas com os nomes abaixo. Se
+alguma das folhas estiver ausente,
+<code><a href="../reference/carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code> emite um erro imediato com o
+nome da folha em falta.</p>
 <table class="table">
 <thead><tr class="header">
 <th>Folha</th>
@@ -196,14 +201,16 @@ disponível e conter exactamente três folhas com os nomes seguintes:</p>
 </tr>
 </tbody>
 </table>
-<p>Se alguma das folhas estiver ausente,
-<code><a href="../reference/carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code> emite um erro imediato com o
-nome da folha em falta.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="passo-1-carregar-pacotes">Passo 1: Carregar Pacotes<a class="anchor" aria-label="anchor" href="#passo-1-carregar-pacotes"></a>
 </h2>
+<p>Depois de ter efetuado todas as instalações e configurações
+explicadas acima, já está pronto para começar a processar ficheiros
+e-SISTAFE. Comece por abrir o RStudio e criar um novo script (Ficheiro
+-&gt; Novo Ficheiro -&gt; Script R). Assim que o ficheiro de script em
+branco estiver aberto, cole o código abaixo.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
@@ -218,13 +225,14 @@ nome da folha em falta.</p>
 <div class="section level2">
 <h2 id="passo-2-definir-variáveis-globais">Passo 2: Definir Variáveis Globais<a class="anchor" aria-label="anchor" href="#passo-2-definir-vari%C3%A1veis-globais"></a>
 </h2>
-<p>O código encadeado começa com a definição de dois objectos: o caminho
-para o ficheiro de lookup e um vector com os caminhos das pastas de
-extractos a processar. A convenção de nomenclatura <code>YYYYMM</code>
-não é apenas organização. O pacote lê o nome da pasta para extrair
-automaticamente <code>ano</code> e <code>mes</code> para cada linha do
-dataset. Se uma pasta não seguir este formato, as colunas serão
-preenchidas com <code>NA</code> e será emitido um aviso.</p>
+<p>O código encadeado para o processamento dos ficheiros começa com a
+definição de dois objectos: o caminho para o ficheiro de lookup e um
+vector com os caminhos das pastas de extractos a processar. convenção de
+nomenclatura <code>YYYYMM</code> não é apenas organização. O pacote lê o
+nome da pasta para extrair automaticamente <code>ano</code> e
+<code>mes</code> para cada linha do dataset. Se uma pasta não seguir
+este formato, as colunas serão preenchidas com <code>NA</code> e será
+emitido um aviso.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ficheiro Excel com as tabelas de referência</span></span>
 <span><span class="va">metadata_lookup</span> <span class="op">&lt;-</span> <span class="st">"Documents/lookup.xlsx"</span></span>
