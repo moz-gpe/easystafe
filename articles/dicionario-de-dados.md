@@ -1,0 +1,93 @@
+# Dicionário de Dados do easystafe
+
+## Visão Geral
+
+Os relatórios de acompanhamento orçamental extraídos do **e-SISTAFE**
+(Sistema Electrónico de Administração Financeira do Estado) são
+organizados em quatro tipos de despesa:
+
+- **Funcionamento** — Despesas recorrentes/operacionais
+- **Investimento Componente Interna** — Investimento financiado por
+  recursos internos
+- **Investimento Componente Externa** — Investimento financiado por
+  recursos externos
+- **Investimento Total** — Total do investimento
+
+Cada relatório contém um conjunto de colunas padrão descritas abaixo.
+
+------------------------------------------------------------------------
+
+## Dicionário de Colunas
+
+### Classificadores
+
+Estas colunas identificam *quem* gasta, *em quê*, *para qual programa* e
+*a partir de que fonte de financiamento*.
+
+| Abreviatura | Nome Completo | Descrição |
+|:---|:---|:---|
+| **UGB** | Unidade Gestora Beneficiária | Órgãos e instituições do Estado e entidades descentralizadas destinatárias de uma parcela do Plano Económico e Social e Orçamento do Estado (PESOE) ou detentoras de uma parcela do Património do Estado. Cada UGB é identificada por um código numérico único. |
+| **Função** | Classificador Funcional | Agrega os gastos públicos por áreas de acção governamental. Segue o padrão internacional COFOG. |
+| **Programa** | Classificador Programático | Organiza as actividades do Governo em programas orçamentais estruturados, evidenciando os correspondentes objectivos. Compõe-se de um código numérico e uma descrição em texto. |
+| **FR** | Fonte de Recurso | Identifica a origem dos recursos financeiros. Compõe-se de um código alfanumérico onde: o **1.º dígito** indica se os fundos são *on-CUT* (1) ou *off-CUT* (2) — CUT = Conta Única do Tesouro; o **2.º dígito** indica o tipo de recurso: `0` = receitas próprias do Governo, `1` = receitas consignadas, `3` = donativos externos, `5` = créditos externos. |
+
+### Dotações
+
+Estas colunas acompanham o orçamento desde a sua aprovação inicial até
+ao montante efectivamente disponível para execução.
+
+| Abreviatura | Nome Completo | Descrição |
+|:---|:---|:---|
+| **DI** | Dotação Inicial | O limite de despesa aprovado no Orçamento do Estado (OE) pela lei orçamental. |
+| **DA** | Dotação Actualizada | A DI ajustada pelas alterações orçamentais (aumentos ou diminuições) ocorridas durante o ano fiscal. |
+| **COB** | Cativo Obrigatório | A parcela da DI retida conforme percentuais estabelecidos em dispositivos legais. |
+| **DD** | Dotação Disponível | A parcela da DA livre para movimentação: `DA − COB − eventuais contenções`. |
+| **DCB** | Despesa Cabimentada | A parcela da dotação recebida que já foi cabimentada (reservada para uma despesa específica). |
+
+### Execução Orçamental
+
+Estas colunas registam como os fundos saem efectivamente do Tesouro e
+são liquidados.
+
+| Abreviatura | Nome Completo | Descrição |
+|:---|:---|:---|
+| **AF** | Adiantamento de Fundos Concedidos | Saídas de fundos da Tesouraria Central ou Provincial para órgãos e instituições do Estado, destinados a pagamentos que, pela sua natureza ou urgência, não podem aguardar o processamento normal (aquisições de pronto pagamento). |
+| **DP** | Despesa paga Via Directa | Pagamentos transferidos directamente da Conta Única do Tesouro (CUT) para a conta do fornecedor, sem passar pela conta da unidade gestora, após verificação do direito do credor (liquidação). |
+| **AFDP** | Adiantamento de Fundos + Despesa paga Via Directa | Somatório dos recursos disponibilizados antecipadamente (adiantamentos) e das despesas posteriormente regularizadas (pagas). `AFDP = AF + DP`. |
+| **LAF** | Adiantamento de Fundos Liquidados | Parcela dos adiantamentos de fundos (AF) que foi justificada com os documentos de suporte correspondentes (liquidada). |
+| **LVD** | Despesa Liquidada por Via Directa | Parcela das despesas pagas via directa (DP) que foi formalmente verificada e liquidada. |
+| **LAFVD** | Liq. Adiantamento de Fundos + Via Directa | Despesa liquidada combinada: adiantamentos liquidados mais pagamentos directos liquidados. `LAFVD = LAF + LVD`. |
+
+------------------------------------------------------------------------
+
+## Rácios de Desempenho Orçamental
+
+Os seguintes rácios são habitualmente utilizados para avaliar o
+desempenho orçamental. Todos são expressos em percentagem.
+
+| Rácio | Fórmula | Interpretação |
+|:---|:---|:---|
+| **Taxa de cabimentação** | `DCB / DA × 100` | Percentagem da dotação actualizada que foi cabimentada. Mede o progresso no empenho do orçamento disponível. |
+| **Taxa de execução orçamental** | `AFDP / DA × 100` | Percentagem da dotação actualizada que foi efectivamente desembolsada. É a principal medida de execução orçamental. |
+| **Taxa de liquidação de adiantamentos** | `LAF / AF × 100` | Percentagem dos adiantamentos de fundos que foram formalmente liquidados (justificados com documentos). Uma taxa baixa pode indicar problemas de prestação de contas com adiantamentos em dinheiro. |
+
+------------------------------------------------------------------------
+
+## Ciclo de Execução da Despesa
+
+A execução da despesa no e-SISTAFE obedece a um processo sequencial:
+
+1.  **Cabimentação** — O orçamento é reservado para uma despesa
+    específica.
+2.  **Liquidação** — O direito do credor é verificado (bens recebidos,
+    serviços prestados).
+3.  **Pagamento** — Os fundos são transferidos para o fornecedor, seja
+    por via directa (DP) ou após um adiantamento (AF → LAF).
+
+Compreender em que fase do ciclo se encontra uma despesa é essencial
+para interpretar correctamente as colunas acima.
+
+------------------------------------------------------------------------
+
+*Para questões sobre o sistema e-SISTAFE ou este pacote, por favor abra
+um issue no repositório do projecto.*
