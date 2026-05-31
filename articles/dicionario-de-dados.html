@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Dicionário de Dados do easystafe • easystafe</title>
+<title>Dicionário de Dados (e-SISTAFE) • easystafe</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link href="../deps/Lato-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Dicionário de Dados do easystafe">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Dicionário de Dados (e-SISTAFE)">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -41,7 +41,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/dicionario-de-dados.html">Dicionário de Dados do easystafe</a></li>
+<li><a class="dropdown-item" href="../articles/dicionario-de-dados.html">Dicionário de Dados (e-SISTAFE)</a></li>
     <li><a class="dropdown-item" href="../articles/processar-esistafe.html">Processar dados do e-SISTAFE</a></li>
   </ul>
 </li>
@@ -64,7 +64,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Dicionário de Dados do easystafe</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Dicionário de Dados (e-SISTAFE)</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/vignettes/dicionario-de-dados.Rmd" class="external-link"><code>vignettes/dicionario-de-dados.Rmd</code></a></small>
@@ -81,74 +81,75 @@
 Financeira do Estado) são organizados em quatro tipos de despesa:</p>
 <ul>
 <li>
-<strong>Funcionamento</strong> — Despesas
+<strong>Funcionamento</strong>: Despesas
 recorrentes/operacionais</li>
 <li>
-<strong>Investimento Componente Interna</strong> — Investimento
+<strong>Investimento Componente Interna</strong>: Investimento
 financiado por recursos internos</li>
 <li>
-<strong>Investimento Componente Externa</strong> — Investimento
+<strong>Investimento Componente Externa</strong>: Investimento
 financiado por recursos externos</li>
 <li>
-<strong>Investimento Total</strong> — Total do investimento</li>
+<strong>Investimento Total</strong>: Total do investimento</li>
 </ul>
-<p>Cada relatório contém um conjunto de colunas padrão descritas
+<p>Cada relatório contém um conjunto de variáveis padrão descritos
 abaixo.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="dicionário-de-colunas">Dicionário de Colunas<a class="anchor" aria-label="anchor" href="#dicion%C3%A1rio-de-colunas"></a>
+<h2 id="dicionário-de-variáveis">Dicionário de Variáveis<a class="anchor" aria-label="anchor" href="#dicion%C3%A1rio-de-vari%C3%A1veis"></a>
 </h2>
 <div class="section level3">
 <h3 id="classificadores">Classificadores<a class="anchor" aria-label="anchor" href="#classificadores"></a>
 </h3>
-<p>Estas colunas identificam <em>quem</em> gasta, <em>em quê</em>,
+<p>Estes variáveis identificam <em>quem</em> gasta, <em>em quê</em>,
 <em>para qual programa</em> e <em>a partir de que fonte de
 financiamento</em>.</p>
 <table class="table">
 <colgroup>
-<col width="32%">
-<col width="37%">
-<col width="29%">
+<col width="15%">
+<col width="84%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Abreviatura</th>
-<th align="left">Nome Completo</th>
+<th align="left">Variável</th>
 <th align="left">Descrição</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left"><strong>UGB</strong></td>
-<td align="left">Unidade Gestora Beneficiária</td>
-<td align="left">Órgãos e instituições do Estado e entidades
-descentralizadas destinatárias de uma parcela do Plano Económico e
-Social e Orçamento do Estado (PESOE) ou detentoras de uma parcela do
-Património do Estado. Cada UGB é identificada por um código numérico
-único.</td>
+<td align="left">
+<strong>Unidade Gestora Beneficiária</strong><br>Órgãos
+e instituições do Estado e entidades descentralizadas destinatárias de
+uma parcela do Plano Económico e Social e Orçamento do Estado (PESOE) ou
+detentoras de uma parcela do Património do Estado. Cada UGB é
+identificada por um código numérico único.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>Função</strong></td>
-<td align="left">Classificador Funcional</td>
-<td align="left">Agrega os gastos públicos por áreas de acção
-governamental. Segue o padrão internacional COFOG.</td>
+<td align="left">
+<strong>Classificador Funcional</strong><br>Agrega os
+gastos públicos por áreas de acção governamental. Segue o padrão
+internacional COFOG.</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>Programa</strong></td>
-<td align="left">Classificador Programático</td>
-<td align="left">Organiza as actividades do Governo em programas
-orçamentais estruturados, evidenciando os correspondentes objectivos.
-Compõe-se de um código numérico e uma descrição em texto.</td>
+<td align="left">
+<strong>Classificador Programático</strong><br>Organiza
+as actividades do Governo em programas orçamentais estruturados,
+evidenciando os correspondentes objectivos. Compõe-se de um código
+numérico e uma descrição em texto.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>FR</strong></td>
-<td align="left">Fonte de Recurso</td>
-<td align="left">Identifica a origem dos recursos financeiros. Compõe-se
-de um código alfanumérico onde: o <strong>1.º dígito</strong> indica se
-os fundos são <em>on-CUT</em> (1) ou <em>off-CUT</em> (2) — CUT = Conta
-Única do Tesouro; o <strong>2.º dígito</strong> indica o tipo de
-recurso: <code>0</code> = receitas próprias do Governo, <code>1</code> =
-receitas consignadas, <code>3</code> = donativos externos,
-<code>5</code> = créditos externos.</td>
+<td align="left">
+<strong>Fonte de Recurso</strong><br>Identifica a
+origem dos recursos financeiros. Compõe-se de um código alfanumérico
+onde: o <strong>1.º dígito</strong> indica se os fundos são
+<em>on-CUT</em> (1) ou <em>off-CUT</em> (2) — CUT = Conta Única do
+Tesouro; o <strong>2.º dígito</strong> indica o tipo de recurso:
+<code>0</code> = receitas próprias do Governo, <code>1</code> = receitas
+consignadas, <code>3</code> = donativos externos, <code>5</code> =
+créditos externos.</td>
 </tr>
 </tbody>
 </table>
@@ -156,49 +157,50 @@ receitas consignadas, <code>3</code> = donativos externos,
 <div class="section level3">
 <h3 id="dotações">Dotações<a class="anchor" aria-label="anchor" href="#dota%C3%A7%C3%B5es"></a>
 </h3>
-<p>Estas colunas acompanham o orçamento desde a sua aprovação inicial
+<p>Estes variáveis acompanham o orçamento desde a sua aprovação inicial
 até ao montante efectivamente disponível para execução.</p>
 <table class="table">
 <colgroup>
-<col width="32%">
-<col width="37%">
-<col width="29%">
+<col width="15%">
+<col width="84%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Abreviatura</th>
-<th align="left">Nome Completo</th>
+<th align="left">Variável</th>
 <th align="left">Descrição</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left"><strong>DI</strong></td>
-<td align="left">Dotação Inicial</td>
-<td align="left">O limite de despesa aprovado no Orçamento do Estado
-(OE) pela lei orçamental.</td>
+<td align="left">
+<strong>Dotação Inicial</strong><br>O limite de despesa
+aprovado no Orçamento do Estado (OE) pela lei orçamental.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>DA</strong></td>
-<td align="left">Dotação Actualizada</td>
-<td align="left">A DI ajustada pelas alterações orçamentais (aumentos ou
-diminuições) ocorridas durante o ano fiscal.</td>
+<td align="left">
+<strong>Dotação Actualizada</strong><br>A DI ajustada
+pelas alterações orçamentais (aumentos ou diminuições) ocorridas durante
+o ano fiscal.</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>COB</strong></td>
-<td align="left">Cativo Obrigatório</td>
-<td align="left">A parcela da DI retida conforme percentuais
-estabelecidos em dispositivos legais.</td>
+<td align="left">
+<strong>Cativo Obrigatório</strong><br>A parcela da DI
+retida conforme percentuais estabelecidos em dispositivos legais.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>DD</strong></td>
-<td align="left">Dotação Disponível</td>
-<td align="left">A parcela da DA livre para movimentação:
+<td align="left">
+<strong>Dotação Disponível</strong><br>A parcela da DA
+livre para movimentação:
 <code>DA − COB − eventuais contenções</code>.</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>DCB</strong></td>
-<td align="left">Despesa Cabimentada</td>
-<td align="left">A parcela da dotação recebida que já foi cabimentada
-(reservada para uma despesa específica).</td>
+<td align="left">
+<strong>Despesa Cabimentada</strong><br>A parcela da
+dotação recebida que já foi cabimentada (reservada para uma despesa
+específica).</td>
 </tr>
 </tbody>
 </table>
@@ -206,61 +208,64 @@ estabelecidos em dispositivos legais.</td>
 <div class="section level3">
 <h3 id="execução-orçamental">Execução Orçamental<a class="anchor" aria-label="anchor" href="#execu%C3%A7%C3%A3o-or%C3%A7amental"></a>
 </h3>
-<p>Estas colunas registam como os fundos saem efectivamente do Tesouro e
-são liquidados.</p>
+<p>Estes variáveis registam como os fundos saem efectivamente do Tesouro
+e são liquidados.</p>
 <table class="table">
 <colgroup>
-<col width="32%">
-<col width="37%">
-<col width="29%">
+<col width="15%">
+<col width="84%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Abreviatura</th>
-<th align="left">Nome Completo</th>
+<th align="left">Variável</th>
 <th align="left">Descrição</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left"><strong>AF</strong></td>
-<td align="left">Adiantamento de Fundos Concedidos</td>
-<td align="left">Saídas de fundos da Tesouraria Central ou Provincial
-para órgãos e instituições do Estado, destinados a pagamentos que, pela
-sua natureza ou urgência, não podem aguardar o processamento normal
-(aquisições de pronto pagamento).</td>
+<td align="left">
+<strong>Adiantamento de Fundos
+Concedidos</strong><br>Saídas de fundos da Tesouraria Central ou
+Provincial para órgãos e instituições do Estado, destinados a pagamentos
+que, pela sua natureza ou urgência, não podem aguardar o processamento
+normal (aquisições de pronto pagamento).</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>DP</strong></td>
-<td align="left">Despesa paga Via Directa</td>
-<td align="left">Pagamentos transferidos directamente da Conta Única do
-Tesouro (CUT) para a conta do fornecedor, sem passar pela conta da
-unidade gestora, após verificação do direito do credor
-(liquidação).</td>
+<td align="left">
+<strong>Despesa paga Via Directa</strong><br>Pagamentos
+transferidos directamente da Conta Única do Tesouro (CUT) para a conta
+do fornecedor, sem passar pela conta da unidade gestora, após
+verificação do direito do credor (liquidação).</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>AFDP</strong></td>
-<td align="left">Adiantamento de Fundos + Despesa paga Via Directa</td>
-<td align="left">Somatório dos recursos disponibilizados antecipadamente
-(adiantamentos) e das despesas posteriormente regularizadas (pagas).
-<code>AFDP = AF + DP</code>.</td>
+<td align="left">
+<strong>Adiantamento de Fundos + Despesa paga Via
+Directa</strong><br>Somatório dos recursos disponibilizados
+antecipadamente (adiantamentos) e das despesas posteriormente
+regularizadas (pagas). <code>AFDP = AF + DP</code>.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>LAF</strong></td>
-<td align="left">Adiantamento de Fundos Liquidados</td>
-<td align="left">Parcela dos adiantamentos de fundos (AF) que foi
+<td align="left">
+<strong>Adiantamento de Fundos
+Liquidados</strong><br>Parcela dos adiantamentos de fundos (AF) que foi
 justificada com os documentos de suporte correspondentes
 (liquidada).</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>LVD</strong></td>
-<td align="left">Despesa Liquidada por Via Directa</td>
-<td align="left">Parcela das despesas pagas via directa (DP) que foi
+<td align="left">
+<strong>Despesa Liquidada por Via
+Directa</strong><br>Parcela das despesas pagas via directa (DP) que foi
 formalmente verificada e liquidada.</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>LAFVD</strong></td>
-<td align="left">Liq. Adiantamento de Fundos + Via Directa</td>
-<td align="left">Despesa liquidada combinada: adiantamentos liquidados
-mais pagamentos directos liquidados.
+<td align="left">
+<strong>Liq. Adiantamento de Fundos + Via
+Directa</strong><br>Despesa liquidada combinada: adiantamentos
+liquidados mais pagamentos directos liquidados.
 <code>LAFVD = LAF + LVD</code>.</td>
 </tr>
 </tbody>
@@ -318,18 +323,18 @@ dinheiro.</td>
 sequencial:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Cabimentação</strong> — O orçamento é reservado para uma
+<strong>Cabimentação</strong>: O orçamento é reservado para uma
 despesa específica.</li>
 <li>
-<strong>Liquidação</strong> — O direito do credor é verificado (bens
+<strong>Liquidação</strong>: O direito do credor é verificado (bens
 recebidos, serviços prestados).</li>
 <li>
-<strong>Pagamento</strong> — Os fundos são transferidos para o
+<strong>Pagamento</strong>: Os fundos são transferidos para o
 fornecedor, seja por via directa (DP) ou após um adiantamento (AF →
 LAF).</li>
 </ol>
 <p>Compreender em que fase do ciclo se encontra uma despesa é essencial
-para interpretar correctamente as colunas acima.</p>
+para interpretar correctamente os variáveis acima.</p>
 <hr>
 <p><em>Para questões sobre o sistema e-SISTAFE ou este pacote, por favor
 abra um issue no repositório do projecto.</em></p>
