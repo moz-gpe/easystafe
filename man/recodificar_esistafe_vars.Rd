@@ -11,7 +11,6 @@ recodificar_esistafe_vars(df)
 }
 \value{
 The input dataframe with transformations applied to detected columns.
-A \code{programa_tipo} column is added if \code{programa} is present.
 }
 \description{
 A wrapper function that detects the presence of known e-SISTAFE columns and
@@ -21,7 +20,6 @@ present in the dataframe are silently skipped.
 Currently handles:
 \itemize{
 \item \code{distrito}: applies title case with lowercase prepositions (de, da, do, dos, das)
-\item \code{programa}: recodes to standardised \code{programa_tipo} categories via \code{recode_programa_tipo()}
 }
 }
 \examples{
@@ -31,7 +29,4 @@ Currently handles:
     recodificar_esistafe_vars()
 }
 
-}
-\seealso{
-\code{\link{recode_programa_tipo}}
 }
