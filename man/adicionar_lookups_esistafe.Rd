@@ -8,7 +8,8 @@ adicionar_lookups_esistafe(df, lookups)
 }
 \arguments{
 \item{df}{Um dataframe processado por \code{processar_extracto_esistafe()}.
-Deve conter as colunas \code{ugb_id}, \code{funcao} e \code{programa}.}
+Deve conter as colunas \code{ugb_id}, \code{funcao}, \code{programa} e
+\code{fr}.}
 
 \item{lookups}{Uma lista com tres elementos nomeados:
 \describe{
@@ -20,7 +21,8 @@ colunas com prefixo \code{adm}, \code{nivel_da_instituicao} e
 \item{funcao}{Dataframe com a tabela de referencia de funcoes. Deve
 conter \code{funcao} como chave de ligacao e \code{funcao_nivel}.}
 \item{programa}{Dataframe com a tabela de referencia de programas. Deve
-conter \code{programa} como chave de ligacao e \code{programa_tipo}.}
+conter \code{programa_ambito_fr} como chave de ligacao e
+\code{programa_tipo}.}
 }}
 }
 \value{
@@ -47,7 +49,10 @@ As ligacoes sao feitas por:
 \itemize{
 \item \code{ugb_id == codigo_ugb} para o lookup de UGBs.
 \item \code{funcao == funcao} para o lookup de funcoes.
-\item \code{programa == programa} para o lookup de programas.
+\item \code{programa_ambito_fr == programa_ambito_fr} para o lookup de
+  programas. A variavel \code{programa_ambito_fr} e construida
+  internamente pela concatenacao de \code{programa}, \code{ambito} e
+  \code{fr} com \code{"-"} como separador, e removida apos o join.
 }
 }
 \examples{
@@ -65,7 +70,7 @@ lookups <- list(
     dplyr::filter(!is.na(funcao)),
   programa = readxl::read_excel("Data/lookups.xlsx", sheet = "programa") |>
     janitor::clean_names() |>
-    dplyr::select(programa, programa_tipo) |>
+    dplyr::select(programa_ambito_fr, programa_tipo) |>
     dplyr::filter(!is.na(programa_tipo))
 )
 

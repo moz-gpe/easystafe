@@ -7,7 +7,8 @@
 #' imediatamente apos as colunas de identificacao orcamental.
 #'
 #' @param df Um dataframe processado por \code{processar_extracto_esistafe()}.
-#'   Deve conter as colunas \code{ugb_id}, \code{funcao} e \code{programa}.
+#'   Deve conter as colunas \code{ugb_id}, \code{funcao}, \code{programa} e
+#'   \code{fr}.
 #' @param lookups Uma lista com tres elementos nomeados:
 #' \describe{
 #'   \item{ugb}{Dataframe com a tabela de referencia de UGBs. Deve conter
@@ -18,7 +19,8 @@
 #'   \item{funcao}{Dataframe com a tabela de referencia de funcoes. Deve
 #'     conter \code{funcao} como chave de ligacao e \code{funcao_nivel}.}
 #'   \item{programa}{Dataframe com a tabela de referencia de programas. Deve
-#'     conter \code{programa} como chave de ligacao e \code{programa_tipo}.}
+#'     conter \code{programa_ambito_fr} como chave de ligacao e
+#'     \code{programa_tipo}.}
 #' }
 #'
 #' @return O dataframe \code{df} enriquecido com as colunas descritivas dos
@@ -37,7 +39,10 @@
 #' \itemize{
 #'   \item \code{ugb_id == codigo_ugb} para o lookup de UGBs.
 #'   \item \code{funcao == funcao} para o lookup de funcoes.
-#'   \item \code{programa == programa} para o lookup de programas.
+#'   \item \code{programa_ambito_fr == programa_ambito_fr} para o lookup de
+#'     programas. A variavel \code{programa_ambito_fr} e construida
+#'     internamente pela concatenacao de \code{programa}, \code{ambito} e
+#'     \code{fr} com \code{"-"} como separador, e removida apos o join.
 #' }
 #'
 #' @examples
@@ -55,14 +60,15 @@
 #'     dplyr::filter(!is.na(funcao)),
 #'   programa = readxl::read_excel("Data/lookups.xlsx", sheet = "programa") |>
 #'     janitor::clean_names() |>
-#'     dplyr::select(programa, programa_tipo) |>
+#'     dplyr::select(programa_ambito_fr, programa_tipo) |>
 #'     dplyr::filter(!is.na(programa_tipo))
 #' )
 #'
 #' df_enriched <- adicionar_lookups_esistafe(df_esistafe, lookups)
 #' }
 #'
-#' @importFrom dplyr left_join join_by relocate starts_with
+#' @importFrom dplyr left_join join_by mutate select relocate starts_with
+#' @importFrom stringr str_c
 #' @importFrom glue glue
 #'
 #' @export
@@ -81,9 +87,11 @@ adicionar_lookups_esistafe <- function(df, lookups) {
 
   # --- Joins e reposicionamento de colunas ---
   df |>
-    dplyr::left_join(lookups$ugb,     by = dplyr::join_by(ugb_id == codigo_ugb)) |>
-    dplyr::left_join(lookups$funcao,  by = dplyr::join_by(funcao == funcao))     |>
-    dplyr::left_join(lookups$programa, by = dplyr::join_by(programa == programa)) |>
+    dplyr::left_join(lookups$ugb,    by = dplyr::join_by(ugb_id == codigo_ugb)) |>
+    dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao))     |>
+    dplyr::mutate(programa_ambito_fr = stringr::str_c(programa, ambito, fr, sep = "-")) |>
+    dplyr::left_join(lookups$programa, by = dplyr::join_by(programa_ambito_fr == programa_ambito_fr)) |>
+    dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
     dplyr::relocate(
       provincia, distrito, ambito,

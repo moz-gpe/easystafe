@@ -20,7 +20,7 @@ Uma lista nomeada com tres elementos:
 \code{codigo_ugb == "Total"} sao removidas.}
 \item{funcao}{Dataframe com colunas \code{funcao} e \code{funcao_nivel}.
 Linhas com \code{funcao} em branco sao removidas.}
-\item{programa}{Dataframe com colunas \code{programa} e
+\item{programa}{Dataframe com colunas \code{programa_ambito_fr} e
 \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
 sao removidas.}
 }
