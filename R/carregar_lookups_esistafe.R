@@ -6,9 +6,9 @@
 #'
 #' @param path Um caracter com o caminho completo ou relativo para o ficheiro
 #'   Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
-#'   \code{"funcao"} e \code{"programa"}.
+#'   \code{"funcao"}, \code{"programa"} e \code{"programa2025"}.
 #'
-#' @return Uma lista nomeada com tres elementos:
+#' @return Uma lista nomeada com quatro elementos:
 #' \describe{
 #'   \item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{provincia},
 #'     \code{distrito}, \code{ambito}, colunas com prefixo \code{adm},
@@ -18,7 +18,10 @@
 #'     Linhas com \code{funcao} em branco sao removidas.}
 #'   \item{programa}{Dataframe com colunas \code{programa_ambito_fr} e
 #'     \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
-#'     sao removidas.}
+#'     sao removidas. Usado para anos diferentes de 2025.}
+#'   \item{programa2025}{Dataframe com colunas \code{programa_ambito_fr_funcao}
+#'     e \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
+#'     sao removidas. Usado para o ano 2025.}
 #' }
 #'
 #' @details
@@ -46,7 +49,7 @@
 carregar_lookups_esistafe <- function(path) {
 
   # --- Validar presenca das folhas obrigatorias ---
-  required_sheets <- c("ugb", "funcao", "programa")
+  required_sheets <- c("ugb", "funcao", "programa", "programa2025")
   available_sheets <- readxl::excel_sheets(path)
   missing_sheets <- required_sheets[!required_sheets %in% available_sheets]
   if (length(missing_sheets) > 0) {
@@ -89,6 +92,16 @@ carregar_lookups_esistafe <- function(path) {
       janitor::clean_names() |>
       dplyr::select(
         programa_ambito_fr,
+        programa_tipo
+      ) |>
+      dplyr::filter(!is.na(programa_tipo)),
+
+    programa2025 = suppressMessages(
+      readxl::read_excel(path, sheet = "programa2025")
+    ) |>
+      janitor::clean_names() |>
+      dplyr::select(
+        programa_ambito_fr_funcao,
         programa_tipo
       ) |>
       dplyr::filter(!is.na(programa_tipo))

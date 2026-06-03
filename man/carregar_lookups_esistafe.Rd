@@ -9,10 +9,10 @@ carregar_lookups_esistafe(path)
 \arguments{
 \item{path}{Um caracter com o caminho completo ou relativo para o ficheiro
 Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
-\code{"funcao"} e \code{"programa"}.}
+\code{"funcao"}, \code{"programa"} e \code{"programa2025"}.}
 }
 \value{
-Uma lista nomeada com tres elementos:
+Uma lista nomeada com quatro elementos:
 \describe{
 \item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{provincia},
 \code{distrito}, \code{ambito}, colunas com prefixo \code{adm},
@@ -22,7 +22,10 @@ Uma lista nomeada com tres elementos:
 Linhas com \code{funcao} em branco sao removidas.}
 \item{programa}{Dataframe com colunas \code{programa_ambito_fr} e
 \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
-sao removidas.}
+sao removidas. Usado para anos diferentes de 2025.}
+\item{programa2025}{Dataframe com colunas \code{programa_ambito_fr_funcao}
+e \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
+sao removidas. Usado para o ano 2025.}
 }
 }
 \description{

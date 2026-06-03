@@ -11,7 +11,7 @@ adicionar_lookups_esistafe(df, lookups)
 Deve conter as colunas \code{ugb_id}, \code{funcao}, \code{programa} e
 \code{fr}.}
 
-\item{lookups}{Uma lista com tres elementos nomeados:
+\item{lookups}{Uma lista com quatro elementos nomeados:
 \describe{
 \item{ugb}{Dataframe com a tabela de referencia de UGBs. Deve conter
 \code{codigo_ugb} como chave de ligacao, mais as colunas
@@ -20,14 +20,17 @@ colunas com prefixo \code{adm}, \code{nivel_da_instituicao} e
 \code{descricao}.}
 \item{funcao}{Dataframe com a tabela de referencia de funcoes. Deve
 conter \code{funcao} como chave de ligacao e \code{funcao_nivel}.}
-\item{programa}{Dataframe com a tabela de referencia de programas. Deve
-conter \code{programa_ambito_fr} como chave de ligacao e
-\code{programa_tipo}.}
+\item{programa}{Dataframe com a tabela de referencia de programas para
+anos diferentes de 2025. Deve conter \code{programa_ambito_fr} como
+chave de ligacao e \code{programa_tipo}.}
+\item{programa2025}{Dataframe com a tabela de referencia de programas
+para o ano 2025. Deve conter \code{programa_ambito_fr_funcao} como
+chave de ligacao e \code{programa_tipo}.}
 }}
 }
 \value{
 O dataframe \code{df} enriquecido com as colunas descritivas dos
-tres lookups. As colunas de UGB (\code{provincia}, \code{distrito},
+quatro lookups. As colunas de UGB (\code{provincia}, \code{distrito},
 \code{ambito}, colunas \code{adm*}, \code{nivel_da_instituicao},
 \code{descricao}) e de programa (\code{programa_tipo}) sao posicionadas
 apos \code{ced}. A coluna \code{funcao_nivel} e posicionada apos
@@ -49,10 +52,15 @@ As ligacoes sao feitas por:
 \itemize{
 \item \code{ugb_id == codigo_ugb} para o lookup de UGBs.
 \item \code{funcao == funcao} para o lookup de funcoes.
-\item \code{programa_ambito_fr == programa_ambito_fr} para o lookup de
-  programas. A variavel \code{programa_ambito_fr} e construida
-  internamente pela concatenacao de \code{programa}, \code{ambito} e
-  \code{fr} com \code{"-"} como separador, e removida apos o join.
+\item Para programas, duas chaves sao construidas internamente e removidas
+apos o join: \code{programa_ambito_fr} (concatenacao de \code{programa},
+\code{ambito} e \code{fr}) e \code{programa_ambito_fr_funcao}
+(concatenacao de \code{programa}, \code{ambito}, \code{fr} e
+\code{funcao}). Linhas com \code{ano == 2025} sao ligadas a
+\code{lookups$programa2025} via \code{programa_ambito_fr_funcao};
+as restantes sao ligadas a \code{lookups$programa} via
+\code{programa_ambito_fr}. O \code{programa_tipo} correcto e
+seleccionado com \code{if_else} apos ambos os joins.
 }
 }
 \examples{
