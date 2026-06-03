@@ -9,9 +9,6 @@ Currently handles:
 - `distrito`: applies title case with lowercase prepositions (de, da,
   do, dos, das)
 
-- `programa`: recodes to standardised `programa_tipo` categories via
-  [`recode_programa_tipo()`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
-
 ## Usage
 
 ``` r
@@ -26,12 +23,7 @@ recodificar_esistafe_vars(df)
 
 ## Value
 
-The input dataframe with transformations applied to detected columns. A
-`programa_tipo` column is added if `programa` is present.
-
-## See also
-
-[`recode_programa_tipo`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
+The input dataframe with transformations applied to detected columns.
 
 ## Examples
 

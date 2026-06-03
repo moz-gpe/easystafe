@@ -29,8 +29,6 @@ Funções para recodificar e classificar variáveis
   : Recodificar variaveis padrao de exportacoes e-SISTAFE
 - [`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
   : Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
-- [`recode_programa_tipo()`](https://moz-gpe.github.io/easystafe/reference/recode_programa_tipo.md)
-  : Recode programa column to programa_tipo
 - [`aplicar_conversao_moeda()`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
   : Aplicar conversao de moeda a um tibble de extractos do e-SISTAFE
 

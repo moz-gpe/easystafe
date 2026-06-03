@@ -20,11 +20,11 @@ adicionar_lookups_esistafe(df, lookups)
 
   Um dataframe processado por
   [`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md).
-  Deve conter as colunas `ugb_id`, `funcao` e `programa`.
+  Deve conter as colunas `ugb_id`, `funcao`, `programa` e `fr`.
 
 - lookups:
 
-  Uma lista com tres elementos nomeados:
+  Uma lista com quatro elementos nomeados:
 
   ugb
 
@@ -40,12 +40,19 @@ adicionar_lookups_esistafe(df, lookups)
 
   programa
 
-  :   Dataframe com a tabela de referencia de programas. Deve conter
-      `programa` como chave de ligacao e `programa_tipo`.
+  :   Dataframe com a tabela de referencia de programas para anos
+      diferentes de 2025. Deve conter `programa_ambito_fr` como chave de
+      ligacao e `programa_tipo`.
+
+  programa2025
+
+  :   Dataframe com a tabela de referencia de programas para o ano 2025.
+      Deve conter `programa_ambito_fr_funcao` como chave de ligacao e
+      `programa_tipo`.
 
 ## Value
 
-O dataframe `df` enriquecido com as colunas descritivas dos tres
+O dataframe `df` enriquecido com as colunas descritivas dos quatro
 lookups. As colunas de UGB (`provincia`, `distrito`, `ambito`, colunas
 `adm*`, `nivel_da_instituicao`, `descricao`) e de programa
 (`programa_tipo`) sao posicionadas apos `ced`. A coluna `funcao_nivel` e
@@ -64,7 +71,14 @@ As ligacoes sao feitas por:
 
 - `funcao == funcao` para o lookup de funcoes.
 
-- `programa == programa` para o lookup de programas.
+- Para programas, duas chaves sao construidas internamente e removidas
+  apos o join: `programa_ambito_fr` (concatenacao de `programa`,
+  `ambito` e `fr`) e `programa_ambito_fr_funcao` (concatenacao de
+  `programa`, `ambito`, `fr` e `funcao`). Linhas com `ano == 2025` sao
+  ligadas a `lookups$programa2025` via `programa_ambito_fr_funcao`; as
+  restantes sao ligadas a `lookups$programa` via `programa_ambito_fr`. O
+  `programa_tipo` correcto e seleccionado com `if_else` apos ambos os
+  joins.
 
 ## Examples
 
@@ -83,7 +97,7 @@ lookups <- list(
     dplyr::filter(!is.na(funcao)),
   programa = readxl::read_excel("Data/lookups.xlsx", sheet = "programa") |>
     janitor::clean_names() |>
-    dplyr::select(programa, programa_tipo) |>
+    dplyr::select(programa_ambito_fr, programa_tipo) |>
     dplyr::filter(!is.na(programa_tipo))
 )
 

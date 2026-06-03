@@ -17,11 +17,11 @@ carregar_lookups_esistafe(path)
 
   Um caracter com o caminho completo ou relativo para o ficheiro Excel
   que contem as folhas de lookup. Deve conter as folhas `"ugb"`,
-  `"funcao"` e `"programa"`.
+  `"funcao"`, `"programa"` e `"programa2025"`.
 
 ## Value
 
-Uma lista nomeada com tres elementos:
+Uma lista nomeada com quatro elementos:
 
 - ugb:
 
@@ -36,8 +36,15 @@ Uma lista nomeada com tres elementos:
 
 - programa:
 
-  Dataframe com colunas `programa` e `programa_tipo`. Linhas com
-  `programa_tipo` em branco sao removidas.
+  Dataframe com colunas `programa_ambito_fr` e `programa_tipo`. Linhas
+  com `programa_tipo` em branco sao removidas. Usado para anos
+  diferentes de 2025.
+
+- programa2025:
+
+  Dataframe com colunas `programa_ambito_fr_funcao` e `programa_tipo`.
+  Linhas com `programa_tipo` em branco sao removidas. Usado para o ano
+  2025.
 
 ## Details
 
