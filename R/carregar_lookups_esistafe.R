@@ -6,9 +6,9 @@
 #'
 #' @param path Um caracter com o caminho completo ou relativo para o ficheiro
 #'   Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
-#'   \code{"funcao"}, \code{"programa"} e \code{"programa2025"}.
+#'   \code{"funcao"}, \code{"programa"}, \code{"programa2025"} e \code{"ced"}.
 #'
-#' @return Uma lista nomeada com quatro elementos:
+#' @return Uma lista nomeada com cinco elementos:
 #' \describe{
 #'   \item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{provincia},
 #'     \code{distrito}, \code{ambito}, colunas com prefixo \code{adm},
@@ -22,6 +22,7 @@
 #'   \item{programa2025}{Dataframe com colunas \code{programa_ambito_fr_funcao}
 #'     e \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
 #'     sao removidas. Usado para o ano 2025.}
+#'   \item{ced}{Dataframe com colunas \code{ced} e \code{ced_nome}.}
 #' }
 #'
 #' @details
@@ -49,7 +50,7 @@
 carregar_lookups_esistafe <- function(path) {
 
   # --- Validar presenca das folhas obrigatorias ---
-  required_sheets <- c("ugb", "funcao", "programa", "programa2025")
+  required_sheets <- c("ugb", "funcao", "programa", "programa2025", "ced")
   available_sheets <- readxl::excel_sheets(path)
   missing_sheets <- required_sheets[!required_sheets %in% available_sheets]
   if (length(missing_sheets) > 0) {
@@ -104,6 +105,15 @@ carregar_lookups_esistafe <- function(path) {
         programa_ambito_fr_funcao,
         programa_tipo
       ) |>
-      dplyr::filter(!is.na(programa_tipo))
+      dplyr::filter(!is.na(programa_tipo)),
+
+    ced = suppressMessages(
+      readxl::read_excel(path, sheet = "ced")
+    ) |>
+      janitor::clean_names() |>
+      dplyr::select(
+        ced,
+        ced_nome
+      )
   )
 }
