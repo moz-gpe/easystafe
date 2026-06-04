@@ -43,7 +43,7 @@
 #'
 #' @importFrom readxl read_excel excel_sheets
 #' @importFrom janitor clean_names
-#' @importFrom dplyr select filter starts_with
+#' @importFrom dplyr select filter starts_with mutate
 #'
 #' @export
 
@@ -114,6 +114,7 @@ carregar_lookups_esistafe <- function(path) {
       dplyr::select(
         ced,
         ced_nome
-      )
+      ) |>
+      dplyr::mutate(ced = as.character(ced))
   )
 }

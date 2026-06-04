@@ -84,7 +84,7 @@
 adicionar_lookups_esistafe <- function(df, lookups) {
 
   # --- Validar presenca dos elementos obrigatorios ---
-  required <- c("ugb", "funcao", "programa", "programa2025")
+  required <- c("ugb", "funcao", "programa", "programa2025", "ced")
   missing  <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
@@ -96,6 +96,7 @@ adicionar_lookups_esistafe <- function(df, lookups) {
   # --- Joins e reposicionamento de colunas ---
   df |>
     dplyr::left_join(lookups$ugb,    by = dplyr::join_by(ugb_id == codigo_ugb)) |>
+    dplyr::left_join(lookups$ced,    by = dplyr::join_by(ced == ced))           |>
     dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao))     |>
     dplyr::mutate(
       programa_ambito_fr        = stringr::str_c(programa, ambito, fr,        sep = "-"),
@@ -107,10 +108,12 @@ adicionar_lookups_esistafe <- function(df, lookups) {
     dplyr::mutate(programa_tipo = dplyr::if_else(ano == 2025, programa_tipo_2025, programa_tipo)) |>
     dplyr::select(-programa_ambito_fr, -programa_ambito_fr_funcao, -programa_tipo_2025) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
-    dplyr::relocate(
+        dplyr::relocate(
       provincia, distrito, ambito,
       dplyr::starts_with("adm"),
       nivel_da_instituicao, descricao, programa_tipo,
       .after = ced
-    )
+    ) |>
+    dplyr::relocate(ced_nome, .after = ced)
+
 }
