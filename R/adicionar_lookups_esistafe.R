@@ -84,7 +84,7 @@
 adicionar_lookups_esistafe <- function(df, lookups) {
 
   # --- Validar presenca dos elementos obrigatorios ---
-  required <- c("ugb", "funcao", "programa", "programa2025", "ced", "ced_2", "ced_3", "ced_4")
+  required <- c("ugb", "funcao", "programa", "programa2025", "ced", "ced_2", "ced_3")
   missing  <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
@@ -97,14 +97,12 @@ adicionar_lookups_esistafe <- function(df, lookups) {
   df |>
     dplyr::mutate(
       ced_2_temp = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
-      ced_3_temp = stringr::str_c(stringr::str_sub(ced, 1, 3), "000"),
-      ced_4_temp = stringr::str_c(stringr::str_sub(ced, 1, 4), "00")
+      ced_3_temp = stringr::str_c(stringr::str_sub(ced, 1, 3), "000")
     ) |>
     dplyr::left_join(lookups$ugb,    by = dplyr::join_by(ugb_id == codigo_ugb)) |>
     dplyr::left_join(lookups$ced,   by = dplyr::join_by(ced       == ced))       |>
     dplyr::left_join(lookups$ced_2, by = dplyr::join_by(ced_2_temp == ced_2_temp)) |>
     dplyr::left_join(lookups$ced_3, by = dplyr::join_by(ced_3_temp == ced_3_temp)) |>
-    dplyr::left_join(lookups$ced_4, by = dplyr::join_by(ced_4_temp == ced_4_temp)) |>
     dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao))     |>
     dplyr::mutate(
       programa_ambito_fr        = stringr::str_c(programa, ambito, fr,        sep = "-"),
@@ -122,6 +120,6 @@ adicionar_lookups_esistafe <- function(df, lookups) {
       nivel_da_instituicao, descricao, programa_tipo,
       .after = ced
     ) |>
-    dplyr::relocate(ced_nome, .after = ced)
+    dplyr::relocate(ced_nome, ced_2_nome, ced_3_nome, .after = ced)
 
 }
