@@ -17,11 +17,12 @@ carregar_lookups_esistafe(path)
 
   Um caracter com o caminho completo ou relativo para o ficheiro Excel
   que contem as folhas de lookup. Deve conter as folhas `"ugb"`,
-  `"funcao"`, `"programa"`, `"programa2025"` e `"ced"`.
+  `"funcao"`, `"programa"`, `"programa2025"`, `"ced"`, `"ced_2"`,
+  `"ced_3"` e `"ced_4"`.
 
 ## Value
 
-Uma lista nomeada com cinco elementos:
+Uma lista nomeada com oito elementos:
 
 - ugb:
 
@@ -50,10 +51,25 @@ Uma lista nomeada com cinco elementos:
 
   Dataframe com colunas `ced` e `ced_nome`.
 
+- ced_2:
+
+  Dataframe com colunas `ced_2_temp` e `ced_2_nome`. Chave de 6 digitos
+  construida com os 2 primeiros digitos do CED mais `"0000"`.
+
+- ced_3:
+
+  Dataframe com colunas `ced_3_temp` e `ced_3_nome`. Chave de 6 digitos
+  construida com os 3 primeiros digitos do CED mais `"000"`.
+
+- ced_4:
+
+  Dataframe com colunas `ced_4_temp` e `ced_4_nome`. Chave de 6 digitos
+  construida com os 4 primeiros digitos do CED mais `"00"`.
+
 ## Details
 
-A funcao valida a presenca das tres folhas obrigatorias antes de tentar
-ler qualquer dado. Se alguma folha estiver ausente, e emitido um
+A funcao valida a presenca de todas as folhas obrigatorias antes de
+tentar ler qualquer dado. Se alguma folha estiver ausente, e emitido um
 [`stop()`](https://rdrr.io/r/base/stop.html) imediato com o nome da
 folha em falta.
 
