@@ -3,7 +3,7 @@
 partir de um ficheiro Excel, devolvendo uma lista nomeada pronta a ser
 passada a adicionar_lookups_esistafe()."><meta property="og:description" content="Le e processa as tabelas de referencia de UGBs, funcoes e programas a
 partir de um ficheiro Excel, devolvendo uma lista nomeada pronta a ser
-passada a adicionar_lookups_esistafe()."><meta property="og:image" content="https://moz-gpe.github.io/easystafe/logo.png"></head><body>
+passada a adicionar_lookups_esistafe()."><meta property="og:image" content="https://moz-gpe.github.io/easystafe/logo.svg"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -36,7 +36,7 @@ passada a adicionar_lookups_esistafe()."><meta property="og:image" content="http
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Carregar lookups descritivos para enriquecimento de dados e-SISTAFE</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Carregar lookups descritivos para enriquecimento de dados e-SISTAFE</h1>
       <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/carregar_lookups_esistafe.R" class="external-link"><code>R/carregar_lookups_esistafe.R</code></a></small>
       <div class="d-none name"><code>carregar_lookups_esistafe.Rd</code></div>
     </div>
@@ -59,12 +59,12 @@ passada a <code><a href="adicionar_lookups_esistafe.html">adicionar_lookups_esis
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>Um caracter com o caminho completo ou relativo para o ficheiro
 Excel que contem as folhas de lookup. Deve conter as folhas <code>"ugb"</code>,
-<code>"funcao"</code>, <code>"programa"</code> e <code>"programa2025"</code>.</p></dd>
+<code>"funcao"</code>, <code>"programa"</code>, <code>"programa2025"</code> e <code>"ced"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Uma lista nomeada com quatro elementos:</p><dl><dt>ugb</dt>
+    <p>Uma lista nomeada com cinco elementos:</p><dl><dt>ugb</dt>
 <dd><p>Dataframe com colunas <code>codigo_ugb</code>, <code>provincia</code>,
 <code>distrito</code>, <code>ambito</code>, colunas com prefixo <code>adm</code>,
 <code>nivel_da_instituicao</code> e <code>descricao</code>. Linhas com
@@ -83,6 +83,9 @@ sao removidas. Usado para anos diferentes de 2025.</p></dd>
 <dd><p>Dataframe com colunas <code>programa_ambito_fr_funcao</code>
 e <code>programa_tipo</code>. Linhas com <code>programa_tipo</code> em branco
 sao removidas. Usado para o ano 2025.</p></dd>
+
+<dt>ced</dt>
+<dd><p>Dataframe com colunas <code>ced</code> e <code>ced_nome</code>.</p></dd>
 
 
 </dl></div>
