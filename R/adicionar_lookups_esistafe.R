@@ -76,7 +76,7 @@
 #' }
 #'
 #' @importFrom dplyr left_join join_by mutate select relocate starts_with if_else
-#' @importFrom stringr str_c
+#' @importFrom stringr str_c str_sub
 #' @importFrom glue glue
 #'
 #' @export
@@ -84,7 +84,7 @@
 adicionar_lookups_esistafe <- function(df, lookups) {
 
   # --- Validar presenca dos elementos obrigatorios ---
-  required <- c("ugb", "funcao", "programa", "programa2025", "ced")
+  required <- c("ugb", "funcao", "programa", "programa2025", "ced", "ced_2", "ced_3", "ced_4")
   missing  <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
@@ -95,8 +95,16 @@ adicionar_lookups_esistafe <- function(df, lookups) {
 
   # --- Joins e reposicionamento de colunas ---
   df |>
+    dplyr::mutate(
+      ced_2_temp = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
+      ced_3_temp = stringr::str_c(stringr::str_sub(ced, 1, 3), "000"),
+      ced_4_temp = stringr::str_c(stringr::str_sub(ced, 1, 4), "00")
+    ) |>
     dplyr::left_join(lookups$ugb,    by = dplyr::join_by(ugb_id == codigo_ugb)) |>
-    dplyr::left_join(lookups$ced,    by = dplyr::join_by(ced == ced))           |>
+    dplyr::left_join(lookups$ced,   by = dplyr::join_by(ced       == ced))       |>
+    dplyr::left_join(lookups$ced_2, by = dplyr::join_by(ced_2_temp == ced_2_temp)) |>
+    dplyr::left_join(lookups$ced_3, by = dplyr::join_by(ced_3_temp == ced_3_temp)) |>
+    dplyr::left_join(lookups$ced_4, by = dplyr::join_by(ced_4_temp == ced_4_temp)) |>
     dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao))     |>
     dplyr::mutate(
       programa_ambito_fr        = stringr::str_c(programa, ambito, fr,        sep = "-"),
