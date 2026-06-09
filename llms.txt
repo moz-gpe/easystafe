@@ -15,11 +15,11 @@ O pacote oferece:
   operação;
 - Extração automática de metadados a partir do nome do ficheiro,
   incluindo tipo de reporte, ano, mês e datas;
-- Filtragem automática de Unidades Gestoras Beneficiárias (UGBs) do
+- Filtragem automática de UGB’s (Unidades Gestoras Beneficiárias) do
   sector da Educação;
-- Adição de metadados de linha por UGB, incluindo âmbito, província,
-  distrito e tipo de programa;
-- Processamento de extractos PDF de razão de conta com extração de
+- Adição de metadados analiticos (âmbito, província, distrito, tipo de
+  programa, etc.);
+- Processamento de extractos PDF de razão contabalistica com extração de
   saldos e movimentos;
 - Gravação dos dados processados em Excel com nomenclatura automática de
   ficheiros.
