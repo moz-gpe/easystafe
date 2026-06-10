@@ -40,15 +40,8 @@ adicionar_lookups_esistafe(df, lookups)
 
   programa
 
-  :   Dataframe com a tabela de referencia de programas para anos
-      diferentes de 2025. Deve conter `programa_ambito_fr` como chave de
-      ligacao e `programa_tipo`.
-
-  programa2025
-
-  :   Dataframe com a tabela de referencia de programas para o ano 2025.
-      Deve conter `programa_ambito_fr_funcao` como chave de ligacao e
-      `programa_tipo`.
+  :   Dataframe com a tabela de referencia de programas. Deve conter
+      `programa_ambito_fr` como chave de ligacao e `programa_tipo`.
 
 ## Value
 
@@ -71,14 +64,10 @@ As ligacoes sao feitas por:
 
 - `funcao == funcao` para o lookup de funcoes.
 
-- Para programas, duas chaves sao construidas internamente e removidas
-  apos o join: `programa_ambito_fr` (concatenacao de `programa`,
-  `ambito` e `fr`) e `programa_ambito_fr_funcao` (concatenacao de
-  `programa`, `ambito`, `fr` e `funcao`). Linhas com `ano == 2025` sao
-  ligadas a `lookups$programa2025` via `programa_ambito_fr_funcao`; as
-  restantes sao ligadas a `lookups$programa` via `programa_ambito_fr`. O
-  `programa_tipo` correcto e seleccionado com `if_else` apos ambos os
-  joins.
+- Para programas, uma chave e construida internamente e removida apos o
+  join: `programa_ambito_fr` (concatenacao de `programa`, `ambito` e
+  `fr`). Todas as linhas sao ligadas a `lookups$programa` via
+  `programa_ambito_fr`.
 
 ## Examples
 

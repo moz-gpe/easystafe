@@ -81,14 +81,9 @@ colunas com prefixo <code>adm</code>, <code>nivel_da_instituicao</code> e
 conter <code>funcao</code> como chave de ligacao e <code>funcao_nivel</code>.</p></dd>
 
 <dt>programa</dt>
-<dd><p>Dataframe com a tabela de referencia de programas para
-anos diferentes de 2025. Deve conter <code>programa_ambito_fr</code> como
-chave de ligacao e <code>programa_tipo</code>.</p></dd>
-
-<dt>programa2025</dt>
-<dd><p>Dataframe com a tabela de referencia de programas
-para o ano 2025. Deve conter <code>programa_ambito_fr_funcao</code> como
-chave de ligacao e <code>programa_tipo</code>.</p></dd>
+<dd><p>Dataframe com a tabela de referencia de programas.
+Deve conter <code>programa_ambito_fr</code> como chave de ligacao e
+<code>programa_tipo</code>.</p></dd>
 
 
 </dl></dd>
@@ -110,15 +105,10 @@ apos <code>ced</code>. A coluna <code>funcao_nivel</code> e posicionada apos
 ausente, e emitido um <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> imediato com o nome do elemento em falta.</p>
 <p>As ligacoes sao feitas por:</p><ul><li><p><code>ugb_id == codigo_ugb</code> para o lookup de UGBs.</p></li>
 <li><p><code>funcao == funcao</code> para o lookup de funcoes.</p></li>
-<li><p>Para programas, duas chaves sao construidas internamente e removidas
+<li><p>Para programas, uma chave e construida internamente e removida
 apos o join: <code>programa_ambito_fr</code> (concatenacao de <code>programa</code>,
-<code>ambito</code> e <code>fr</code>) e <code>programa_ambito_fr_funcao</code>
-(concatenacao de <code>programa</code>, <code>ambito</code>, <code>fr</code> e
-<code>funcao</code>). Linhas com <code>ano == 2025</code> sao ligadas a
-<code>lookups$programa2025</code> via <code>programa_ambito_fr_funcao</code>;
-as restantes sao ligadas a <code>lookups$programa</code> via
-<code>programa_ambito_fr</code>. O <code>programa_tipo</code> correcto e
-seleccionado com <code>if_else</code> apos ambos os joins.</p></li>
+<code>ambito</code> e <code>fr</code>). Todas as linhas sao ligadas a
+<code>lookups$programa</code> via <code>programa_ambito_fr</code>.</p></li>
 </ul></div>
 
     <div class="section level2">
