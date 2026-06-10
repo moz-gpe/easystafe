@@ -60,7 +60,7 @@
 carregar_lookups_esistafe <- function(path) {
 
   # --- Validar presenca das folhas obrigatorias ---
-  required_sheets <- c("ugb", "funcao", "programa", "programa2025", "ced", "ced_2", "ced_3", "ced_4")
+  required_sheets <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3")
   available_sheets <- readxl::excel_sheets(path)
   missing_sheets <- required_sheets[!required_sheets %in% available_sheets]
   if (length(missing_sheets) > 0) {
@@ -107,16 +107,6 @@ carregar_lookups_esistafe <- function(path) {
       ) |>
       dplyr::filter(!is.na(programa_tipo)),
 
-    programa2025 = suppressMessages(
-      readxl::read_excel(path, sheet = "programa2025")
-    ) |>
-      janitor::clean_names() |>
-      dplyr::select(
-        programa_ambito_fr_funcao,
-        programa_tipo
-      ) |>
-      dplyr::filter(!is.na(programa_tipo)),
-
     ced = suppressMessages(
       readxl::read_excel(path, sheet = "ced")
     ) |>
@@ -136,13 +126,6 @@ carregar_lookups_esistafe <- function(path) {
     ) |>
       janitor::clean_names() |>
       dplyr::select(ced_3_temp, ced_3_nome) |>
-      dplyr::mutate(ced_3_temp = as.character(ced_3_temp)),
-
-    ced_4 = suppressMessages(
-      readxl::read_excel(path, sheet = "ced_4")
-    ) |>
-      janitor::clean_names() |>
-      dplyr::select(ced_4_temp, ced_4_nome) |>
-      dplyr::mutate(ced_4_temp = as.character(ced_4_temp))
+      dplyr::mutate(ced_3_temp = as.character(ced_3_temp))
   )
 }

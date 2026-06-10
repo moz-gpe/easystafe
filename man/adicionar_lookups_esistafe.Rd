@@ -20,12 +20,9 @@ colunas com prefixo \code{adm}, \code{nivel_da_instituicao} e
 \code{descricao}.}
 \item{funcao}{Dataframe com a tabela de referencia de funcoes. Deve
 conter \code{funcao} como chave de ligacao e \code{funcao_nivel}.}
-\item{programa}{Dataframe com a tabela de referencia de programas para
-anos diferentes de 2025. Deve conter \code{programa_ambito_fr} como
-chave de ligacao e \code{programa_tipo}.}
-\item{programa2025}{Dataframe com a tabela de referencia de programas
-para o ano 2025. Deve conter \code{programa_ambito_fr_funcao} como
-chave de ligacao e \code{programa_tipo}.}
+\item{programa}{Dataframe com a tabela de referencia de programas.
+Deve conter \code{programa_ambito_fr} como chave de ligacao e
+\code{programa_tipo}.}
 }}
 }
 \value{
@@ -52,15 +49,10 @@ As ligacoes sao feitas por:
 \itemize{
 \item \code{ugb_id == codigo_ugb} para o lookup de UGBs.
 \item \code{funcao == funcao} para o lookup de funcoes.
-\item Para programas, duas chaves sao construidas internamente e removidas
+\item Para programas, uma chave e construida internamente e removida
 apos o join: \code{programa_ambito_fr} (concatenacao de \code{programa},
-\code{ambito} e \code{fr}) e \code{programa_ambito_fr_funcao}
-(concatenacao de \code{programa}, \code{ambito}, \code{fr} e
-\code{funcao}). Linhas com \code{ano == 2025} sao ligadas a
-\code{lookups$programa2025} via \code{programa_ambito_fr_funcao};
-as restantes sao ligadas a \code{lookups$programa} via
-\code{programa_ambito_fr}. O \code{programa_tipo} correcto e
-seleccionado com \code{if_else} apos ambos os joins.
+\code{ambito} e \code{fr}). Todas as linhas sao ligadas a
+\code{lookups$programa} via \code{programa_ambito_fr}.
 }
 }
 \examples{
