@@ -90,13 +90,16 @@ processar_extracto_esistafe(
 Um tibble com uma linha por entrada CED deduplificada, contendo as
 colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 hierarquica. A coluna `data_tipo` esta sempre presente e posicionada
-imediatamente antes de `ugb`. As colunas de percentagem sao sempre
-incluidas na estrutura original (preenchidas com `NA`) salvo se
-`include_percent = FALSE`. A coluna `pasta_fonte` contem o nome da pasta
-imediata de onde os dados foram carregados. As colunas `ano` (numerico)
-e `mes` (caracter em portugues) sao derivadas do nome da pasta quando
-este segue o formato `YYYYMM`; caso contrario sao preenchidas com `NA` e
-e emitido um aviso.
+imediatamente antes de `ugb`. Tres colunas hierarquicas derivadas de
+`ced` sao sempre incluidas imediatamente a seguir a `ced`: `ced_2`
+(primeiros 2 digitos com sufixo `"0000"`), `ced_3` (primeiros 3 digitos)
+e `ced_4` (primeiros 4 digitos); todas sao `NA` nas linhas `"Metrica"`.
+As colunas de percentagem sao sempre incluidas na estrutura original
+(preenchidas com `NA`) salvo se `include_percent = FALSE`. A coluna
+`pasta_fonte` contem o nome da pasta imediata de onde os dados foram
+carregados. As colunas `ano` (numerico) e `mes` (caracter em portugues)
+sao derivadas do nome da pasta quando este segue o formato `YYYYMM`;
+caso contrario sao preenchidas com `NA` e e emitido um aviso.
 
 ## Details
 
@@ -126,7 +129,10 @@ O processamento segue as seguintes etapas principais:
 
 9.  Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
 
-10. Criacao de variaveis hierarquicas auxiliares.
+10. Criacao de variaveis hierarquicas: `ced_4` (primeiros 4 digitos de
+    `ced`), `ced_3` (primeiros 3 digitos), `ced_2` (primeiros 2 digitos
+    com sufixo `"0000"`), e chaves compostas auxiliares `id_ced_b4` e
+    `id_ced_b3` (usadas internamente e removidas no output final).
 
 11. Separacao de linhas `"Metrica"` e `"Valor"` antes da subtraccao
     hierarquica.
@@ -134,13 +140,12 @@ O processamento segue as seguintes etapas principais:
 12. Subtraccao hierarquica em tres passos para eliminar dupla contagem
     (aplicada apenas a linhas `"Valor"`):
 
-    - Passo 1: Subtrair grupo A do grupo B (dentro de `ced_b4`).
+    - Passo 1: Subtrair grupo A do grupo B (dentro de `ced_4`).
 
-    - Passo 2: Subtrair grupo B ajustado do grupo C (dentro de
-      `ced_b3`).
+    - Passo 2: Subtrair grupo B ajustado do grupo C (dentro de `ced_3`).
 
     - Passo 3: Subtrair grupo A directamente do grupo C (dentro de
-      `ced_b3`).
+      `ced_3`).
 
 13. Reinclusao opcional das linhas `"Metrica"` via `include_metrica`.
 

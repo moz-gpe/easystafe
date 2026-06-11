@@ -53,17 +53,17 @@ Uma lista nomeada com oito elementos:
 
 - ced_2:
 
-  Dataframe com colunas `ced_2_temp` e `ced_2_nome`. Chave de 6 digitos
+  Dataframe com colunas `ced_2` e `ced_2_nome`. Chave de 6 digitos
   construida com os 2 primeiros digitos do CED mais `"0000"`.
 
 - ced_3:
 
-  Dataframe com colunas `ced_3_temp` e `ced_3_nome`. Chave de 6 digitos
+  Dataframe com colunas `ced_3` e `ced_3_nome`. Chave de 6 digitos
   construida com os 3 primeiros digitos do CED mais `"000"`.
 
 - ced_4:
 
-  Dataframe com colunas `ced_4_temp` e `ced_4_nome`. Chave de 6 digitos
+  Dataframe com colunas `ced_4` e `ced_4_nome`. Chave de 6 digitos
   construida com os 4 primeiros digitos do CED mais `"00"`.
 
 ## Details

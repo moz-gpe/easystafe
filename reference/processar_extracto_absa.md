@@ -99,8 +99,8 @@ as 6 colunas de conversao de moeda produzidas por
 
 - tipo:
 
-  `character`. Um de `"SALDO_INICIAL"`, `"MOVIMENTO"` ou
-  `"SALDO_FINAL"`.
+  `character`. Um de `"Saldo Inicial"`, `"Moviemento"` ou
+  `"Saldo Final"`.
 
 - codigo_documento:
 
@@ -141,7 +141,7 @@ as 6 colunas de conversao de moeda produzidas por
 - saldo_inicial_fim:
 
   `double`. Saldo de abertura em `SALDO_INICIAL`; saldo calculado em
-  `SALDO_FINAL`; `NA` nos movimentos.
+  `Saldo Final`; `NA` nos movimentos.
 
 - saldo_inicial_fim_mt:
 
@@ -171,7 +171,7 @@ funcao resolve:
     podem continuar numa segunda linha sem data inicial. Essas linhas
     sao detectadas e concatenadas a linha de transaccao anterior.
 
-A linha de fecho (`SALDO_FINAL`) e acrescentada programaticamente e nao
+A linha de fecho (`Saldo Final`) e acrescentada programaticamente e nao
 extraida do rodape do PDF. O seu `saldo_inicial_fim` e calculado como
 `saldo_abertura + sum(creditos) - sum(debitos)`.
 

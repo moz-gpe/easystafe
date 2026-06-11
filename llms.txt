@@ -84,6 +84,12 @@ Funções para recodificar e classificar variáveis
   : Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
 - [`aplicar_conversao_moeda()`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
   : Aplicar conversao de moeda a um tibble de extractos do e-SISTAFE
+- [`adicionar_conversao_moeda()`](https://moz-gpe.github.io/easystafe/reference/adicionar_conversao_moeda.md)
+  : Add daily exchange rate conversions to a razao contabilistica tibble
+- [`obter_conversao_bancomoc()`](https://moz-gpe.github.io/easystafe/reference/obter_conversao_bancomoc.md)
+  : Download and parse Banco de Mocambique exchange rate PDFs
+- [`parse_bancomoc_pdf()`](https://moz-gpe.github.io/easystafe/reference/parse_bancomoc_pdf.md)
+  : Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
 
 ## Gravação
 
@@ -92,7 +98,8 @@ Funções para gravar outputs processados
 - [`gravar_esistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_esistafe.md)
   : Gravar extracto processado do e-SISTAFE em Parquet e Excel
 - [`gravar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_razao_c.md)
-  : Gravar extracto da razao contabilistico processado em Excel
+  : Gravar extracto da razao contabilistico processado em Parquet e
+  Excel
 - [`gravar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/gravar_extracto_absa.md)
   : Gravar Extracto Bancario ABSA em Excel
 - [`gravar_compilacao_sistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_compilacao_sistafe.md)

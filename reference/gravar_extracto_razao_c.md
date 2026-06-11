@@ -1,15 +1,15 @@
-# Gravar extracto da razao contabilistico processado em Excel
+# Gravar extracto da razao contabilistico processado em Parquet e Excel
 
 Grava um dataframe processado por
 [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
-num ficheiro Excel, construindo automaticamente o nome do ficheiro a
-partir do intervalo de datas do relatorio e da data actual. Cria a pasta
-de destino se nao existir.
+em dois formatos (Parquet e Excel), construindo automaticamente o nome
+dos ficheiros a partir de todos os anos presentes na coluna `ano`. Cria
+a pasta de destino se nao existir.
 
 ## Usage
 
 ``` r
-gravar_extracto_razao_c(df, output_folder = "Data/processed", quiet = TRUE)
+gravar_extracto_razao_c(df, output_folder = "Dataout", quiet = TRUE)
 ```
 
 ## Arguments
@@ -18,37 +18,39 @@ gravar_extracto_razao_c(df, output_folder = "Data/processed", quiet = TRUE)
 
   Um tibble processado por
   [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md).
-  Deve conter o atributo `date_range_txt` gerado por essa funcao.
+  Deve conter pelo menos a coluna `ano`.
 
 - output_folder:
 
-  Caractere. Caminho para a pasta de destino onde o ficheiro Excel sera
-  gravado. Por padrao `"Dataout"`. A pasta e criada automaticamente se
+  Caractere. Caminho para a pasta de destino onde os ficheiros serao
+  gravados. Por padrao `"Dataout"`. A pasta e criada automaticamente se
   nao existir.
 
 - quiet:
 
   Logico. Se `TRUE` (padrao), as mensagens de progresso sao suprimidas.
-  Se `FALSE`, sao emitidas mensagens sobre a criacao da pasta e o
-  caminho do ficheiro gravado.
+  Se `FALSE`, sao emitidas mensagens sobre a criacao da pasta e os
+  caminhos dos ficheiros gravados.
 
 ## Value
 
-O caminho completo do ficheiro gravado, retornado de forma invisivel.
-Pode ser capturado com `path <- gravar_extracto_razao_c(df)` para uso
-posterior se necessario.
+Um named list com os caminhos completos dos ficheiros gravados
+(`parquet` e `excel`), retornado de forma invisivel.
 
 ## Details
 
-O nome do ficheiro e construido automaticamente no formato:
-`RazaoCont_<YYYYMM>.xlsx`, onde `YYYYMM` corresponde ao ano e mes da
-data final do intervalo presente no atributo `date_range_txt`.
+O nome dos ficheiros e construido automaticamente no formato:
+`RazaoCont_<YYYY-YYYY>_<YYYY-MM-DD>.parquet` e
+`RazaoCont_<YYYY-YYYY>_<YYYY-MM-DD>.xlsx`, onde os anos sao todos os
+valores unicos presentes na coluna `ano`, ordenados e separados por
+hifen.
 
-Por exemplo: `RazaoCont_202512.xlsx`
+Por exemplo, dados abrangendo 2025 e 2026 produzem:
+`RazaoCont_2025-2026_2026-02-24.parquet` e
+`RazaoCont_2025-2026_2026-02-24.xlsx`
 
-Se o atributo `date_range_txt` nao estiver presente no dataframe (por
-exemplo, se o objeto foi modificado apos o processamento), o nome do
-ficheiro usa `"sem_datas"` como sufixo.
+Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
+de ser substituido.
 
 ## Examples
 
@@ -58,12 +60,14 @@ if (FALSE) { # \dontrun{
 gravar_extracto_razao_c(df_razao)
 
 # Gravar numa pasta personalizada
-gravar_extracto_razao_c(df_razao, output_folder = "Data/processed")
+gravar_extracto_razao_c(df_razao, output_folder = "Dataout/subpasta")
 
 # Gravar com mensagens de progresso
 gravar_extracto_razao_c(df_razao, quiet = FALSE)
 
-# Capturar o caminho do ficheiro gravado
-path <- gravar_extracto_razao_c(df_razao, quiet = FALSE)
+# Capturar os caminhos dos ficheiros gravados
+paths <- gravar_extracto_razao_c(df_razao, quiet = FALSE)
+paths$parquet
+paths$excel
 } # }
 ```

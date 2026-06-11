@@ -138,8 +138,8 @@ extracto.</p></dd>
 <code>"Fevereiro"</code>).</p></dd>
 
 <dt>tipo</dt>
-<dd><p><code>character</code>. Um de <code>"SALDO_INICIAL"</code>,
-<code>"MOVIMENTO"</code> ou <code>"SALDO_FINAL"</code>.</p></dd>
+<dd><p><code>character</code>. Um de <code>"Saldo Inicial"</code>,
+<code>"Moviemento"</code> ou <code>"Saldo Final"</code>.</p></dd>
 
 <dt>codigo_documento</dt>
 <dd><p><code>character</code>. Numero de referencia do
@@ -172,7 +172,7 @@ de saldo.</p></dd>
 
 <dt>saldo_inicial_fim</dt>
 <dd><p><code>double</code>. Saldo de abertura em
-<code>SALDO_INICIAL</code>; saldo calculado em <code>SALDO_FINAL</code>;
+<code>SALDO_INICIAL</code>; saldo calculado em <code>Saldo Final</code>;
 <code>NA</code> nos movimentos.</p></dd>
 
 <dt>saldo_inicial_fim_mt</dt>
@@ -200,7 +200,7 @@ partir das coordenadas x/y de cada palavra.</p></li>
 <li><p><strong>Linhas de continuacao</strong>: Descricoes longas e numeros de
 referencia podem continuar numa segunda linha sem data inicial. Essas
 linhas sao detectadas e concatenadas a linha de transaccao anterior.</p></li>
-</ol><p>A linha de fecho (<code>SALDO_FINAL</code>) e acrescentada programaticamente e
+</ol><p>A linha de fecho (<code>Saldo Final</code>) e acrescentada programaticamente e
 nao extraida do rodape do PDF. O seu <code>saldo_inicial_fim</code> e calculado
 como <code>saldo_abertura + sum(creditos) - sum(debitos)</code>.</p>
 <p>Apos extrair e combinar todos os PDFs, chama internamente
