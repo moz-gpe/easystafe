@@ -29,7 +29,8 @@ Imports:
     pdftools,
     readr,
     scales,
-    arrow
+    arrow,
+    rvest
 Suggests:
     testthat (>= 3.0.0),
     knitr,

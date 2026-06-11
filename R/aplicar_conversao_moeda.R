@@ -165,3 +165,133 @@ aplicar_conversao_moeda <- function(
       .after = saldo_inicial_fim
     )
 }
+
+
+#' Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+#'
+#' @param filepath Path to a PDF file downloaded from bancomoc.mz. The filename
+#'   must contain an 8-digit date string in \code{DDMMYYYY} format.
+#'
+#' @return A tibble with columns \code{date}, \code{country}, \code{currency},
+#'   \code{compra}, \code{venda}, \code{media}, and \code{per_1000}.
+#'
+#' @export
+parse_bancomoc_pdf <- function(filepath) {
+  date_str <- stringr::str_extract(basename(filepath), "\\d{8}(?=\\.pdf)")
+  date <- lubridate::dmy(date_str)
+
+  lines <- pdftools::pdf_text(filepath) |>
+    stringr::str_split("\n") |>
+    unlist()
+
+  num <- "\\d[\\d\\.]*,\\d+"
+  pat <- paste0(
+    "^(\\s*.+?)\\s{2,}(\\S+)\\s{2,}(",
+    num,
+    ")\\s+(",
+    num,
+    ")\\s+(",
+    num,
+    ")\\s*$"
+  )
+
+  per_1000 <- FALSE
+  rows <- list()
+
+  for (line in lines) {
+    if (stringr::str_detect(line, "1000 Unidades")) {
+      per_1000 <- TRUE
+    } else if (stringr::str_detect(line, "Unidade de Moeda")) {
+      per_1000 <- FALSE
+    }
+
+    m <- stringr::str_match(line, pat)
+    if (!is.na(m[1, 1])) {
+      rows[[length(rows) + 1]] <- tibble::tibble(
+        date = date,
+        country = stringr::str_remove(
+          stringr::str_trim(m[1, 2]),
+          "\\(\\w\\)$"
+        ) |>
+          stringr::str_trim(),
+        currency = stringr::str_trim(m[1, 3]),
+        compra = readr::parse_number(
+          m[1, 4],
+          locale = readr::locale(decimal_mark = ",", grouping_mark = ".")
+        ),
+        venda = readr::parse_number(
+          m[1, 5],
+          locale = readr::locale(decimal_mark = ",", grouping_mark = ".")
+        ),
+        media = readr::parse_number(
+          m[1, 6],
+          locale = readr::locale(decimal_mark = ",", grouping_mark = ".")
+        ),
+        per_1000 = per_1000
+      )
+    }
+  }
+
+  dplyr::bind_rows(rows)
+}
+
+
+#' Download and parse Banco de Mocambique exchange rate PDFs
+#'
+#' Scrapes PDF links from the Banco de Mocambique website, downloads any new
+#' files to \code{out_dir}, parses all files in that directory, and returns a
+#' combined tidy tibble.
+#'
+#' @param out_dir Directory where PDFs are saved. Created if it does not exist.
+#'   Defaults to \code{"Data/pdfs_bancomoc"}.
+#' @param url_path URL path on \url{https://www.bancomoc.mz} for the page
+#'   listing exchange rate PDFs.
+#' @param keep_countries Character vector of country names to retain. Pass
+#'   \code{character(0)} to return all countries. Defaults to
+#'   \code{c("Estados Unidos", "Uni\u00e3o Europeia")}.
+#'
+#' @return A tibble with columns \code{date}, \code{country}, \code{currency},
+#'   \code{compra}, \code{venda}, \code{media}, and \code{per_1000}.
+#'
+#' @export
+obter_conversao_bancomoc <- function(
+  out_dir = "Data/pdfs_bancomoc",
+  url_path = "/pt/tabelas-de-taxas-de-cambio-de-referencia-diarias/2026-2025/",
+  keep_countries = c("Estados Unidos", "Uni\u00e3o Europeia")
+) {
+  base_url <- "https://www.bancomoc.mz"
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+  page <- rvest::read_html(paste0(base_url, url_path))
+
+  pdf_links <- page |>
+    rvest::html_elements("a[href$='.pdf']") |>
+    rvest::html_attr("href") |>
+    stringr::str_subset("taxas-de-c")
+
+  purrr::walk(pdf_links, \(link) {
+    date_str <- stringr::str_extract(link, "\\d{8}(?=\\.pdf)")
+    dest <- file.path(out_dir, paste0("taxas_", date_str, ".pdf"))
+    if (file.exists(dest)) {
+      return(invisible(NULL))
+    }
+    tryCatch(
+      download.file(
+        paste0(base_url, link),
+        destfile = dest,
+        mode = "wb",
+        quiet = TRUE
+      ),
+      error = \(e) message("Failed: ", link, " - ", e$message)
+    )
+  })
+
+  pdf_files <- list.files(out_dir, pattern = "\\.pdf$", full.names = TRUE)
+  cambios <- purrr::map(pdf_files, parse_bancomoc_pdf) |> dplyr::bind_rows()
+
+  if (length(keep_countries) > 0) {
+    cambios <- dplyr::filter(cambios, .data$country %in% keep_countries)
+  }
+
+  cambios
+}
