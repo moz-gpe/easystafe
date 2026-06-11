@@ -5,7 +5,7 @@
 \title{Compilar ficheiros RazaoCont processados num unico Excel}
 \usage{
 gravar_compilacao_razao_c(
-  input_folder = "Data/processed",
+  input_folder = "Data/razao_cont",
   output_folder = "Dataout",
   quiet = TRUE
 )

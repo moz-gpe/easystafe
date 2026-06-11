@@ -63,8 +63,8 @@ extracto.}
 \item{ano}{\code{integer}. Ano extraido de \code{data}.}
 \item{mes}{\code{character}. Nome completo do mes em portugues (ex:
 \code{"Fevereiro"}).}
-\item{tipo}{\code{character}. Um de \code{"SALDO_INICIAL"},
-\code{"MOVIMENTO"} ou \code{"SALDO_FINAL"}.}
+\item{tipo}{\code{character}. Um de \code{"Saldo Inicial"},
+\code{"Moviemento"} ou \code{"Saldo Final"}.}
 \item{codigo_documento}{\code{character}. Numero de referencia do
 movimento, quando presente. \code{NA} caso contrario.}
 \item{valor_lancamento}{\code{double}. Valor assinado do movimento:
@@ -79,7 +79,7 @@ de saldo.}
 \item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
 \code{"D"} para este tipo de conta.}
 \item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
-\code{SALDO_INICIAL}; saldo calculado em \code{SALDO_FINAL};
+\code{SALDO_INICIAL}; saldo calculado em \code{Saldo Final};
 \code{NA} nos movimentos.}
 \item{saldo_inicial_fim_mt}{\code{double}. Saldo inicial ou final
 em MZN.}
@@ -108,7 +108,7 @@ referencia podem continuar numa segunda linha sem data inicial. Essas
 linhas sao detectadas e concatenadas a linha de transaccao anterior.
 }
 
-A linha de fecho (\code{SALDO_FINAL}) e acrescentada programaticamente e
+A linha de fecho (\code{Saldo Final}) e acrescentada programaticamente e
 nao extraida do rodape do PDF. O seu \code{saldo_inicial_fim} e calculado
 como \code{saldo_abertura + sum(creditos) - sum(debitos)}.
 

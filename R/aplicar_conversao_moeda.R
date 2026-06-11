@@ -77,36 +77,39 @@
 #' @export
 
 aplicar_conversao_moeda <- function(
-    df,
-    usd_to_mt     = 63.91,
-    cut_usd_to_mt = 63.27,
-    eur_to_mt     = 70.00,
-    eur_to_usd    = 1.10
+  df,
+  usd_to_mt = 63.91,
+  cut_usd_to_mt = 63.27,
+  eur_to_mt = 70.00,
+  eur_to_usd = 1.10
 ) {
-
   # ---- Validacao de argumentos ----
   if (!inherits(df, "data.frame")) {
     cli::cli_abort("{.arg df} deve ser um data frame ou tibble.")
   }
 
   required_cols <- c("source_file", "valor_lancamento", "saldo_inicial_fim")
-  missing_cols  <- setdiff(required_cols, names(df))
+  missing_cols <- setdiff(required_cols, names(df))
   if (length(missing_cols) > 0) {
     cli::cli_abort(
       "As seguintes colunas estao em falta em {.arg df}: {.field {missing_cols}}."
     )
   }
 
-  if (!is.numeric(usd_to_mt)     || length(usd_to_mt)     != 1 || usd_to_mt     <= 0) {
+  if (!is.numeric(usd_to_mt) || length(usd_to_mt) != 1 || usd_to_mt <= 0) {
     cli::cli_abort("{.arg usd_to_mt} deve ser um numero positivo.")
   }
-  if (!is.numeric(cut_usd_to_mt) || length(cut_usd_to_mt) != 1 || cut_usd_to_mt <= 0) {
+  if (
+    !is.numeric(cut_usd_to_mt) ||
+      length(cut_usd_to_mt) != 1 ||
+      cut_usd_to_mt <= 0
+  ) {
     cli::cli_abort("{.arg cut_usd_to_mt} deve ser um numero positivo.")
   }
-  if (!is.numeric(eur_to_mt)     || length(eur_to_mt)     != 1 || eur_to_mt     <= 0) {
+  if (!is.numeric(eur_to_mt) || length(eur_to_mt) != 1 || eur_to_mt <= 0) {
     cli::cli_abort("{.arg eur_to_mt} deve ser um numero positivo.")
   }
-  if (!is.numeric(eur_to_usd)    || length(eur_to_usd)    != 1 || eur_to_usd    <= 0) {
+  if (!is.numeric(eur_to_usd) || length(eur_to_usd) != 1 || eur_to_usd <= 0) {
     cli::cli_abort("{.arg eur_to_usd} deve ser um numero positivo.")
   }
 
@@ -114,54 +117,102 @@ aplicar_conversao_moeda <- function(
   df |>
     dplyr::mutate(
       valor_lancamento_mt = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ valor_lancamento * cut_usd_to_mt,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ valor_lancamento * usd_to_mt,
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ valor_lancamento * eur_to_mt,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ valor_lancamento,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ valor_lancamento *
+          cut_usd_to_mt,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ valor_lancamento * usd_to_mt,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ valor_lancamento *
+          eur_to_mt,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ valor_lancamento,
         .default = valor_lancamento
       ),
       valor_lancamento_usd = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ valor_lancamento,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ valor_lancamento,
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ valor_lancamento * eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ valor_lancamento / usd_to_mt,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ valor_lancamento,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ valor_lancamento,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ valor_lancamento *
+          eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ valor_lancamento / usd_to_mt,
         .default = valor_lancamento / usd_to_mt
       ),
       valor_lancamento_eur = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ valor_lancamento,
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ valor_lancamento / eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ valor_lancamento / eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ valor_lancamento / eur_to_mt,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ valor_lancamento,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ valor_lancamento /
+          eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ valor_lancamento / eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ valor_lancamento / eur_to_mt,
         .default = valor_lancamento / eur_to_mt
       ),
       saldo_inicial_fim_mt = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ saldo_inicial_fim * cut_usd_to_mt,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ saldo_inicial_fim * usd_to_mt,
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ saldo_inicial_fim * eur_to_mt,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ saldo_inicial_fim,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ saldo_inicial_fim *
+          cut_usd_to_mt,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ saldo_inicial_fim * usd_to_mt,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ saldo_inicial_fim *
+          eur_to_mt,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ saldo_inicial_fim,
         .default = saldo_inicial_fim
       ),
       saldo_inicial_fim_usd = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ saldo_inicial_fim,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ saldo_inicial_fim,
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ saldo_inicial_fim * eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ saldo_inicial_fim / usd_to_mt,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ saldo_inicial_fim,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ saldo_inicial_fim,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ saldo_inicial_fim *
+          eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ saldo_inicial_fim / usd_to_mt,
         .default = saldo_inicial_fim / usd_to_mt
       ),
       saldo_inicial_fim_eur = dplyr::case_when(
-        stringr::str_detect(source_file, "CENTRAL EUR")              ~ saldo_inicial_fim,
-        stringr::str_detect(source_file, "CENTRAL USD")              ~ saldo_inicial_fim / eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK USD")   ~ saldo_inicial_fim / eur_to_usd,
-        stringr::str_detect(source_file, "EXTRACTO ABSA BANK MT")    ~ saldo_inicial_fim / eur_to_mt,
+        stringr::str_detect(source_file, "CENTRAL EUR") ~ saldo_inicial_fim,
+        stringr::str_detect(source_file, "CENTRAL USD") ~ saldo_inicial_fim /
+          eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ saldo_inicial_fim / eur_to_usd,
+        stringr::str_detect(
+          source_file,
+          "EXTRACTO ABSA BANK MT"
+        ) ~ saldo_inicial_fim / eur_to_mt,
         .default = saldo_inicial_fim / eur_to_mt
       )
     ) |>
     dplyr::relocate(
-      valor_lancamento_mt, valor_lancamento_usd, valor_lancamento_eur,
+      valor_lancamento_mt,
+      valor_lancamento_usd,
+      valor_lancamento_eur,
       .after = valor_lancamento
     ) |>
     dplyr::relocate(
-      saldo_inicial_fim_mt, saldo_inicial_fim_usd, saldo_inicial_fim_eur,
+      saldo_inicial_fim_mt,
+      saldo_inicial_fim_usd,
+      saldo_inicial_fim_eur,
       .after = saldo_inicial_fim
     )
 }
@@ -249,15 +300,24 @@ parse_bancomoc_pdf <- function(filepath) {
 #' @param keep_countries Character vector of country names to retain. Pass
 #'   \code{character(0)} to return all countries. Defaults to
 #'   \code{c("Estados Unidos", "Uni\u00e3o Europeia")}.
+#' @param wide Logical. If \code{TRUE} (default), returns a daily wide-format
+#'   table with one row per calendar date and one \code{taxa_*} column per
+#'   currency (e.g. \code{taxa_dolar}, \code{taxa_euro}), with gaps filled by
+#'   the preceding trading-day rate (LOCF). If \code{FALSE}, returns the raw
+#'   long-format tibble.
 #'
-#' @return A tibble with columns \code{date}, \code{country}, \code{currency},
-#'   \code{compra}, \code{venda}, \code{media}, and \code{per_1000}.
+#' @return When \code{wide = FALSE}: a tibble with columns \code{date},
+#'   \code{country}, \code{currency}, \code{compra}, \code{venda},
+#'   \code{media}, and \code{per_1000}. When \code{wide = TRUE}: a tibble
+#'   with \code{date} and one \code{taxa_*} column per currency present in the
+#'   data.
 #'
 #' @export
 obter_conversao_bancomoc <- function(
   out_dir = "Data/pdfs_bancomoc",
   url_path = "/pt/tabelas-de-taxas-de-cambio-de-referencia-diarias/2026-2025/",
-  keep_countries = c("Estados Unidos", "Uni\u00e3o Europeia")
+  keep_countries = c("Estados Unidos", "Uni\u00e3o Europeia"),
+  wide = TRUE
 ) {
   base_url <- "https://www.bancomoc.mz"
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
@@ -293,5 +353,20 @@ obter_conversao_bancomoc <- function(
     cambios <- dplyr::filter(cambios, .data$country %in% keep_countries)
   }
 
-  cambios
+  if (!wide) {
+    return(cambios)
+  }
+
+  rates <- cambios |>
+    dplyr::select("date", "currency", "compra") |>
+    tidyr::pivot_wider(
+      names_from = "currency",
+      values_from = "compra",
+      names_glue = "taxa_{tolower(currency)}"
+    ) |>
+    dplyr::arrange(.data$date)
+
+  tibble::tibble(date = seq(min(rates$date), max(rates$date), by = "day")) |>
+    dplyr::left_join(rates, by = "date") |>
+    tidyr::fill(dplyr::where(is.numeric), .direction = "down")
 }

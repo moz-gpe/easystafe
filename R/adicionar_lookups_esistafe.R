@@ -74,10 +74,9 @@
 #' @export
 
 adicionar_lookups_esistafe <- function(df, lookups) {
-
   # --- Validar presenca dos elementos obrigatorios ---
   required <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3")
-  missing  <- required[!required %in% names(lookups)]
+  missing <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
       "O seguinte(s) elemento(s) obrigatorio(s) esta(o) ausente(s) da lista 'lookups': ",
@@ -88,26 +87,134 @@ adicionar_lookups_esistafe <- function(df, lookups) {
   # --- Joins e reposicionamento de colunas ---
   df |>
     dplyr::mutate(
-      ced_2_temp = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
-      ced_3_temp = stringr::str_c(stringr::str_sub(ced, 1, 3), "000")
+      ced_2 = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
+      ced_3 = stringr::str_c(stringr::str_sub(ced, 1, 3), "000")
     ) |>
-    dplyr::left_join(lookups$ugb,    by = dplyr::join_by(ugb_id == codigo_ugb)) |>
-    dplyr::left_join(lookups$ced,   by = dplyr::join_by(ced       == ced))       |>
-    dplyr::left_join(lookups$ced_2, by = dplyr::join_by(ced_2_temp == ced_2_temp)) |>
-    dplyr::left_join(lookups$ced_3, by = dplyr::join_by(ced_3_temp == ced_3_temp)) |>
-    dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao))     |>
+    dplyr::left_join(lookups$ugb, by = dplyr::join_by(ugb_id == codigo_ugb)) |>
+    dplyr::left_join(lookups$ced, by = dplyr::join_by(ced == ced)) |>
+    dplyr::left_join(
+      lookups$ced_2,
+      by = dplyr::join_by(ced_2 == ced_2)
+    ) |>
+    dplyr::left_join(
+      lookups$ced_3,
+      by = dplyr::join_by(ced_3 == ced_3)
+    ) |>
+    dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao)) |>
     dplyr::mutate(
       programa_ambito_fr = stringr::str_c(programa, ambito, fr, sep = "-")
     ) |>
-    dplyr::left_join(lookups$programa, by = dplyr::join_by(programa_ambito_fr == programa_ambito_fr)) |>
-    dplyr::select(-programa_ambito_fr, -ced_2_temp, -ced_3_temp) |>
+    dplyr::left_join(
+      lookups$programa,
+      by = dplyr::join_by(programa_ambito_fr == programa_ambito_fr)
+    ) |>
+    dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
-        dplyr::relocate(
-      provincia, distrito, ambito,
+    dplyr::relocate(
+      ced_2,
+      ced_3,
+      provincia,
+      distrito,
+      ambito,
       dplyr::starts_with("adm"),
-      nivel_da_instituicao, descricao, programa_tipo,
+      nivel_da_instituicao,
+      descricao,
+      programa_tipo,
       .after = ced
     ) |>
     dplyr::relocate(ced_nome, ced_2_nome, ced_3_nome, .after = ced)
+}
 
+#' Add daily exchange rate conversions to a razao contabilistica tibble
+#'
+#' Joins a wide daily-rates table (from \code{obter_conversao_bancomoc(wide =
+#' TRUE)}) to \code{df} on the transaction date, then overwrites the
+#' \code{_usd} and \code{_eur} columns using per-row \code{compra} rates.
+#' The EUR/USD cross rate is derived as \code{taxa_euro / taxa_dolar}.
+#' \code{taxa_dolar} and \code{taxa_euro} are appended and relocated after
+#' \code{mes}.
+#'
+#' @param df Tibble. Output of \code{processar_extracto_razao_c()} or
+#'   \code{processar_extracto_absa()}, containing at minimum the columns
+#'   \code{source_file}, \code{data}, \code{mes}, \code{valor_lancamento},
+#'   \code{valor_lancamento_usd}, \code{valor_lancamento_eur},
+#'   \code{saldo_inicial_fim}, \code{saldo_inicial_fim_usd}, and
+#'   \code{saldo_inicial_fim_eur}.
+#' @param rates_diarias Tibble. Wide daily-rates table returned by
+#'   \code{obter_conversao_bancomoc(wide = TRUE)}, with columns \code{date},
+#'   \code{taxa_dolar}, and \code{taxa_euro}.
+#'
+#' @return \code{df} with \code{valor_lancamento_usd},
+#'   \code{valor_lancamento_eur}, \code{saldo_inicial_fim_usd}, and
+#'   \code{saldo_inicial_fim_eur} overwritten using daily rates, plus
+#'   \code{taxa_dolar} and \code{taxa_euro} columns positioned after
+#'   \code{mes}.
+#'
+#' @export
+adicionar_conversao_moeda <- function(df, rates_diarias) {
+  df |>
+    dplyr::left_join(rates_diarias, by = c("data" = "date")) |>
+    dplyr::mutate(
+      valor_lancamento_usd = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$valor_lancamento,
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$valor_lancamento,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$valor_lancamento * (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$valor_lancamento / .data$taxa_dolar
+      ),
+      valor_lancamento_eur = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$valor_lancamento,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$valor_lancamento / (.data$taxa_euro / .data$taxa_dolar),
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$valor_lancamento / (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$valor_lancamento / .data$taxa_euro
+      ),
+      saldo_inicial_fim_usd = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$saldo_inicial_fim,
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$saldo_inicial_fim,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$saldo_inicial_fim * (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$saldo_inicial_fim / .data$taxa_dolar
+      ),
+      saldo_inicial_fim_eur = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$saldo_inicial_fim,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$saldo_inicial_fim / (.data$taxa_euro / .data$taxa_dolar),
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$saldo_inicial_fim / (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$saldo_inicial_fim / .data$taxa_euro
+      )
+    ) |>
+    dplyr::relocate(taxa_dolar, taxa_euro, .after = mes)
 }

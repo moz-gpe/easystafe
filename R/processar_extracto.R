@@ -668,7 +668,7 @@ processar_extracto_razao_c <- function(
           tibble::tibble(
             unidade_gestao    = unidade_gestao,
             data              = header_data_final,
-            tipo              = "SALDO_FINAL",
+            tipo              = "Saldo Final",
             codigo_documento  = NA_character_,
             valor_lancamento  = 0,
             dc1               = NA_character_,
@@ -714,7 +714,7 @@ processar_extracto_razao_c <- function(
         ),
 
         unidade_gestao    = unidade_gestao,
-        tipo              = "MOVIMENTO",
+        tipo              = "Movimento",
         saldo_inicial_fim = NA_real_
       ) |>
       dplyr::select(
@@ -728,7 +728,7 @@ processar_extracto_razao_c <- function(
     saldo_inicial_row <- tibble::tibble(
       unidade_gestao    = unidade_gestao,
       data              = data_inicio,
-      tipo              = "SALDO_INICIAL",
+      tipo              = "Saldo Inicial",
       codigo_documento  = NA_character_,
       valor_lancamento  = 0,
       dc1               = NA_character_,
@@ -879,8 +879,8 @@ processar_extracto_razao_c <- function(
 #'     \item{ano}{\code{integer}. Ano extraido de \code{data}.}
 #'     \item{mes}{\code{character}. Nome completo do mes em portugues (ex:
 #'       \code{"Fevereiro"}).}
-#'     \item{tipo}{\code{character}. Um de \code{"SALDO_INICIAL"},
-#'       \code{"MOVIMENTO"} ou \code{"SALDO_FINAL"}.}
+#'     \item{tipo}{\code{character}. Um de \code{"Saldo Inicial"},
+#'       \code{"Moviemento"} ou \code{"Saldo Final"}.}
 #'     \item{codigo_documento}{\code{character}. Numero de referencia do
 #'       movimento, quando presente. \code{NA} caso contrario.}
 #'     \item{valor_lancamento}{\code{double}. Valor assinado do movimento:
@@ -895,7 +895,7 @@ processar_extracto_razao_c <- function(
 #'     \item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
 #'       \code{"D"} para este tipo de conta.}
 #'     \item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
-#'       \code{SALDO_INICIAL}; saldo calculado em \code{SALDO_FINAL};
+#'       \code{SALDO_INICIAL}; saldo calculado em \code{Saldo Final};
 #'       \code{NA} nos movimentos.}
 #'     \item{saldo_inicial_fim_mt}{\code{double}. Saldo inicial ou final
 #'       em MZN.}
@@ -919,7 +919,7 @@ processar_extracto_razao_c <- function(
 #'     linhas sao detectadas e concatenadas a linha de transaccao anterior.
 #' }
 #'
-#' A linha de fecho (\code{SALDO_FINAL}) e acrescentada programaticamente e
+#' A linha de fecho (\code{Saldo Final}) e acrescentada programaticamente e
 #' nao extraida do rodape do PDF. O seu \code{saldo_inicial_fim} e calculado
 #' como \code{saldo_abertura + sum(creditos) - sum(debitos)}.
 #'
@@ -1188,7 +1188,7 @@ processar_extracto_absa <- function(source_path,
       data              = data_saldo_final,
       ano               = lubridate::year(data_saldo_final),
       mes               = mes_labels[lubridate::month(data_saldo_final)],
-      tipo              = "SALDO_FINAL",
+      tipo              = "Saldo Final",
       codigo_documento  = NA_character_,
       valor_lancamento  = NA_real_,
       dc1               = NA_character_,

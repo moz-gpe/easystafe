@@ -133,36 +133,37 @@ gravar_esistafe <- function(
 
 
 
-#' Gravar extracto da razao contabilistico processado em Excel
+#' Gravar extracto da razao contabilistico processado em Parquet e Excel
 #'
-#' Grava um dataframe processado por \code{processar_extracto_razao_c()} num
-#' ficheiro Excel, construindo automaticamente o nome do ficheiro a partir do
-#' intervalo de datas do relatorio e da data actual. Cria a pasta de destino
-#' se nao existir.
+#' Grava um dataframe processado por \code{processar_extracto_razao_c()} em
+#' dois formatos (Parquet e Excel), construindo automaticamente o nome dos
+#' ficheiros a partir de todos os anos presentes na coluna \code{ano}. Cria
+#' a pasta de destino se nao existir.
 #'
 #' @param df Um tibble processado por \code{processar_extracto_razao_c()}.
-#'   Deve conter o atributo \code{date_range_txt} gerado por essa funcao.
-#' @param output_folder Caractere. Caminho para a pasta de destino onde o
-#'   ficheiro Excel sera gravado. Por padrao \code{"Dataout"}. A pasta e
+#'   Deve conter pelo menos a coluna \code{ano}.
+#' @param output_folder Caractere. Caminho para a pasta de destino onde os
+#'   ficheiros serao gravados. Por padrao \code{"Dataout"}. A pasta e
 #'   criada automaticamente se nao existir.
 #' @param quiet Logico. Se \code{TRUE} (padrao), as mensagens de progresso
 #'   sao suprimidas. Se \code{FALSE}, sao emitidas mensagens sobre a criacao
-#'   da pasta e o caminho do ficheiro gravado.
+#'   da pasta e os caminhos dos ficheiros gravados.
 #'
-#' @return O caminho completo do ficheiro gravado, retornado de forma invisivel.
-#'   Pode ser capturado com \code{path <- gravar_extracto_razao_c(df)} para
-#'   uso posterior se necessario.
+#' @return Um named list com os caminhos completos dos ficheiros gravados
+#'   (\code{parquet} e \code{excel}), retornado de forma invisivel.
 #'
 #' @details
-#' O nome do ficheiro e construido automaticamente no formato:
-#' \code{RazaoCont_<YYYYMM>.xlsx}, onde \code{YYYYMM} corresponde ao ano e
-#' mes da data final do intervalo presente no atributo \code{date_range_txt}.
+#' O nome dos ficheiros e construido automaticamente no formato:
+#' \code{RazaoCont_<YYYY-YYYY>_<YYYY-MM-DD>.parquet} e
+#' \code{RazaoCont_<YYYY-YYYY>_<YYYY-MM-DD>.xlsx},
+#' onde os anos sao todos os valores unicos presentes na coluna \code{ano},
+#' ordenados e separados por hifen.
 #'
-#' Por exemplo: \code{RazaoCont_202512.xlsx}
+#' Por exemplo, dados abrangendo 2025 e 2026 produzem:
+#' \code{RazaoCont_2025-2026_2026-02-24.parquet} e \code{RazaoCont_2025-2026_2026-02-24.xlsx}
 #'
-#' Se o atributo \code{date_range_txt} nao estiver presente no dataframe
-#' (por exemplo, se o objeto foi modificado apos o processamento), o nome
-#' do ficheiro usa \code{"sem_datas"} como sufixo.
+#' Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
+#' de ser substituido.
 #'
 #' @examples
 #' \dontrun{
@@ -170,15 +171,19 @@ gravar_esistafe <- function(
 #' gravar_extracto_razao_c(df_razao)
 #'
 #' # Gravar numa pasta personalizada
-#' gravar_extracto_razao_c(df_razao, output_folder = "Data/processed")
+#' gravar_extracto_razao_c(df_razao, output_folder = "Dataout/subpasta")
 #'
 #' # Gravar com mensagens de progresso
 #' gravar_extracto_razao_c(df_razao, quiet = FALSE)
 #'
-#' # Capturar o caminho do ficheiro gravado
-#' path <- gravar_extracto_razao_c(df_razao, quiet = FALSE)
+#' # Capturar os caminhos dos ficheiros gravados
+#' paths <- gravar_extracto_razao_c(df_razao, quiet = FALSE)
+#' paths$parquet
+#' paths$excel
 #' }
 #'
+#' @importFrom arrow write_parquet
+#' @importFrom dplyr pull
 #' @importFrom glue glue
 #' @importFrom writexl write_xlsx
 #'
@@ -186,7 +191,7 @@ gravar_esistafe <- function(
 
 gravar_extracto_razao_c <- function(
     df,
-    output_folder = "Data/processed",
+    output_folder = "Dataout",
     quiet         = TRUE
 ) {
   # --- Mensagens internas ---
@@ -194,25 +199,36 @@ gravar_extracto_razao_c <- function(
     if (!quiet) message(...)
   }
 
-  # --- Recuperar date_range_txt do atributo ---
-  date_range_txt <- attr(df, "date_range_txt")
-
-  if (is.null(date_range_txt)) {
-    message(
-      "Atributo 'date_range_txt' nao encontrado - ",
-      "a usar 'sem_datas' no nome do ficheiro."
-    )
-    date_range_txt <- "sem_datas"
+  # --- Validar coluna obrigatoria ---
+  if (!"ano" %in% base::names(df)) {
+    stop("Coluna 'ano' nao encontrada no dataframe. ",
+         "Certifique-se de que o dataframe contem a coluna 'ano'.")
   }
 
   # --- Remover trailing slash se presente ---
   output_folder <- base::gsub("/$", "", output_folder)
 
-  # --- Construir nome do ficheiro ---
-  date_ym <- stringr::str_extract(date_range_txt, "\\d{4}-\\d{2}-\\d{2}_a_(\\d{4}-\\d{2})", group = 1) |>
-    stringr::str_remove("-")
-  file_name <- glue::glue("RazaoCont_{date_ym}.xlsx")
-  file_path <- base::file.path(output_folder, file_name)
+  # --- Construir nome dos ficheiros a partir dos anos presentes ---
+  years <- df |>
+    dplyr::pull(ano) |>
+    stats::na.omit() |>
+    base::unique() |>
+    base::sort()
+
+  if (length(years) == 0) {
+    stop("A coluna 'ano' nao contem valores validos.")
+  }
+
+  years_str <- base::paste(years, collapse = "-")
+
+  # --- Data de criacao do extracto ---
+  created_date <- base::format(base::Sys.Date(), "%Y-%m-%d")
+
+  # --- Nome base dos ficheiros ---
+  base_name <- glue::glue("RazaoCont_{years_str}_{created_date}")
+
+  path_parquet <- base::file.path(output_folder, glue::glue("{base_name}.parquet"))
+  path_excel   <- base::file.path(output_folder, glue::glue("{base_name}.xlsx"))
 
   # --- Criar pasta se nao existir ---
   if (!base::dir.exists(output_folder)) {
@@ -220,14 +236,27 @@ gravar_extracto_razao_c <- function(
     base::dir.create(output_folder, recursive = TRUE)
   }
 
-  # --- Guardar ficheiro ---
-  msg(glue::glue("A guardar ficheiro: {file_path}"))
-  writexl::write_xlsx(df, file_path)
-  message(glue::glue("Ficheiro da Razao Contabilistica gravado: {file_path}"))
-  msg("Concluido.")
+  # --- Avisar se ficheiros ja existem ---
+  for (fp in c(path_parquet, path_excel)) {
+    if (base::file.exists(fp)) {
+      warning(glue::glue("Ficheiro ja existe e sera substituido: {fp}"))
+    }
+  }
 
-  # --- Retornar caminho invisivel para uso posterior ---
-  base::invisible(file_path)
+  # --- Guardar Parquet ---
+  msg(glue::glue("A guardar Parquet: {path_parquet}"))
+  arrow::write_parquet(df, path_parquet)
+
+  # --- Guardar Excel ---
+  msg(glue::glue("A guardar Excel: {path_excel}"))
+  writexl::write_xlsx(df, path_excel)
+
+  message(glue::glue("Ficheiros da Razao Contabilistica gravados em '{output_folder}':"))
+  message(glue::glue("  - {base_name}.parquet"))
+  message(glue::glue("  - {base_name}.xlsx"))
+
+  # --- Retornar caminhos invisivelmente ---
+  base::invisible(list(parquet = path_parquet, excel = path_excel))
 
 }
 
@@ -542,7 +571,7 @@ gravar_compilacao_sistafe <- function(
 #' @export
 
 gravar_compilacao_razao_c <- function(
-    input_folder  = "Data/processed",
+    input_folder  = "Data/razao_cont",
     output_folder = "Dataout",
     quiet         = TRUE
 ) {

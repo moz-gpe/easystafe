@@ -7,7 +7,8 @@
 obter_conversao_bancomoc(
   out_dir = "Data/pdfs_bancomoc",
   url_path = "/pt/tabelas-de-taxas-de-cambio-de-referencia-diarias/2026-2025/",
-  keep_countries = c("Estados Unidos", "União Europeia")
+  keep_countries = c("Estados Unidos", "União Europeia"),
+  wide = TRUE
 )
 }
 \arguments{
@@ -20,10 +21,19 @@ listing exchange rate PDFs.}
 \item{keep_countries}{Character vector of country names to retain. Pass
 \code{character(0)} to return all countries. Defaults to
 \code{c("Estados Unidos", "Uni\u00e3o Europeia")}.}
+
+\item{wide}{Logical. If \code{TRUE} (default), returns a daily wide-format
+table with one row per calendar date and one \code{taxa_*} column per
+currency (e.g. \code{taxa_dolar}, \code{taxa_euro}), with gaps filled by
+the preceding trading-day rate (LOCF). If \code{FALSE}, returns the raw
+long-format tibble.}
 }
 \value{
-A tibble with columns \code{date}, \code{country}, \code{currency},
-\code{compra}, \code{venda}, \code{media}, and \code{per_1000}.
+When \code{wide = FALSE}: a tibble with columns \code{date},
+\code{country}, \code{currency}, \code{compra}, \code{venda},
+\code{media}, and \code{per_1000}. When \code{wide = TRUE}: a tibble
+with \code{date} and one \code{taxa_*} column per currency present in the
+data.
 }
 \description{
 Scrapes PDF links from the Banco de Mocambique website, downloads any new
