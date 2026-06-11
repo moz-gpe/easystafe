@@ -28,13 +28,13 @@ sao removidas. Usado para anos diferentes de 2025.}
 e \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
 sao removidas. Usado para o ano 2025.}
 \item{ced}{Dataframe com colunas \code{ced} e \code{ced_nome}.}
-\item{ced_2}{Dataframe com colunas \code{ced_2_temp} e \code{ced_2_nome}.
+\item{ced_2}{Dataframe com colunas \code{ced_2} e \code{ced_2_nome}.
 Chave de 6 digitos construida com os 2 primeiros digitos do CED mais
 \code{"0000"}.}
-\item{ced_3}{Dataframe com colunas \code{ced_3_temp} e \code{ced_3_nome}.
+\item{ced_3}{Dataframe com colunas \code{ced_3} e \code{ced_3_nome}.
 Chave de 6 digitos construida com os 3 primeiros digitos do CED mais
 \code{"000"}.}
-\item{ced_4}{Dataframe com colunas \code{ced_4_temp} e \code{ced_4_nome}.
+\item{ced_4}{Dataframe com colunas \code{ced_4} e \code{ced_4_nome}.
 Chave de 6 digitos construida com os 4 primeiros digitos do CED mais
 \code{"00"}.}
 }

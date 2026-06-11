@@ -24,13 +24,13 @@
 #'     e \code{programa_tipo}. Linhas com \code{programa_tipo} em branco
 #'     sao removidas. Usado para o ano 2025.}
 #'   \item{ced}{Dataframe com colunas \code{ced} e \code{ced_nome}.}
-#'   \item{ced_2}{Dataframe com colunas \code{ced_2_temp} e \code{ced_2_nome}.
+#'   \item{ced_2}{Dataframe com colunas \code{ced_2} e \code{ced_2_nome}.
 #'     Chave de 6 digitos construida com os 2 primeiros digitos do CED mais
 #'     \code{"0000"}.}
-#'   \item{ced_3}{Dataframe com colunas \code{ced_3_temp} e \code{ced_3_nome}.
+#'   \item{ced_3}{Dataframe com colunas \code{ced_3} e \code{ced_3_nome}.
 #'     Chave de 6 digitos construida com os 3 primeiros digitos do CED mais
 #'     \code{"000"}.}
-#'   \item{ced_4}{Dataframe com colunas \code{ced_4_temp} e \code{ced_4_nome}.
+#'   \item{ced_4}{Dataframe com colunas \code{ced_4} e \code{ced_4_nome}.
 #'     Chave de 6 digitos construida com os 4 primeiros digitos do CED mais
 #'     \code{"00"}.}
 #' }
@@ -118,14 +118,14 @@ carregar_lookups_esistafe <- function(path) {
       readxl::read_excel(path, sheet = "ced_2")
     ) |>
       janitor::clean_names() |>
-      dplyr::select(ced_2_temp, ced_2_nome) |>
-      dplyr::mutate(ced_2_temp = as.character(ced_2_temp)),
+      dplyr::select(ced_2, ced_2_nome) |>
+      dplyr::mutate(ced_2 = as.character(ced_2)),
 
     ced_3 = suppressMessages(
       readxl::read_excel(path, sheet = "ced_3")
     ) |>
       janitor::clean_names() |>
-      dplyr::select(ced_3_temp, ced_3_nome) |>
-      dplyr::mutate(ced_3_temp = as.character(ced_3_temp))
+      dplyr::select(ced_3, ced_3_nome) |>
+      dplyr::mutate(ced_3 = as.character(ced_3))
   )
 }

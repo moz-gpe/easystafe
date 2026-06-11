@@ -45,6 +45,9 @@ reference:
       - recodificar_esistafe_vars
       - carregar_lookups_esistafe
       - aplicar_conversao_moeda
+      - adicionar_conversao_moeda
+      - obter_conversao_bancomoc
+      - parse_bancomoc_pdf
 
   - title: "Gravação"
     desc: "Funções para gravar outputs processados"

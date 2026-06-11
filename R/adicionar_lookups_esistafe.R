@@ -111,18 +111,12 @@ adicionar_lookups_esistafe <- function(df, lookups) {
     dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
     dplyr::relocate(
-      ced_2,
-      ced_3,
-      provincia,
-      distrito,
-      ambito,
+      ced_nome, ced_2, ced_2_nome, ced_3, ced_3_nome, ced_4,
+      provincia, distrito, ambito,
       dplyr::starts_with("adm"),
-      nivel_da_instituicao,
-      descricao,
-      programa_tipo,
+      nivel_da_instituicao, descricao, programa_tipo,
       .after = ced
-    ) |>
-    dplyr::relocate(ced_nome, ced_2_nome, ced_3_nome, .after = ced)
+    )
 }
 
 #' Add daily exchange rate conversions to a razao contabilistica tibble

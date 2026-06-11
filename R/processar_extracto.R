@@ -50,10 +50,14 @@
 #' @return Um tibble com uma linha por entrada CED deduplificada, contendo
 #'   as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 #'   hierarquica. A coluna \code{data_tipo} esta sempre presente e posicionada
-#'   imediatamente antes de \code{ugb}. As colunas de percentagem sao sempre
-#'   incluidas na estrutura original (preenchidas com \code{NA}) salvo se
-#'   \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem o
-#'   nome da pasta imediata de onde os dados foram carregados. As colunas
+#'   imediatamente antes de \code{ugb}. Tres colunas hierarquicas derivadas de
+#'   \code{ced} sao sempre incluidas imediatamente a seguir a \code{ced}:
+#'   \code{ced_2} (primeiros 2 digitos com sufixo \code{"0000"}),
+#'   \code{ced_3} (primeiros 3 digitos) e \code{ced_4} (primeiros 4 digitos);
+#'   todas sao \code{NA} nas linhas \code{"Metrica"}. As colunas de percentagem
+#'   sao sempre incluidas na estrutura original (preenchidas com \code{NA})
+#'   salvo se \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem
+#'   o nome da pasta imediata de onde os dados foram carregados. As colunas
 #'   \code{ano} (numerico) e \code{mes} (caracter em portugues) sao derivadas
 #'   do nome da pasta quando este segue o formato \code{YYYYMM}; caso
 #'   contrario sao preenchidas com \code{NA} e e emitido um aviso.
@@ -74,15 +78,19 @@
 #'   \item Filtragem de UGBs validos de educacao a partir de \code{df_ugb_lookup}.
 #'   \item Remocao de linhas com CED e campos-chave em branco.
 #'   \item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
-#'   \item Criacao de variaveis hierarquicas auxiliares.
+#'   \item Criacao de variaveis hierarquicas: \code{ced_4} (primeiros 4 digitos
+#'     de \code{ced}), \code{ced_3} (primeiros 3 digitos), \code{ced_2}
+#'     (primeiros 2 digitos com sufixo \code{"0000"}), e chaves compostas
+#'     auxiliares \code{id_ced_b4} e \code{id_ced_b3} (usadas internamente e
+#'     removidas no output final).
 #'   \item Separacao de linhas \code{"Metrica"} e \code{"Valor"} antes da
 #'     subtraccao hierarquica.
 #'   \item Subtraccao hierarquica em tres passos para eliminar dupla contagem
 #'     (aplicada apenas a linhas \code{"Valor"}):
 #'     \itemize{
-#'       \item Passo 1: Subtrair grupo A do grupo B (dentro de \code{ced_b4}).
-#'       \item Passo 2: Subtrair grupo B ajustado do grupo C (dentro de \code{ced_b3}).
-#'       \item Passo 3: Subtrair grupo A directamente do grupo C (dentro de \code{ced_b3}).
+#'       \item Passo 1: Subtrair grupo A do grupo B (dentro de \code{ced_4}).
+#'       \item Passo 2: Subtrair grupo B ajustado do grupo C (dentro de \code{ced_3}).
+#'       \item Passo 3: Subtrair grupo A directamente do grupo C (dentro de \code{ced_3}).
 #'     }
 #'   \item Reinclusao opcional das linhas \code{"Metrica"} via \code{include_metrica}.
 #'   \item Seleccao das colunas finais a partir de um vector explicito,
@@ -285,15 +293,16 @@ processar_extracto_esistafe <- function(
   msg("A criar vari\u00e1veis hier\u00e1rquicas...")
   df_limpeza_7 <- df_limpeza_6 |>
     dplyr::mutate(
-      ced_b4    = stringr::str_sub(ced, 1, 4),
-      ced_b3    = stringr::str_sub(ced, 1, 3),
-      id_ced_b4 = stringr::str_c(ugb_id, funcao, programa, fr, ced_b4, sep = " | "),
-      id_ced_b3 = stringr::str_c(ugb_id, funcao, programa, fr, ced_b3, sep = " | ")
+      ced_4     = stringr::str_sub(ced, 1, 4),
+      ced_3     = stringr::str_sub(ced, 1, 3),
+      ced_2     = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
+      id_ced_b4 = stringr::str_c(ugb_id, funcao, programa, fr, ced_4, sep = " | "),
+      id_ced_b3 = stringr::str_c(ugb_id, funcao, programa, fr, ced_3, sep = " | ")
     ) |>
     tidyr::unite(ugb_funcao_prog_fr, ugb_id, funcao, programa, fr, sep = " | ", remove = FALSE, na.rm = FALSE) |>
-    dplyr::relocate(c(ced_b4, ced_b3), .after = ced) |>
+    dplyr::relocate(c(ced_4, ced_3), .after = ced) |>
     dplyr::relocate(ced_group, .before = ced) |>
-    dplyr::relocate(data_tipo, .after = ced_b3) |>
+    dplyr::relocate(data_tipo, .after = ced_3) |>
     dplyr::relocate(ugb_funcao_prog_fr, .before = dplyr::everything())
 
   # --- 10. Definir colunas numericas ---
@@ -310,7 +319,7 @@ processar_extracto_esistafe <- function(
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 1 (A \u2192 B)...")
   df_step1 <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Valor") |>
-    dplyr::group_by(ugb_funcao_prog_fr, ced_b4) |>
+    dplyr::group_by(ugb_funcao_prog_fr, ced_4) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(num_cols),
@@ -322,7 +331,7 @@ processar_extracto_esistafe <- function(
   # --- 12. Subtracao hierarquica: Passo 2 (B ajustado -> C dentro de ced_b3) ---
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 2 (B \u2192 C)...")
   df_step2 <- df_step1 |>
-    dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
+    dplyr::group_by(ugb_funcao_prog_fr, ced_3) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(num_cols),
@@ -334,7 +343,7 @@ processar_extracto_esistafe <- function(
   # --- 13. Subtracao hierarquica: Passo 3 (A directo -> C dentro de ced_b3) ---
   msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 3 (A directo \u2192 C)...")
   df_limpeza_9 <- df_step2 |>
-    dplyr::group_by(ugb_funcao_prog_fr, ced_b3) |>
+    dplyr::group_by(ugb_funcao_prog_fr, ced_3) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(num_cols),
@@ -370,6 +379,7 @@ processar_extracto_esistafe <- function(
     "ugb_id",
     # identificadores orcamentais
     "ugb", "funcao", "programa", "fr", "ced",
+    "ced_2", "ced_3", "ced_4",
     # colunas numericas
     "dotacao_inicial",
     "dotacao_revista",
