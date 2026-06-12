@@ -23,6 +23,9 @@ conter \code{funcao} como chave de ligacao e \code{funcao_nivel}.}
 \item{programa}{Dataframe com a tabela de referencia de programas.
 Deve conter \code{programa_ambito_fr} como chave de ligacao e
 \code{programa_tipo}.}
+\item{ced_nivel}{Dataframe com colunas \code{ced_3_nome} e
+\code{ced_nivel}. Ligado por \code{ced_3_nome} apos o join do
+\code{ced_3}.}
 }}
 }
 \value{

@@ -6,8 +6,8 @@
 #'
 #' @param path Um caracter com o caminho completo ou relativo para o ficheiro
 #'   Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
-#'   \code{"funcao"}, \code{"programa"}, \code{"programa2025"}, \code{"ced"},
-#'   \code{"ced_2"}, \code{"ced_3"} e \code{"ced_4"}.
+#'   \code{"funcao"}, \code{"programa"}, \code{"ced"}, \code{"ced_2"},
+#'   \code{"ced_3"} e \code{"ced_nivel"}.
 #'
 #' @return Uma lista nomeada com oito elementos:
 #' \describe{
@@ -30,9 +30,9 @@
 #'   \item{ced_3}{Dataframe com colunas \code{ced_3} e \code{ced_3_nome}.
 #'     Chave de 6 digitos construida com os 3 primeiros digitos do CED mais
 #'     \code{"000"}.}
-#'   \item{ced_4}{Dataframe com colunas \code{ced_4} e \code{ced_4_nome}.
-#'     Chave de 6 digitos construida com os 4 primeiros digitos do CED mais
-#'     \code{"00"}.}
+#'   \item{ced_nivel}{Dataframe com colunas \code{ced_3_nome} e
+#'     \code{ced_nivel}. Classifica cada agrupamento de nivel 3 do CED com
+#'     o seu nivel hierarquico.}
 #' }
 #'
 #' @details
@@ -60,7 +60,7 @@
 carregar_lookups_esistafe <- function(path) {
 
   # --- Validar presenca das folhas obrigatorias ---
-  required_sheets <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3")
+  required_sheets <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3", "ced_nivel")
   available_sheets <- readxl::excel_sheets(path)
   missing_sheets <- required_sheets[!required_sheets %in% available_sheets]
   if (length(missing_sheets) > 0) {
@@ -126,7 +126,13 @@ carregar_lookups_esistafe <- function(path) {
     ) |>
       janitor::clean_names() |>
       dplyr::select(ced_3, ced_3_nome) |>
-      dplyr::mutate(ced_3 = as.character(ced_3))
+      dplyr::mutate(ced_3 = as.character(ced_3)),
+
+    ced_nivel = suppressMessages(
+      readxl::read_excel(path, sheet = "ced_nivel")
+    ) |>
+      janitor::clean_names() |>
+      dplyr::select(ced_3_nome, ced_nivel)
   )
 }
 
@@ -154,6 +160,9 @@ carregar_lookups_esistafe <- function(path) {
 #'   \item{programa}{Dataframe com a tabela de referencia de programas.
 #'     Deve conter \code{programa_ambito_fr} como chave de ligacao e
 #'     \code{programa_tipo}.}
+#'   \item{ced_nivel}{Dataframe com colunas \code{ced_3_nome} e
+#'     \code{ced_nivel}. Ligado por \code{ced_3_nome} apos o join do
+#'     \code{ced_3}.}
 #' }
 #'
 #' @return O dataframe \code{df} enriquecido com as colunas descritivas dos
@@ -208,7 +217,7 @@ carregar_lookups_esistafe <- function(path) {
 
 adicionar_lookups_esistafe <- function(df, lookups) {
   # --- Validar presenca dos elementos obrigatorios ---
-  required <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3")
+  required <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3", "ced_nivel")
   missing <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
@@ -232,6 +241,10 @@ adicionar_lookups_esistafe <- function(df, lookups) {
     dplyr::left_join(
       lookups$ced_3,
       by = dplyr::join_by(ced_3 == ced_3)
+    ) |>
+    dplyr::left_join(
+      lookups$ced_nivel,
+      by = dplyr::join_by(ced_3_nome == ced_3_nome)
     ) |>
     dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao)) |>
     dplyr::mutate(

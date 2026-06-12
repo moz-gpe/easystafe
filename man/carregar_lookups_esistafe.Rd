@@ -9,8 +9,8 @@ carregar_lookups_esistafe(path)
 \arguments{
 \item{path}{Um caracter com o caminho completo ou relativo para o ficheiro
 Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
-\code{"funcao"}, \code{"programa"}, \code{"programa2025"}, \code{"ced"},
-\code{"ced_2"}, \code{"ced_3"} e \code{"ced_4"}.}
+\code{"funcao"}, \code{"programa"}, \code{"ced"}, \code{"ced_2"},
+\code{"ced_3"} e \code{"ced_nivel"}.}
 }
 \value{
 Uma lista nomeada com oito elementos:
@@ -34,9 +34,9 @@ Chave de 6 digitos construida com os 2 primeiros digitos do CED mais
 \item{ced_3}{Dataframe com colunas \code{ced_3} e \code{ced_3_nome}.
 Chave de 6 digitos construida com os 3 primeiros digitos do CED mais
 \code{"000"}.}
-\item{ced_4}{Dataframe com colunas \code{ced_4} e \code{ced_4_nome}.
-Chave de 6 digitos construida com os 4 primeiros digitos do CED mais
-\code{"00"}.}
+\item{ced_nivel}{Dataframe com colunas \code{ced_3_nome} e
+\code{ced_nivel}. Classifica cada agrupamento de nivel 3 do CED com
+o seu nivel hierarquico.}
 }
 }
 \description{
