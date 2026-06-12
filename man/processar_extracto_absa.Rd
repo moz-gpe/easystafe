@@ -9,10 +9,7 @@ processar_extracto_absa(
   pattern = "EXTRACTO ABSA",
   recursive = FALSE,
   y_tolerance = 2,
-  quiet = TRUE,
-  usd_to_mt = 63.86,
-  eur_to_mt = 70,
-  eur_to_usd = 1.1
+  quiet = TRUE
 )
 }
 \arguments{
@@ -36,23 +33,11 @@ mensagens emitidas por ficheiro durante o processamento. Se \code{FALSE},
 e emitida uma mensagem por ficheiro processado. Independentemente deste
 parametro, e sempre emitida uma mensagem final com o numero de linhas e
 ficheiros processados. Default: \code{TRUE}.}
-
-\item{usd_to_mt}{\code{numeric(1)}. Taxa de cambio USD para MZN. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{63.86}
-(valor indicativo; actualizar conforme necessario).}
-
-\item{eur_to_mt}{\code{numeric(1)}. Taxa de cambio EUR para MZN. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
-(valor indicativo; actualizar conforme necessario).}
-
-\item{eur_to_usd}{\code{numeric(1)}. Taxa de cambio EUR para USD. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{1.10}
-(valor indicativo; actualizar conforme necessario).}
 }
 \value{
-Um tibble com 18 colunas: as 12 colunas base do esquema
-\code{df_razao} mais as 6 colunas de conversao de moeda produzidas por
-\code{\link{aplicar_conversao_moeda}}:
+Um tibble com 12 colunas base do esquema \code{df_razao}. Aplique
+\code{\link{adicionar_conversao_moeda}} ao resultado para adicionar as
+colunas de conversao de moeda com taxas diarias.
 \describe{
 \item{source_file}{\code{character}. Nome do ficheiro PDF de origem.}
 \item{unidade_gestao}{\code{character}. Sempre \code{NA} -- a preencher
@@ -112,12 +97,6 @@ A linha de fecho (\code{Saldo Final}) e acrescentada programaticamente e
 nao extraida do rodape do PDF. O seu \code{saldo_inicial_fim} e calculado
 como \code{saldo_abertura + sum(creditos) - sum(debitos)}.
 
-Apos extrair e combinar todos os PDFs, chama internamente
-\code{\link{aplicar_conversao_moeda}} com as taxas fornecidas. Para
-re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
-use \code{\link{aplicar_conversao_moeda}} directamente sobre o tibble
-ja processado.
-
 O helper interno \code{parse_single_absa()} e definido dentro desta funcao
 e nao e exportado.
 }
@@ -125,10 +104,7 @@ e nao e exportado.
 \dontrun{
 # Processar todos os extractos ABSA numa pasta
 df_absa <- processar_extracto_absa(
-  source_path = "Data/razao_cont/2026_02/outro/",
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  source_path = "Data/razao_cont/2026_02/outro/"
 )
 
 # Combinar com outros extractos do razao
@@ -138,23 +114,12 @@ df_razao <- dplyr::bind_rows(df_razao, df_absa)
 df_absa <- processar_extracto_absa(
   source_path = "Data/razao_cont/",
   pattern     = "ABSA",
-  recursive   = TRUE,
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  recursive   = TRUE
 )
-
-# Re-aplicar conversoes com taxas actualizadas sem re-processar PDFs
-df_absa_revalorizado <- df_absa |>
-  dplyr::select(-valor_lancamento_mt, -valor_lancamento_usd,
-                -valor_lancamento_eur, -saldo_inicial_fim_mt,
-                -saldo_inicial_fim_usd, -saldo_inicial_fim_eur) |>
-  aplicar_conversao_moeda(usd_to_mt = 64.10, eur_to_mt = 71.20,
-                          eur_to_usd = 1.11)
 }
 
 }
 \seealso{
-\code{\link{aplicar_conversao_moeda}},
+\code{\link{adicionar_conversao_moeda}},
 \code{\link{processar_extracto_razao_c}}
 }

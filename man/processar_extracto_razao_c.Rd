@@ -8,11 +8,7 @@ processar_extracto_razao_c(
   source_path,
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
-  quiet = TRUE,
-  usd_to_mt = 63.91,
-  cut_usd_to_mt = 63.27,
-  eur_to_mt = 70,
-  eur_to_usd = 1.1
+  quiet = TRUE
 )
 }
 \arguments{
@@ -30,28 +26,12 @@ inclui subpastas. Por padrao \code{FALSE}.}
 \item{quiet}{Logico. Se \code{TRUE} (padrao), suprime as mensagens emitidas
 por ficheiro durante o processamento (por exemplo, quando um PDF nao
 contem transaccoes). Se \code{FALSE}, as mensagens sao apresentadas.}
-
-\item{usd_to_mt}{Numerico. Taxa de cambio USD para MZN. Utilizada para
-ficheiros \code{"EXTRACTO ABSA BANK USD"}. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015647}.}
-
-\item{cut_usd_to_mt}{Numerico. Taxa de cambio USD para MZN especifica para
-ficheiros \code{"CENTRAL USD"}. Passado adevt
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{0.015805}.}
-
-\item{eur_to_mt}{Numerico. Taxa de cambio EUR para MZN. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{70.00}
-(valor indicativo; actualizar conforme necessario).}
-
-\item{eur_to_usd}{Numerico. Taxa de cambio EUR para USD. Passado a
-\code{\link{aplicar_conversao_moeda}}. Por padrao \code{1.10}
-(valor indicativo; actualizar conforme necessario).}
 }
 \value{
 Um tibble com uma linha por registo (movimentos, saldo inicial e
-saldo final) de todos os PDFs processados. Ver
-\code{\link{aplicar_conversao_moeda}} para descricao das colunas
-\code{valor_lancamento_mt} e \code{valor_lancamento_usd}.
+saldo final) de todos os PDFs processados. Aplique
+\code{\link{adicionar_conversao_moeda}} ao resultado para adicionar as
+colunas de conversao de moeda com taxas diarias.
 }
 \description{
 Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
@@ -59,21 +39,10 @@ de cada extracto da razao contabilistico, e combina os resultados num
 unico tibble. Ficheiros com formato FOREX (USD/EUR) sao excluidos por
 padrao.
 }
-\details{
-Apos extrair e combinar todos os PDFs, chama internamente
-\code{\link{aplicar_conversao_moeda}} com as taxas fornecidas. Para
-re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
-use \code{\link{aplicar_conversao_moeda}} directamente sobre o tibble
-ja processado.
-}
 \examples{
 \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path   = path_folder_source,
-  usd_to_mt     = 63.91,
-  cut_usd_to_mt = 63.27,
-  eur_to_mt     = 70.00,
-  eur_to_usd    = 1.10
+  source_path = path_folder_source
 )
 }
 

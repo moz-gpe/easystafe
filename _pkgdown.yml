@@ -26,30 +26,28 @@ navbar:
         href: https://github.com/moz-gpe/easystafe/issues
 
 reference:
-  - title: "Extracção de metadados"
-    desc: "Funções para carregar ficheiros e extrair metadados"
-    contents:
-      - extrair_meta_extracto
-      - adicionar_lookups_esistafe
-
   - title: "Processamento"
-    desc: "Funções principais de limpeza e processamento"
+    desc: "Funções principais de limpeza e processamento de ficheiros exportados do e-SISTAFE e extractos bancários"
     contents:
       - processar_extracto_esistafe
       - processar_extracto_razao_c
       - processar_extracto_absa
 
-  - title: "Recodificação"
-    desc: "Funções para recodificar e classificar variáveis"
+  - title: "Taxas de Câmbio"
+    desc: "Funções para obter e aplicar taxas de câmbio diárias do BancoMOC"
     contents:
-      - recodificar_esistafe_vars
-      - carregar_lookups_esistafe
-      - aplicar_conversao_moeda
-      - adicionar_conversao_moeda
-      - obter_conversao_bancomoc
       - parse_bancomoc_pdf
+      - obter_conversao_bancomoc
+      - adicionar_conversao_moeda
 
-  - title: "Gravação"
+  - title: "Enriquecer Dados"
+    desc: "Funções para recodificar, classificar e adicionar variáveis aos dados processados"
+    contents:
+      - extrair_meta_extracto
+      - carregar_lookups_esistafe
+      - adicionar_lookups_esistafe
+
+  - title: "Gravar Dados Processados"
     desc: "Funções para gravar outputs processados"
     contents:
       - gravar_esistafe
