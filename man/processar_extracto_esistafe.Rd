@@ -70,9 +70,9 @@ as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 hierarquica. A coluna \code{data_tipo} esta sempre presente e posicionada
 imediatamente antes de \code{ugb}. Tres colunas hierarquicas derivadas de
 \code{ced} sao sempre incluidas imediatamente a seguir a \code{ced}:
-\code{ced_2} (primeiros 2 digitos com sufixo \code{"0000"}),
-\code{ced_3} (primeiros 3 digitos) e \code{ced_4} (primeiros 4 digitos);
-todas sao \code{NA} nas linhas \code{"Metrica"}. As colunas de percentagem
+\code{ced_2} (primeiros 2 digitos com sufixo \code{"0000"}) e
+\code{ced_3} (primeiros 3 digitos);
+ambas sao \code{NA} nas linhas \code{"Metrica"}. As colunas de percentagem
 sao sempre incluidas na estrutura original (preenchidas com \code{NA})
 salvo se \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem
 o nome da pasta imediata de onde os dados foram carregados. As colunas
@@ -104,7 +104,8 @@ nome da pasta de origem. Se o nome da pasta nao seguir o formato
 \item Remocao de linhas com CED e campos-chave em branco.
 \item Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.
 \item Criacao de variaveis hierarquicas: \code{ced_4} (primeiros 4 digitos
-de \code{ced}), \code{ced_3} (primeiros 3 digitos), \code{ced_2}
+de \code{ced} -- usada internamente e removida no output final),
+\code{ced_3} (primeiros 3 digitos), \code{ced_2}
 (primeiros 2 digitos com sufixo \code{"0000"}), e chaves compostas
 auxiliares \code{id_ced_b4} e \code{id_ced_b3} (usadas internamente e
 removidas no output final).
