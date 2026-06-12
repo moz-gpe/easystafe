@@ -1,3 +1,16 @@
+.check_unique_key <- function(df, key_col, sheet_name) {
+  vals <- df[[key_col]]
+  dup_vals <- unique(vals[duplicated(vals)])
+  if (length(dup_vals) > 0) {
+    stop(glue::glue(
+      "A folha '{sheet_name}' tem {length(dup_vals)} valor(es) duplicado(s) em '{key_col}': ",
+      "{paste(dup_vals, collapse = ', ')}."
+    ))
+  }
+  df
+}
+
+
 #' Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
 #'
 #' Le e processa as tabelas de referencia de UGBs, funcoes e programas a
@@ -60,18 +73,6 @@
 #' @importFrom dplyr select filter starts_with mutate
 #'
 #' @export
-
-.check_unique_key <- function(df, key_col, sheet_name) {
-  vals <- df[[key_col]]
-  dup_vals <- unique(vals[duplicated(vals)])
-  if (length(dup_vals) > 0) {
-    stop(glue::glue(
-      "A folha '{sheet_name}' tem {length(dup_vals)} valor(es) duplicado(s) em '{key_col}': ",
-      "{paste(dup_vals, collapse = ', ')}."
-    ))
-  }
-  df
-}
 
 carregar_lookups_esistafe <- function(path) {
 

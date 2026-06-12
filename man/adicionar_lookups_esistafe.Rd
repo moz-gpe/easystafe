@@ -48,6 +48,10 @@ A funcao valida a presenca dos tres elementos obrigatorios na lista
 \code{lookups} antes de executar qualquer join. Se algum elemento estiver
 ausente, e emitido um \code{stop()} imediato com o nome do elemento em falta.
 
+Todos os joins usam \code{relationship = "many-to-one"} para garantir que
+as tabelas de lookup nao contem chaves duplicadas. Se uma chave duplicada
+for detectada no momento do join, e emitido um erro imediato.
+
 As ligacoes sao feitas por:
 \itemize{
 \item \code{ugb_id == codigo_ugb} para o lookup de UGBs.
