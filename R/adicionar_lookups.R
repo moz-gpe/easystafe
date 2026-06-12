@@ -301,7 +301,7 @@ adicionar_lookups_esistafe <- function(df, lookups) {
     dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
     dplyr::relocate(
-      ced_nome, ced_nivel, ced_2, ced_2_nome, ced_3, ced_3_nome, ced_4,
+      ced_nome, ced_nivel, ced_2, ced_2_nome, ced_3, ced_3_nome,
       provincia, distrito, ambito,
       dplyr::starts_with("adm"),
       nivel_da_instituicao, descricao, programa_tipo,
