@@ -10,16 +10,15 @@
 ## Resumo
 
 O **easystafe** é um pacote R que automatiza o processamento de extractos
-exportados do e-SISTAFE (Sistema de Administração Financeira do Estado de
-Moçambique) e de extractos bancários associados, substituindo fluxos manuais
-por pipelines reproduzíveis e auditáveis.
+exportados do e-SISTAFE e de extractos bancários associados, substituindo fluxos manuais
+por pipelines automatizados, reproduzíveis e auditáveis.
 
 ---
 
 ## Funcionalidades
 
 ### Processamento de extractos
-Lê e estrutura ficheiros exportados do e-SISTAFE (demonstrativo consolidado), da razão contabilística e de extractos bancários ABSA, transformando-os em tibbles limpos e prontos para análise.
+Lê e estrutura ficheiros exportados do e-SISTAFE (demonstrativo consolidado), da razão contabilística e de extractos bancários ABSA, transformando-os em tabelas limpas e prontas para análise.
 
 ### Taxas de câmbio
 Descarrega e consolida as taxas de câmbio diárias publicadas pelo Banco de Moçambique, e junta-as automaticamente aos dados processados, produzindo colunas de valor em MZN, USD e EUR.
