@@ -19,32 +19,22 @@ por pipelines reproduzíveis e auditáveis.
 ## Funcionalidades
 
 ### Processamento de extractos
-- `processar_extracto_esistafe()` — processa ficheiros *demonstrativo consolidado* do e-SISTAFE em lote
-- `processar_extracto_razao_c()` — processa extractos PDF da razão contabilística
-- `processar_extracto_absa()` — processa extractos PDF do banco ABSA
+Lê e estrutura ficheiros exportados do e-SISTAFE (demonstrativo consolidado), da razão contabilística e de extractos bancários ABSA, transformando-os em tibbles limpos e prontos para análise.
 
 ### Taxas de câmbio
-- `parse_bancomoc_pdf()` — interpreta um PDF de taxas de câmbio do Banco de Moçambique
-- `obter_conversao_bancomoc()` — descarrega e consolida taxas diárias do portal do BancoMOC
-- `adicionar_conversao_moeda()` — junta taxas de câmbio diárias a um tibble processado, adicionando colunas em MZN, USD e EUR
+Descarrega e consolida as taxas de câmbio diárias publicadas pelo Banco de Moçambique, e junta-as automaticamente aos dados processados, produzindo colunas de valor em MZN, USD e EUR.
 
 ### Enriquecimento de dados
-- `extrair_meta_extracto()` — extrai metadados (datas, tipo de reporte, ano, mês) a partir do nome do ficheiro
-- `carregar_lookups_esistafe()` — carrega as tabelas de referência (UGB, função, programa, CED, nível CED) a partir de um Excel
-- `adicionar_lookups_esistafe()` — enriquece os dados com colunas descritivas via joins às tabelas de referência
+Adiciona contexto descritivo aos dados processados: extrai metadados a partir dos nomes dos ficheiros (datas, tipo de reporte, período) e enriquece com tabelas de referência de UGB, função, programa e classificação económica.
 
 ### Gravação de resultados
-- `gravar_esistafe()` — grava dados e-SISTAFE em Parquet e Excel com nomenclatura automática
-- `gravar_extracto_razao_c()` — grava extracto da razão contabilística em Parquet e Excel
-- `gravar_extracto_absa()` — grava extracto ABSA em Excel
-- `gravar_compilacao_sistafe()` — compila e grava múltiplos ficheiros e-SISTAFE num único Excel
-- `gravar_compilacao_razao_c()` — compila e grava múltiplos extractos da razão contabilística num único Excel
+Grava os outputs processados em formato Parquet e/ou Excel com nomenclatura automática, tanto para ficheiros individuais como para compilações consolidadas de múltiplos extractos.
 
 ### Verificação
-- `verificar_ugb_completude()` — verifica a completude das UGBs nos dados processados
+Ferramentas de apoio ao controlo de qualidade, incluindo a verificação da completude das UGBs nos dados processados.
 
 ### Dados incluídos
-- `lookup_razao` — tabela de referência que mapeia os nomes dos ficheiros PDF da razão contabilística para descrições e províncias
+O pacote inclui uma tabela de referência que mapeia nomes de ficheiros PDF da razão contabilística para descrições e províncias.
 
 ---
 
