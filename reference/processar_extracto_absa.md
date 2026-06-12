@@ -12,10 +12,7 @@ processar_extracto_absa(
   pattern = "EXTRACTO ABSA",
   recursive = FALSE,
   y_tolerance = 2,
-  quiet = TRUE,
-  usd_to_mt = 63.86,
-  eur_to_mt = 70,
-  eur_to_usd = 1.1
+  quiet = TRUE
 )
 ```
 
@@ -52,29 +49,12 @@ processar_extracto_absa(
   emitida uma mensagem final com o numero de linhas e ficheiros
   processados. Default: `TRUE`.
 
-- usd_to_mt:
-
-  `numeric(1)`. Taxa de cambio USD para MZN. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `63.86` (valor indicativo; actualizar conforme necessario).
-
-- eur_to_mt:
-
-  `numeric(1)`. Taxa de cambio EUR para MZN. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `70.00` (valor indicativo; actualizar conforme necessario).
-
-- eur_to_usd:
-
-  `numeric(1)`. Taxa de cambio EUR para USD. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `1.10` (valor indicativo; actualizar conforme necessario).
-
 ## Value
 
-Um tibble com 18 colunas: as 12 colunas base do esquema `df_razao` mais
-as 6 colunas de conversao de moeda produzidas por
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md):
+Um tibble com 12 colunas base do esquema `df_razao`. Aplique
+[`adicionar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/adicionar_conversao_moeda.md)
+ao resultado para adicionar as colunas de conversao de moeda com taxas
+diarias.
 
 - source_file:
 
@@ -175,19 +155,12 @@ A linha de fecho (`Saldo Final`) e acrescentada programaticamente e nao
 extraida do rodape do PDF. O seu `saldo_inicial_fim` e calculado como
 `saldo_abertura + sum(creditos) - sum(debitos)`.
 
-Apos extrair e combinar todos os PDFs, chama internamente
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
-com as taxas fornecidas. Para re-aplicar conversoes com taxas diferentes
-sem re-processar os PDFs, use
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
-directamente sobre o tibble ja processado.
-
 O helper interno `parse_single_absa()` e definido dentro desta funcao e
 nao e exportado.
 
 ## See also
 
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md),
+[`adicionar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/adicionar_conversao_moeda.md),
 [`processar_extracto_razao_c`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
 
 ## Examples
@@ -196,10 +169,7 @@ nao e exportado.
 if (FALSE) { # \dontrun{
 # Processar todos os extractos ABSA numa pasta
 df_absa <- processar_extracto_absa(
-  source_path = "Data/razao_cont/2026_02/outro/",
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  source_path = "Data/razao_cont/2026_02/outro/"
 )
 
 # Combinar com outros extractos do razao
@@ -209,18 +179,7 @@ df_razao <- dplyr::bind_rows(df_razao, df_absa)
 df_absa <- processar_extracto_absa(
   source_path = "Data/razao_cont/",
   pattern     = "ABSA",
-  recursive   = TRUE,
-  usd_to_mt   = 63.86,
-  eur_to_mt   = 70.00,
-  eur_to_usd  = 1.10
+  recursive   = TRUE
 )
-
-# Re-aplicar conversoes com taxas actualizadas sem re-processar PDFs
-df_absa_revalorizado <- df_absa |>
-  dplyr::select(-valor_lancamento_mt, -valor_lancamento_usd,
-                -valor_lancamento_eur, -saldo_inicial_fim_mt,
-                -saldo_inicial_fim_usd, -saldo_inicial_fim_eur) |>
-  aplicar_conversao_moeda(usd_to_mt = 64.10, eur_to_mt = 71.20,
-                          eur_to_usd = 1.11)
 } # }
 ```

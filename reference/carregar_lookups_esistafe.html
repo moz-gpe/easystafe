@@ -37,7 +37,7 @@ passada a adicionar_lookups_esistafe()."><meta property="og:image" content="http
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Carregar lookups descritivos para enriquecimento de dados e-SISTAFE</h1>
-      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/carregar_lookups_esistafe.R" class="external-link"><code>R/carregar_lookups_esistafe.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/adicionar_lookups.R" class="external-link"><code>R/adicionar_lookups.R</code></a></small>
       <div class="d-none name"><code>carregar_lookups_esistafe.Rd</code></div>
     </div>
 
@@ -59,8 +59,8 @@ passada a <code><a href="adicionar_lookups_esistafe.html">adicionar_lookups_esis
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>Um caracter com o caminho completo ou relativo para o ficheiro
 Excel que contem as folhas de lookup. Deve conter as folhas <code>"ugb"</code>,
-<code>"funcao"</code>, <code>"programa"</code>, <code>"programa2025"</code>, <code>"ced"</code>,
-<code>"ced_2"</code>, <code>"ced_3"</code> e <code>"ced_4"</code>.</p></dd>
+<code>"funcao"</code>, <code>"programa"</code>, <code>"ced"</code>, <code>"ced_2"</code>,
+<code>"ced_3"</code> e <code>"ced_nivel"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -98,10 +98,10 @@ Chave de 6 digitos construida com os 2 primeiros digitos do CED mais
 Chave de 6 digitos construida com os 3 primeiros digitos do CED mais
 <code>"000"</code>.</p></dd>
 
-<dt>ced_4</dt>
-<dd><p>Dataframe com colunas <code>ced_4</code> e <code>ced_4_nome</code>.
-Chave de 6 digitos construida com os 4 primeiros digitos do CED mais
-<code>"00"</code>.</p></dd>
+<dt>ced_nivel</dt>
+<dd><p>Dataframe com colunas <code>ced_3_nome</code> e
+<code>ced_nivel</code>. Classifica cada agrupamento de nivel 3 do CED com
+o seu nivel hierarquico.</p></dd>
 
 
 </dl></div>

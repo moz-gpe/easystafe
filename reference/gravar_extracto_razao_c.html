@@ -39,7 +39,7 @@ a pasta de destino se nao existir."><meta property="og:image" content="https://m
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Gravar extracto da razao contabilistico processado em Parquet e Excel</h1>
-      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/gravar_extracto.R" class="external-link"><code>R/gravar_extracto.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/gravar.R" class="external-link"><code>R/gravar.R</code></a></small>
       <div class="d-none name"><code>gravar_extracto_razao_c.Rd</code></div>
     </div>
 
@@ -85,31 +85,15 @@ da pasta e os caminhos dos ficheiros gravados.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>O nome dos ficheiros e construido automaticamente no formato:
 <code>RazaoCont_&lt;YYYY-YYYY&gt;_&lt;YYYY-MM-DD&gt;.parquet</code> e
-<code>RazaoCont_&lt;YYYY-YYYY&gt;_&lt;YYYY-MM-DD&gt;.xlsx</code>,
-onde os anos sao todos os valores unicos presentes na coluna <code>ano</code>,
-ordenados e separados por hifen.</p>
-<p>Por exemplo, dados abrangendo 2025 e 2026 produzem:
-<code>RazaoCont_2025-2026_2026-02-24.parquet</code> e <code>RazaoCont_2025-2026_2026-02-24.xlsx</code></p>
-<p>Se um ficheiro com o mesmo nome ja existir, o utilizador e avisado antes
-de ser substituido.</p>
+<code>RazaoCont_&lt;YYYY-YYYY&gt;_&lt;YYYY-MM-DD&gt;.xlsx</code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Gravar com pasta padrao</span></span></span>
 <span class="r-in"><span><span class="fu">gravar_extracto_razao_c</span><span class="op">(</span><span class="va">df_razao</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Gravar numa pasta personalizada</span></span></span>
 <span class="r-in"><span><span class="fu">gravar_extracto_razao_c</span><span class="op">(</span><span class="va">df_razao</span>, output_folder <span class="op">=</span> <span class="st">"Dataout/subpasta"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Gravar com mensagens de progresso</span></span></span>
-<span class="r-in"><span><span class="fu">gravar_extracto_razao_c</span><span class="op">(</span><span class="va">df_razao</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Capturar os caminhos dos ficheiros gravados</span></span></span>
 <span class="r-in"><span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu">gravar_extracto_razao_c</span><span class="op">(</span><span class="va">df_razao</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">paths</span><span class="op">$</span><span class="va">parquet</span></span></span>
-<span class="r-in"><span><span class="va">paths</span><span class="op">$</span><span class="va">excel</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

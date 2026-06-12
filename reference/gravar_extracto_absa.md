@@ -29,40 +29,23 @@ gravar_extracto_absa(df, output_folder = "Dataout", quiet = TRUE)
 
   Logico. Se `TRUE` (padrao), suprime as mensagens de progresso. Se
   `FALSE`, sao emitidas mensagens sobre a criacao da pasta e o caminho
-  do ficheiro gravado. Independentemente deste parametro, e sempre
-  emitida uma mensagem final com o caminho do ficheiro gravado.
+  do ficheiro gravado.
 
 ## Value
 
 Invisivel: o caminho completo do ficheiro gravado (`character(1)`).
-Permite encadear com `|>` se necessario.
 
 ## Details
 
-O nome do ficheiro e construido da seguinte forma:
-
-
-    ABSA_<YYYYMM>.xlsx
-    # exemplo: ABSA_202602.xlsx
-
-Os valores de `ano` e `mes` sao extraidos das linhas `MOVIMENTO` do
-dataframe (excluindo as linhas de saldo, que podem ter datas atipicas).
-Se o dataframe nao contiver movimentos, os valores sao retirados de
-todas as linhas. E sempre utilizado o ano e mes mais recentes para
-construir o nome do ficheiro.
+O nome do ficheiro e construido no formato `ABSA_<YYYYMM>.xlsx`. O ano e
+mes mais recentes sao extraidos das linhas de movimento.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
 df_absa <- processar_extracto_absa("Data/razao_cont/2026_02/outro/")
-
-# Gravar com as definicoes predefinidas
 gravar_extracto_absa(df_absa)
-# -> Dataout/ABSA_202602.xlsx
-
-# Pasta de destino personalizada
 gravar_extracto_absa(df_absa, output_folder = "Dataout/banco")
-# -> Dataout/banco/ABSA_202602.xlsx
 } # }
 ```

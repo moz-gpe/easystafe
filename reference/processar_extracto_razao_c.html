@@ -56,11 +56,7 @@ padrao.</p>
 <span>  <span class="va">source_path</span>,</span>
 <span>  exclude_pattern <span class="op">=</span> <span class="st">"CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado"</span>,</span>
 <span>  recursive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  usd_to_mt <span class="op">=</span> <span class="fl">63.91</span>,</span>
-<span>  cut_usd_to_mt <span class="op">=</span> <span class="fl">63.27</span>,</span>
-<span>  eur_to_mt <span class="op">=</span> <span class="fl">70</span>,</span>
-<span>  eur_to_usd <span class="op">=</span> <span class="fl">1.1</span></span>
+<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -90,56 +86,20 @@ inclui subpastas. Por padrao <code>FALSE</code>.</p></dd>
 por ficheiro durante o processamento (por exemplo, quando um PDF nao
 contem transaccoes). Se <code>FALSE</code>, as mensagens sao apresentadas.</p></dd>
 
-
-<dt id="arg-usd-to-mt">usd_to_mt<a class="anchor" aria-label="anchor" href="#arg-usd-to-mt"></a></dt>
-<dd><p>Numerico. Taxa de cambio USD para MZN. Utilizada para
-ficheiros <code>"EXTRACTO ABSA BANK USD"</code>. Passado a
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>0.015647</code>.</p></dd>
-
-
-<dt id="arg-cut-usd-to-mt">cut_usd_to_mt<a class="anchor" aria-label="anchor" href="#arg-cut-usd-to-mt"></a></dt>
-<dd><p>Numerico. Taxa de cambio USD para MZN especifica para
-ficheiros <code>"CENTRAL USD"</code>. Passado adevt
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>0.015805</code>.</p></dd>
-
-
-<dt id="arg-eur-to-mt">eur_to_mt<a class="anchor" aria-label="anchor" href="#arg-eur-to-mt"></a></dt>
-<dd><p>Numerico. Taxa de cambio EUR para MZN. Passado a
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>70.00</code>
-(valor indicativo; actualizar conforme necessario).</p></dd>
-
-
-<dt id="arg-eur-to-usd">eur_to_usd<a class="anchor" aria-label="anchor" href="#arg-eur-to-usd"></a></dt>
-<dd><p>Numerico. Taxa de cambio EUR para USD. Passado a
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code>. Por padrao <code>1.10</code>
-(valor indicativo; actualizar conforme necessario).</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Um tibble com uma linha por registo (movimentos, saldo inicial e
-saldo final) de todos os PDFs processados. Ver
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code> para descricao das colunas
-<code>valor_lancamento_mt</code> e <code>valor_lancamento_usd</code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Apos extrair e combinar todos os PDFs, chama internamente
-<code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code> com as taxas fornecidas. Para
-re-aplicar conversoes com taxas diferentes sem re-processar os PDFs,
-use <code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda</a></code> directamente sobre o tibble
-ja processado.</p>
+saldo final) de todos os PDFs processados. Aplique
+<code><a href="adicionar_conversao_moeda.html">adicionar_conversao_moeda</a></code> ao resultado para adicionar as
+colunas de conversao de moeda com taxas diarias.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">df_razao</span> <span class="op">&lt;-</span> <span class="fu">processar_extracto_razao_c</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  source_path   <span class="op">=</span> <span class="va">path_folder_source</span>,</span></span>
-<span class="r-in"><span>  usd_to_mt     <span class="op">=</span> <span class="fl">63.91</span>,</span></span>
-<span class="r-in"><span>  cut_usd_to_mt <span class="op">=</span> <span class="fl">63.27</span>,</span></span>
-<span class="r-in"><span>  eur_to_mt     <span class="op">=</span> <span class="fl">70.00</span>,</span></span>
-<span class="r-in"><span>  eur_to_usd    <span class="op">=</span> <span class="fl">1.10</span></span></span>
+<span class="r-in"><span>  source_path <span class="op">=</span> <span class="va">path_folder_source</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

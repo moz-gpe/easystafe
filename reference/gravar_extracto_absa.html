@@ -37,7 +37,7 @@ dos metadados do proprio dataframe (ano, mes e data de execucao)."><meta propert
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Gravar Extracto Bancario ABSA em Excel</h1>
-      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/gravar_extracto.R" class="external-link"><code>R/gravar_extracto.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/gravar.R" class="external-link"><code>R/gravar.R</code></a></small>
       <div class="d-none name"><code>gravar_extracto_absa.Rd</code></div>
     </div>
 
@@ -70,43 +70,25 @@ criada automaticamente se nao existir.</p></dd>
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
 <dd><p>Logico. Se <code>TRUE</code> (padrao), suprime as mensagens de
 progresso. Se <code>FALSE</code>, sao emitidas mensagens sobre a criacao
-da pasta e o caminho do ficheiro gravado. Independentemente deste
-parametro, e sempre emitida uma mensagem final com o caminho do
-ficheiro gravado.</p></dd>
+da pasta e o caminho do ficheiro gravado.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisivel: o caminho completo do ficheiro gravado (<code>character(1)</code>).
-Permite encadear com <code>|&gt;</code> se necessario.</p>
+    <p>Invisivel: o caminho completo do ficheiro gravado (<code>character(1)</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>O nome do ficheiro e construido da seguinte forma:</p>
-<div class="sourceCode"><pre><code>
-ABSA_&lt;YYYYMM&gt;.xlsx
-# exemplo: ABSA_202602.xlsx
-</code></pre></div>
-
-<p>Os valores de <code>ano</code> e <code>mes</code> sao extraidos das linhas
-<code>MOVIMENTO</code> do dataframe (excluindo as linhas de saldo, que podem ter
-datas atipicas). Se o dataframe nao contiver movimentos, os valores sao
-retirados de todas as linhas. E sempre utilizado o ano e mes mais recentes
-para construir o nome do ficheiro.</p>
+    <p>O nome do ficheiro e construido no formato <code>ABSA_&lt;YYYYMM&gt;.xlsx</code>.
+O ano e mes mais recentes sao extraidos das linhas de movimento.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">df_absa</span> <span class="op">&lt;-</span> <span class="fu"><a href="processar_extracto_absa.html">processar_extracto_absa</a></span><span class="op">(</span><span class="st">"Data/razao_cont/2026_02/outro/"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Gravar com as definicoes predefinidas</span></span></span>
 <span class="r-in"><span><span class="fu">gravar_extracto_absa</span><span class="op">(</span><span class="va">df_absa</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># -&gt; Dataout/ABSA_202602.xlsx</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Pasta de destino personalizada</span></span></span>
 <span class="r-in"><span><span class="fu">gravar_extracto_absa</span><span class="op">(</span><span class="va">df_absa</span>, output_folder <span class="op">=</span> <span class="st">"Dataout/banco"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># -&gt; Dataout/banco/ABSA_202602.xlsx</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -12,11 +12,7 @@ processar_extracto_razao_c(
   source_path,
   exclude_pattern = "CAMBIO|FOREX|EXTRACTO|DemonstrativoConsolidado",
   recursive = FALSE,
-  quiet = TRUE,
-  usd_to_mt = 63.91,
-  cut_usd_to_mt = 63.27,
-  eur_to_mt = 70,
-  eur_to_usd = 1.1
+  quiet = TRUE
 )
 ```
 
@@ -45,59 +41,20 @@ processar_extracto_razao_c(
   durante o processamento (por exemplo, quando um PDF nao contem
   transaccoes). Se `FALSE`, as mensagens sao apresentadas.
 
-- usd_to_mt:
-
-  Numerico. Taxa de cambio USD para MZN. Utilizada para ficheiros
-  `"EXTRACTO ABSA BANK USD"`. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `0.015647`.
-
-- cut_usd_to_mt:
-
-  Numerico. Taxa de cambio USD para MZN especifica para ficheiros
-  `"CENTRAL USD"`. Passado adevt
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `0.015805`.
-
-- eur_to_mt:
-
-  Numerico. Taxa de cambio EUR para MZN. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `70.00` (valor indicativo; actualizar conforme necessario).
-
-- eur_to_usd:
-
-  Numerico. Taxa de cambio EUR para USD. Passado a
-  [`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md).
-  Por padrao `1.10` (valor indicativo; actualizar conforme necessario).
-
 ## Value
 
 Um tibble com uma linha por registo (movimentos, saldo inicial e saldo
-final) de todos os PDFs processados. Ver
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
-para descricao das colunas `valor_lancamento_mt` e
-`valor_lancamento_usd`.
-
-## Details
-
-Apos extrair e combinar todos os PDFs, chama internamente
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
-com as taxas fornecidas. Para re-aplicar conversoes com taxas diferentes
-sem re-processar os PDFs, use
-[`aplicar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/aplicar_conversao_moeda.md)
-directamente sobre o tibble ja processado.
+final) de todos os PDFs processados. Aplique
+[`adicionar_conversao_moeda`](https://moz-gpe.github.io/easystafe/reference/adicionar_conversao_moeda.md)
+ao resultado para adicionar as colunas de conversao de moeda com taxas
+diarias.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
 df_razao <- processar_extracto_razao_c(
-  source_path   = path_folder_source,
-  usd_to_mt     = 63.91,
-  cut_usd_to_mt = 63.27,
-  eur_to_mt     = 70.00,
-  eur_to_usd    = 1.10
+  source_path = path_folder_source
 )
 } # }
 ```

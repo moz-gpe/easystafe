@@ -51,18 +51,8 @@ de ser substituido.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Gravar com pasta padrao
 gravar_esistafe(df_esistafe)
-
-# Gravar numa pasta personalizada
 gravar_esistafe(df_esistafe, output_folder = "Data/final")
-
-# Gravar com mensagens de progresso
-gravar_esistafe(df_esistafe, quiet = FALSE)
-
-# Capturar os caminhos dos ficheiros gravados
 paths <- gravar_esistafe(df_esistafe, quiet = FALSE)
-paths$parquet
-paths$excel
 } # }
 ```

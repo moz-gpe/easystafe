@@ -37,48 +37,43 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="easystafe-020">easystafe 0.2.0<a class="anchor" aria-label="anchor" href="#easystafe-020"></a></h2>
+<div class="section level3">
+<h3 id="novas-funcionalidades-0-2-0">Novas funcionalidades<a class="anchor" aria-label="anchor" href="#novas-funcionalidades-0-2-0"></a></h3>
+<ul><li>Adicionada a função <code><a href="../reference/adicionar_conversao_moeda.html">adicionar_conversao_moeda()</a></code> para juntar taxas de câmbio diárias do BancoMOC a dados processados, produzindo colunas de valor e saldo em MZN, USD e EUR.</li>
+<li>Adicionada a função <code><a href="../reference/obter_conversao_bancomoc.html">obter_conversao_bancomoc()</a></code> para descarregar e consolidar tabelas de taxas diárias do portal do Banco de Moçambique.</li>
+<li>Adicionada a função <code><a href="../reference/parse_bancomoc_pdf.html">parse_bancomoc_pdf()</a></code> para interpretar PDFs individuais de taxas de câmbio do BancoMOC.</li>
+<li>Adicionado o conjunto de dados <code>lookup_razao</code> com a tabela de referência que mapeia nomes de ficheiros PDF da razão contabilística para descrições e províncias.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="alterações-a-funções-existentes-0-2-0">Alterações a funções existentes<a class="anchor" aria-label="anchor" href="#altera%C3%A7%C3%B5es-a-fun%C3%A7%C3%B5es-existentes-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/processar_extracto_razao_c.html">processar_extracto_razao_c()</a></code> e <code><a href="../reference/processar_extracto_absa.html">processar_extracto_absa()</a></code>: removidos os parâmetros de taxa de câmbio (<code>usd_to_mt</code>, <code>eur_to_mt</code>, etc.); a conversão de moeda é agora aplicada separadamente via <code><a href="../reference/adicionar_conversao_moeda.html">adicionar_conversao_moeda()</a></code>.</li>
+<li>
+<code><a href="../reference/adicionar_conversao_moeda.html">adicionar_conversao_moeda()</a></code>: colunas <code>valor_lancamento</code> e <code>saldo_inicial_fim</code> renomeadas para <code>valor_lancamento_mzn</code> e <code>saldo_inicial_fim_mzn</code>; colunas de moeda reposicionadas no final do tibble na ordem <code>_mzn</code>, <code>_eur</code>, <code>_usd</code>.</li>
+<li>
+<code><a href="../reference/carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code> e <code><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe()</a></code>: adicionado suporte à folha <code>ced_nivel</code>, que classifica agrupamentos de nível 3 do CED.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="reorganização-do-pacote-0-2-0">Reorganização do pacote<a class="anchor" aria-label="anchor" href="#reorganiza%C3%A7%C3%A3o-do-pacote-0-2-0"></a></h3>
+<ul><li>Ficheiros <code>R/</code> reorganizados por área funcional: <code>bancomoc.R</code>, <code>adicionar_lookups.R</code>, <code>gravar.R</code>.</li>
+<li>Removida a função <code>recodificar_esistafe_vars()</code> (não utilizada internamente).</li>
+<li>Corrigidas referências cruzadas quebradas na documentação que apontavam para a função eliminada <code>aplicar_conversao_moeda</code>.</li>
+<li>Corrigida a estrutura do <code>_pkgdown.yml</code> (chave <code>reference:</code> em falta); secções de referência reorganizadas em seis grupos: Processamento, Taxas de Câmbio, Dados, Enriquecer Dados, Gravar Dados Processados e Verificação.</li>
+<li>README actualizado em Português, reflectindo a estrutura actual do pacote.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="easystafe-010">easystafe 0.1.0<a class="anchor" aria-label="anchor" href="#easystafe-010"></a></h2>
 <div class="section level3">
 <h3 id="novas-funcionalidades-0-1-0">Novas funcionalidades<a class="anchor" aria-label="anchor" href="#novas-funcionalidades-0-1-0"></a></h3>
-<ul><li>Adicionada a funcção <code>processar_esistafe_extracto_unico()</code> para:
-<ul><li>processar extractos individuais do e-SISTAFE;</li>
-<li>aplicar lógica hierárquica de subtração entre níveis CED (A, B, C, D);</li>
-<li>consolidar valores e remover duplicações;</li>
-<li>retornar um extracto final único e coerente.</li>
-</ul></li>
-<li>Adicionada a funcção <code>processo_esistafe_extracto()</code> para:
-<ul><li>processar múltiplos extractos em lote;</li>
-<li>anexar metadados automaticamente a cada ficheiro;</li>
-<li>unificar resultados num único tibble consolidado;</li>
-<li>gerir erros com <code><a href="https://purrr.tidyverse.org/reference/possibly.html" class="external-link">purrr::possibly()</a></code>.</li>
-</ul></li>
-<li>Adicionada a função <code><a href="../reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code> para:
-<ul><li>extrair datas (referência e extração) a partir dos nomes dos ficheiros;</li>
-<li>identificar o tipo de reporte (Funcionamento, Investimento Interno, Investimento Externo);</li>
-<li>devolver ano e mês de referência com nomes de meses em Português.</li>
-</ul></li>
+<ul><li>Adicionada a função <code><a href="../reference/processar_extracto_esistafe.html">processar_extracto_esistafe()</a></code> para processar ficheiros demonstrativo consolidado do e-SISTAFE em lote, aplicando lógica hierárquica CED e devolvendo um tibble consolidado.</li>
+<li>Adicionada a função <code><a href="../reference/extrair_meta_extracto.html">extrair_meta_extracto()</a></code> para extrair datas, tipo de reporte, ano e mês a partir dos nomes dos ficheiros.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentação-e-estrutura-0-1-0">Documentação e estrutura<a class="anchor" aria-label="anchor" href="#documenta%C3%A7%C3%A3o-e-estrutura-0-1-0"></a></h3>
 <ul><li>Criada documentação completa em Roxygen2, totalmente compatível com UTF-8.</li>
-<li>Atualizadas imports no ficheiro DESCRIPTION para suportar todas as dependências usadas.</li>
-<li>Estabelecida a infra-estrutura inicial do pacote:
-<ul><li>diretórios <code>R/</code>, <code>man/</code>, <code>.Rproj</code>, e configuração da toolchain de build;</li>
-<li>estrutura de versionamento semântico para evolução futura.</li>
-</ul></li>
-</ul></div>
-<div class="section level3">
-<h3 id="melhorias-técnicas-0-1-0">Melhorias técnicas<a class="anchor" aria-label="anchor" href="#melhorias-t%C3%A9cnicas-0-1-0"></a></h3>
-<ul><li>Todo o código-fonte das funções foi convertido para ASCII-safe, garantindo:
-<ul><li>compatibilidade com R CMD check;</li>
-<li>ausência de caracteres não-ASCII em strings internas;</li>
-<li>preservação de acentos apenas em comentários e documentação.</li>
-</ul></li>
-<li>Criadas regras internas para:
-<ul><li>execução consistente da lógica CED;</li>
-<li>validação segura do fluxo de processamento;</li>
-<li>integração limpa entre funções principais.</li>
-</ul></li>
+<li>Estabelecida a infra-estrutura inicial do pacote com diretórios <code>R/</code>, <code>man/</code>, e configuração da toolchain de build.</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

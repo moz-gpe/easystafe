@@ -36,32 +36,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="extrac-o-de-metadados">Extracção de metadados<a class="anchor" aria-label="anchor" href="#extrac-o-de-metadados"></a></h2>
-
-      <div class="section-desc"><p>Funções para carregar ficheiros e extrair metadados</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="extrair_meta_extracto.html">extrair_meta_extracto()</a></code>
-
-        </dt>
-        <dd>Extrair metadados de ficheiros de extracto e-SISTAFE</dd>
-
-        <dt>
-
-          <code><a href="adicionar_lookups_esistafe.html">adicionar_lookups_esistafe()</a></code>
-
-        </dt>
-        <dd>Adicionar metados ao dataframe e-SISTAFE com lookups descritivos</dd>
-      </dl></div><div class="section level2">
       <h2 id="processamento">Processamento<a class="anchor" aria-label="anchor" href="#processamento"></a></h2>
 
-      <div class="section-desc"><p>Funções principais de limpeza e processamento</p></div>
+      <div class="section-desc"><p>Funções principais de limpeza e processamento de ficheiros exportados do e-SISTAFE e extractos bancários</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -89,9 +66,9 @@
         </dt>
         <dd>Processar Extractos Bancarios ABSA</dd>
       </dl></div><div class="section level2">
-      <h2 id="recodifica-o">Recodificação<a class="anchor" aria-label="anchor" href="#recodifica-o"></a></h2>
+      <h2 id="taxas-de-c-mbio">Taxas de Câmbio<a class="anchor" aria-label="anchor" href="#taxas-de-c-mbio"></a></h2>
 
-      <div class="section-desc"><p>Funções para recodificar e classificar variáveis</p></div>
+      <div class="section-desc"><p>Funções para obter e aplicar taxas de câmbio diárias do BancoMOC</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -100,31 +77,10 @@
 
       <dl><dt>
 
-          <code><a href="recodificar_esistafe_vars.html">recodificar_esistafe_vars()</a></code>
+          <code><a href="parse_bancomoc_pdf.html">parse_bancomoc_pdf()</a></code>
 
         </dt>
-        <dd>Recodificar variaveis padrao de exportacoes e-SISTAFE</dd>
-
-        <dt>
-
-          <code><a href="carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code>
-
-        </dt>
-        <dd>Carregar lookups descritivos para enriquecimento de dados e-SISTAFE</dd>
-
-        <dt>
-
-          <code><a href="aplicar_conversao_moeda.html">aplicar_conversao_moeda()</a></code>
-
-        </dt>
-        <dd>Aplicar conversao de moeda a um tibble de extractos do e-SISTAFE</dd>
-
-        <dt>
-
-          <code><a href="adicionar_conversao_moeda.html">adicionar_conversao_moeda()</a></code>
-
-        </dt>
-        <dd>Add daily exchange rate conversions to a razao contabilistica tibble</dd>
+        <dd>Parse a Banco de Mocambique exchange rate PDF into a tidy tibble</dd>
 
         <dt>
 
@@ -135,12 +91,58 @@
 
         <dt>
 
-          <code><a href="parse_bancomoc_pdf.html">parse_bancomoc_pdf()</a></code>
+          <code><a href="adicionar_conversao_moeda.html">adicionar_conversao_moeda()</a></code>
 
         </dt>
-        <dd>Parse a Banco de Mocambique exchange rate PDF into a tidy tibble</dd>
+        <dd>Add daily exchange rate conversions to a razao contabilistica tibble</dd>
       </dl></div><div class="section level2">
-      <h2 id="grava-o">Gravação<a class="anchor" aria-label="anchor" href="#grava-o"></a></h2>
+      <h2 id="dados">Dados<a class="anchor" aria-label="anchor" href="#dados"></a></h2>
+
+      <div class="section-desc"><p>Tabelas de referência incluídas no pacote</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="lookup_razao.html">lookup_razao</a></code>
+
+        </dt>
+        <dd>Lookup table mapping razao contabilistica source file names to descriptions</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enriquecer-dados">Enriquecer Dados<a class="anchor" aria-label="anchor" href="#enriquecer-dados"></a></h2>
+
+      <div class="section-desc"><p>Funções para recodificar, classificar e adicionar variáveis aos dados processados</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="extrair_meta_extracto.html">extrair_meta_extracto()</a></code>
+
+        </dt>
+        <dd>Extrair metadados de ficheiros de extracto e-SISTAFE</dd>
+
+        <dt>
+
+          <code><a href="carregar_lookups_esistafe.html">carregar_lookups_esistafe()</a></code>
+
+        </dt>
+        <dd>Carregar lookups descritivos para enriquecimento de dados e-SISTAFE</dd>
+
+        <dt>
+
+          <code><a href="adicionar_lookups_esistafe.html">adicionar_lookups_esistafe()</a></code>
+
+        </dt>
+        <dd>Adicionar metados ao dataframe e-SISTAFE com lookups descritivos</dd>
+      </dl></div><div class="section level2">
+      <h2 id="gravar-dados-processados">Gravar Dados Processados<a class="anchor" aria-label="anchor" href="#gravar-dados-processados"></a></h2>
 
       <div class="section-desc"><p>Funções para gravar outputs processados</p></div>
 

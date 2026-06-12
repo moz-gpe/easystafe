@@ -17,8 +17,8 @@ carregar_lookups_esistafe(path)
 
   Um caracter com o caminho completo ou relativo para o ficheiro Excel
   que contem as folhas de lookup. Deve conter as folhas `"ugb"`,
-  `"funcao"`, `"programa"`, `"programa2025"`, `"ced"`, `"ced_2"`,
-  `"ced_3"` e `"ced_4"`.
+  `"funcao"`, `"programa"`, `"ced"`, `"ced_2"`, `"ced_3"` e
+  `"ced_nivel"`.
 
 ## Value
 
@@ -61,10 +61,10 @@ Uma lista nomeada com oito elementos:
   Dataframe com colunas `ced_3` e `ced_3_nome`. Chave de 6 digitos
   construida com os 3 primeiros digitos do CED mais `"000"`.
 
-- ced_4:
+- ced_nivel:
 
-  Dataframe com colunas `ced_4` e `ced_4_nome`. Chave de 6 digitos
-  construida com os 4 primeiros digitos do CED mais `"00"`.
+  Dataframe com colunas `ced_3_nome` e `ced_nivel`. Classifica cada
+  agrupamento de nivel 3 do CED com o seu nivel hierarquico.
 
 ## Details
 

@@ -43,6 +43,11 @@ adicionar_lookups_esistafe(df, lookups)
   :   Dataframe com a tabela de referencia de programas. Deve conter
       `programa_ambito_fr` como chave de ligacao e `programa_tipo`.
 
+  ced_nivel
+
+  :   Dataframe com colunas `ced_3_nome` e `ced_nivel`. Ligado por
+      `ced_3_nome` apos o join do `ced_3`.
+
 ## Value
 
 O dataframe `df` enriquecido com as colunas descritivas dos quatro

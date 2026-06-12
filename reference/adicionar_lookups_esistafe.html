@@ -41,7 +41,7 @@ imediatamente apos as colunas de identificacao orcamental."><meta property="og:i
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Adicionar metados ao dataframe e-SISTAFE com lookups descritivos</h1>
-      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/adicionar_lookups_esistafe.R" class="external-link"><code>R/adicionar_lookups_esistafe.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/moz-gpe/easystafe/blob/main/R/adicionar_lookups.R" class="external-link"><code>R/adicionar_lookups.R</code></a></small>
       <div class="d-none name"><code>adicionar_lookups_esistafe.Rd</code></div>
     </div>
 
@@ -84,6 +84,11 @@ conter <code>funcao</code> como chave de ligacao e <code>funcao_nivel</code>.</p
 <dd><p>Dataframe com a tabela de referencia de programas.
 Deve conter <code>programa_ambito_fr</code> como chave de ligacao e
 <code>programa_tipo</code>.</p></dd>
+
+<dt>ced_nivel</dt>
+<dd><p>Dataframe com colunas <code>ced_3_nome</code> e
+<code>ced_nivel</code>. Ligado por <code>ced_3_nome</code> apos o join do
+<code>ced_3</code>.</p></dd>
 
 
 </dl></dd>
