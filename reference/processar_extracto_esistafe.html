@@ -142,9 +142,9 @@ as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
 hierarquica. A coluna <code>data_tipo</code> esta sempre presente e posicionada
 imediatamente antes de <code>ugb</code>. Tres colunas hierarquicas derivadas de
 <code>ced</code> sao sempre incluidas imediatamente a seguir a <code>ced</code>:
-<code>ced_2</code> (primeiros 2 digitos com sufixo <code>"0000"</code>),
-<code>ced_3</code> (primeiros 3 digitos) e <code>ced_4</code> (primeiros 4 digitos);
-todas sao <code>NA</code> nas linhas <code>"Metrica"</code>. As colunas de percentagem
+<code>ced_2</code> (primeiros 2 digitos com sufixo <code>"0000"</code>) e
+<code>ced_3</code> (primeiros 3 digitos);
+ambas sao <code>NA</code> nas linhas <code>"Metrica"</code>. As colunas de percentagem
 sao sempre incluidas na estrutura original (preenchidas com <code>NA</code>)
 salvo se <code>include_percent = FALSE</code>. A coluna <code>pasta_fonte</code> contem
 o nome da pasta imediata de onde os dados foram carregados. As colunas
@@ -168,7 +168,8 @@ nome da pasta de origem. Se o nome da pasta nao seguir o formato
 <li><p>Remocao de linhas com CED e campos-chave em branco.</p></li>
 <li><p>Classificacao de grupos CED (A, B, C, D) e remocao do grupo D.</p></li>
 <li><p>Criacao de variaveis hierarquicas: <code>ced_4</code> (primeiros 4 digitos
-de <code>ced</code>), <code>ced_3</code> (primeiros 3 digitos), <code>ced_2</code>
+de <code>ced</code> – usada internamente e removida no output final),
+<code>ced_3</code> (primeiros 3 digitos), <code>ced_2</code>
 (primeiros 2 digitos com sufixo <code>"0000"</code>), e chaves compostas
 auxiliares <code>id_ced_b4</code> e <code>id_ced_b3</code> (usadas internamente e
 removidas no output final).</p></li>
