@@ -155,27 +155,28 @@ obter_conversao_bancomoc <- function(
 #' Add daily exchange rate conversions to a razao contabilistica tibble
 #'
 #' Joins a wide daily-rates table (from \code{obter_conversao_bancomoc(wide =
-#' TRUE)}) to \code{df} on the transaction date, then overwrites the
-#' \code{_usd} and \code{_eur} columns using per-row \code{compra} rates.
-#' The EUR/USD cross rate is derived as \code{taxa_euro / taxa_dolar}.
-#' \code{taxa_dolar} and \code{taxa_euro} are appended and relocated after
-#' \code{mes}.
+#' TRUE)}) to \code{df} on the transaction date, then computes \code{_usd} and
+#' \code{_eur} variants of \code{valor_lancamento}, \code{saldo_actual}, and
+#' \code{saldo_inicial_fim} using per-row \code{compra} rates. The EUR/USD
+#' cross rate is derived as \code{taxa_euro / taxa_dolar}. \code{taxa_dolar}
+#' and \code{taxa_euro} are relocated after \code{mes}. The three source
+#' columns are renamed to their \code{_mzn} equivalents.
 #'
 #' @param df Tibble. Output of \code{processar_extracto_razao_c()} or
 #'   \code{processar_extracto_absa()}, containing at minimum the columns
 #'   \code{source_file}, \code{data}, \code{mes}, \code{valor_lancamento},
-#'   \code{valor_lancamento_usd}, \code{valor_lancamento_eur},
-#'   \code{saldo_inicial_fim}, \code{saldo_inicial_fim_usd}, and
-#'   \code{saldo_inicial_fim_eur}.
+#'   \code{saldo_actual}, and \code{saldo_inicial_fim}.
 #' @param rates_diarias Tibble. Wide daily-rates table returned by
 #'   \code{obter_conversao_bancomoc(wide = TRUE)}, with columns \code{date},
 #'   \code{taxa_dolar}, and \code{taxa_euro}.
 #'
-#' @return \code{df} with \code{valor_lancamento_usd},
-#'   \code{valor_lancamento_eur}, \code{saldo_inicial_fim_usd}, and
-#'   \code{saldo_inicial_fim_eur} overwritten using daily rates, plus
-#'   \code{taxa_dolar} and \code{taxa_euro} columns positioned after
-#'   \code{mes}.
+#' @return \code{df} enriched with \code{taxa_dolar} and \code{taxa_euro}
+#'   positioned after \code{mes}, and six currency columns appended at the end:
+#'   \code{valor_lancamento_mzn}, \code{valor_lancamento_eur},
+#'   \code{valor_lancamento_usd}, \code{saldo_actual_mzn},
+#'   \code{saldo_actual_eur}, \code{saldo_actual_usd},
+#'   \code{saldo_inicial_fim_mzn}, \code{saldo_inicial_fim_eur}, and
+#'   \code{saldo_inicial_fim_usd}.
 #'
 #' @export
 adicionar_conversao_moeda <- function(df, rates_diarias) {
@@ -241,15 +242,47 @@ adicionar_conversao_moeda <- function(df, rates_diarias) {
           "EXTRACTO ABSA BANK USD"
         ) ~ .data$saldo_inicial_fim / (.data$taxa_euro / .data$taxa_dolar),
         .default = .data$saldo_inicial_fim / .data$taxa_euro
+      ),
+      saldo_actual_usd = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$saldo_actual,
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$saldo_actual,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$saldo_actual * (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$saldo_actual / .data$taxa_dolar
+      ),
+      saldo_actual_eur = dplyr::case_when(
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL EUR"
+        ) ~ .data$saldo_actual,
+        stringr::str_detect(
+          .data$source_file,
+          "CENTRAL USD"
+        ) ~ .data$saldo_actual / (.data$taxa_euro / .data$taxa_dolar),
+        stringr::str_detect(
+          .data$source_file,
+          "EXTRACTO ABSA BANK USD"
+        ) ~ .data$saldo_actual / (.data$taxa_euro / .data$taxa_dolar),
+        .default = .data$saldo_actual / .data$taxa_euro
       )
     ) |>
     dplyr::rename(
       valor_lancamento_mzn  = valor_lancamento,
+      saldo_actual_mzn      = saldo_actual,
       saldo_inicial_fim_mzn = saldo_inicial_fim
     ) |>
     dplyr::relocate(taxa_dolar, taxa_euro, .after = mes) |>
     dplyr::relocate(
       valor_lancamento_mzn, valor_lancamento_eur, valor_lancamento_usd,
+      saldo_actual_mzn, saldo_actual_eur, saldo_actual_usd,
       saldo_inicial_fim_mzn, saldo_inicial_fim_eur, saldo_inicial_fim_usd,
       .after = dplyr::last_col()
     )
