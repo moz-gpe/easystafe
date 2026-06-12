@@ -109,7 +109,7 @@ diarias.
   `character`. Indicador debito/credito do movimento: `"C"`, `"D"` ou
   `NA`.
 
-- saldo_atual:
+- saldo_actual:
 
   `double`. Saldo corrente apos o movimento.
 
@@ -120,7 +120,7 @@ diarias.
 
 - saldo_inicial_fim:
 
-  `double`. Saldo de abertura em `SALDO_INICIAL`; saldo calculado em
+  `double`. Saldo de abertura em `Saldo Inicial`; saldo calculado em
   `Saldo Final`; `NA` nos movimentos.
 
 - saldo_inicial_fim_mt:

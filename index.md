@@ -4,7 +4,7 @@
 
 ## Resumo
 
-O **easystafe** é um pacote R para automatizar o processamento de
+O **easystafe** é um pacote R que automatiza o processamento de
 extractos exportados do e-SISTAFE (Sistema de Administração Financeira
 do Estado de Moçambique) e de extractos bancários associados,
 substituindo fluxos manuais por pipelines reproduzíveis e auditáveis.
