@@ -639,11 +639,11 @@ processar_extracto_razao_c <- function(
           tibble::tibble(
             unidade_gestao    = unidade_gestao,
             data              = header_data,
-            tipo              = "SALDO_INICIAL",
+            tipo              = "Saldo Inicial",
             codigo_documento  = NA_character_,
             valor_lancamento  = 0,
             dc1               = NA_character_,
-            saldo_atual       = saldo_hdr_num,
+            saldo_actual       = saldo_hdr_num,
             dc2               = saldo_hdr_dc,
             saldo_inicial_fim = saldo_hdr_num
           ),
@@ -654,7 +654,7 @@ processar_extracto_razao_c <- function(
             codigo_documento  = NA_character_,
             valor_lancamento  = 0,
             dc1               = NA_character_,
-            saldo_atual       = saldo_hdr_num,
+            saldo_actual       = saldo_hdr_num,
             dc2               = saldo_hdr_dc,
             saldo_inicial_fim = saldo_hdr_num
           )
@@ -670,7 +670,7 @@ processar_extracto_razao_c <- function(
           "codigo_documento",
           "valor_lancamento",
           "dc1",
-          "saldo_atual",
+          "saldo_actual",
           "dc2"
         ),
         sep  = "\\s+",
@@ -684,8 +684,8 @@ processar_extracto_razao_c <- function(
           valor_lancamento,
           locale = readr::locale(decimal_mark = ",", grouping_mark = ".")
         ),
-        saldo_atual = readr::parse_number(
-          saldo_atual,
+        saldo_actual = readr::parse_number(
+          saldo_actual,
           locale = readr::locale(decimal_mark = ",", grouping_mark = ".")
         ),
 
@@ -701,11 +701,11 @@ processar_extracto_razao_c <- function(
       ) |>
       dplyr::select(
         unidade_gestao, data, tipo, codigo_documento,
-        valor_lancamento, dc1, saldo_atual, dc2, saldo_inicial_fim
+        valor_lancamento, dc1, saldo_actual, dc2, saldo_inicial_fim
       )
 
     data_inicio        <- if (!is.na(header_data)) header_data else df$data[1]
-    saldo_inicial_calc <- df$saldo_atual[1] - df$valor_lancamento[1]
+    saldo_inicial_calc <- df$saldo_actual[1] - df$valor_lancamento[1]
 
     saldo_inicial_row <- tibble::tibble(
       unidade_gestao    = unidade_gestao,
@@ -714,22 +714,22 @@ processar_extracto_razao_c <- function(
       codigo_documento  = NA_character_,
       valor_lancamento  = 0,
       dc1               = NA_character_,
-      saldo_atual       = saldo_inicial_calc,
+      saldo_actual       = saldo_inicial_calc,
       dc2               = df$dc2[1],
       saldo_inicial_fim = saldo_inicial_calc
     )
 
     data_fim        <- if (!is.na(header_data_final)) header_data_final else df$data[nrow(df)]
-    saldo_final_val <- df$saldo_atual[nrow(df)]
+    saldo_final_val <- df$saldo_actual[nrow(df)]
 
     saldo_final_row <- tibble::tibble(
       unidade_gestao    = unidade_gestao,
       data              = data_fim,
-      tipo              = "SALDO_FINAL",
+      tipo              = "Saldo Final",
       codigo_documento  = NA_character_,
       valor_lancamento  = 0,
       dc1               = NA_character_,
-      saldo_atual       = saldo_final_val,
+      saldo_actual       = saldo_final_val,
       dc2               = df$dc2[nrow(df)],
       saldo_inicial_fim = saldo_final_val
     )
@@ -854,11 +854,11 @@ processar_extracto_razao_c <- function(
 #'     \item{valor_lancamento_eur}{\code{double}. Valor do lancamento em EUR.}
 #'     \item{dc1}{\code{character}. Indicador debito/credito do movimento:
 #'       \code{"C"}, \code{"D"} ou \code{NA}.}
-#'     \item{saldo_atual}{\code{double}. Saldo corrente apos o movimento.}
+#'     \item{saldo_actual}{\code{double}. Saldo corrente apos o movimento.}
 #'     \item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
 #'       \code{"D"} para este tipo de conta.}
 #'     \item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
-#'       \code{SALDO_INICIAL}; saldo calculado em \code{Saldo Final};
+#'       \code{Saldo Inicial}; saldo calculado em \code{Saldo Final};
 #'       \code{NA} nos movimentos.}
 #'     \item{saldo_inicial_fim_mt}{\code{double}. Saldo inicial ou final
 #'       em MZN.}
@@ -1061,8 +1061,8 @@ processar_extracto_absa <- function(source_path,
           stringr::str_detect(
             descricao,
             stringr::regex("SALDO DE ABERTURA", ignore_case = TRUE)
-          ) ~ "SALDO_INICIAL",
-          TRUE ~ "MOVIMENTO"
+          ) ~ "Saldo Inicial",
+          TRUE ~ "Movimento"
         )
       )
 
@@ -1078,38 +1078,38 @@ processar_extracto_absa <- function(source_path,
         ano               = lubridate::year(data),
         mes               = mes_labels[lubridate::month(data)],
         valor_lancamento  = dplyr::case_when(
-          tipo == "SALDO_INICIAL" ~ NA_real_,
+          tipo == "Saldo Inicial" ~ NA_real_,
           credito > 0             ~ credito,
           TRUE                    ~ -debito
         ),
         dc1 = dplyr::case_when(
-          tipo == "SALDO_INICIAL" ~ NA_character_,
+          tipo == "Saldo Inicial" ~ NA_character_,
           credito > 0             ~ "C",
           debito  > 0             ~ "D",
           TRUE                    ~ NA_character_
         ),
         dc2               = "D",
         codigo_documento  = referencia,
-        saldo_atual       = saldo,
+        saldo_actual       = saldo,
         saldo_inicial_fim = dplyr::case_when(
-          tipo == "SALDO_INICIAL" ~ saldo_abertura,
+          tipo == "Saldo Inicial" ~ saldo_abertura,
           TRUE                    ~ NA_real_
         )
       ) |>
       dplyr::select(
         source_file, unidade_gestao, data, ano, mes, tipo,
         codigo_documento, valor_lancamento, dc1,
-        saldo_atual, dc2, saldo_inicial_fim
+        saldo_actual, dc2, saldo_inicial_fim
       )
 
     total_cred_mov <- sum(df_movimentos$valor_lancamento[
-      df_movimentos$tipo == "MOVIMENTO" &
+      df_movimentos$tipo == "Movimento" &
         !is.na(df_movimentos$valor_lancamento) &
         df_movimentos$valor_lancamento > 0
     ])
 
     total_deb_mov <- abs(sum(df_movimentos$valor_lancamento[
-      df_movimentos$tipo == "MOVIMENTO" &
+      df_movimentos$tipo == "Movimento" &
         !is.na(df_movimentos$valor_lancamento) &
         df_movimentos$valor_lancamento < 0
     ]))
@@ -1132,13 +1132,13 @@ processar_extracto_absa <- function(source_path,
       codigo_documento  = NA_character_,
       valor_lancamento  = NA_real_,
       dc1               = NA_character_,
-      saldo_atual       = saldo_final_calc,
+      saldo_actual       = saldo_final_calc,
       dc2               = "D",
       saldo_inicial_fim = saldo_final_calc
     )
 
     df_out <- dplyr::bind_rows(df_movimentos, df_saldo_final) |>
-      dplyr::arrange(data, desc(tipo == "SALDO_INICIAL"), tipo == "SALDO_FINAL")
+      dplyr::arrange(data, desc(tipo == "Saldo Inicial"), tipo == "Saldo Final")
 
     if (!quiet) {
       message(sprintf("  \u2714 %s \u2014 %d linhas", source_file_name, nrow(df_out)))

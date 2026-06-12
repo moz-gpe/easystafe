@@ -60,11 +60,11 @@ de saldo.}
 \item{valor_lancamento_eur}{\code{double}. Valor do lancamento em EUR.}
 \item{dc1}{\code{character}. Indicador debito/credito do movimento:
 \code{"C"}, \code{"D"} ou \code{NA}.}
-\item{saldo_atual}{\code{double}. Saldo corrente apos o movimento.}
+\item{saldo_actual}{\code{double}. Saldo corrente apos o movimento.}
 \item{dc2}{\code{character}. Indicador debito/credito do saldo. Sempre
 \code{"D"} para este tipo de conta.}
 \item{saldo_inicial_fim}{\code{double}. Saldo de abertura em
-\code{SALDO_INICIAL}; saldo calculado em \code{Saldo Final};
+\code{Saldo Inicial}; saldo calculado em \code{Saldo Final};
 \code{NA} nos movimentos.}
 \item{saldo_inicial_fim_mt}{\code{double}. Saldo inicial ou final
 em MZN.}
