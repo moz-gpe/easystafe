@@ -108,6 +108,9 @@ apos <code>ced</code>. A coluna <code>funcao_nivel</code> e posicionada apos
     <p>A funcao valida a presenca dos tres elementos obrigatorios na lista
 <code>lookups</code> antes de executar qualquer join. Se algum elemento estiver
 ausente, e emitido um <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> imediato com o nome do elemento em falta.</p>
+<p>Todos os joins usam <code>relationship = "many-to-one"</code> para garantir que
+as tabelas de lookup nao contem chaves duplicadas. Se uma chave duplicada
+for detectada no momento do join, e emitido um erro imediato.</p>
 <p>As ligacoes sao feitas por:</p><ul><li><p><code>ugb_id == codigo_ugb</code> para o lookup de UGBs.</p></li>
 <li><p><code>funcao == funcao</code> para o lookup de funcoes.</p></li>
 <li><p>Para programas, uma chave e construida internamente e removida

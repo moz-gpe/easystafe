@@ -110,6 +110,9 @@ o seu nivel hierarquico.</p></dd>
     <p>A funcao valida a presenca de todas as folhas obrigatorias antes de tentar
 ler qualquer dado. Se alguma folha estiver ausente, e emitido um
 <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> imediato com o nome da folha em falta.</p>
+<p>Apos carregar cada folha, a funcao verifica se a coluna chave tem valores
+unicos. Se existirem duplicados, e emitido um <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> com o nome da
+folha e os valores duplicados, para facilitar a correccao na fonte.</p>
 <p>A leitura e feita com <code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> para suprimir os avisos
 de tipo de coluna emitidos por <code><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">readxl::read_excel()</a></code>.</p>
     </div>

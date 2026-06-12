@@ -63,6 +63,10 @@ A funcao valida a presenca dos tres elementos obrigatorios na lista
 ausente, e emitido um [`stop()`](https://rdrr.io/r/base/stop.html)
 imediato com o nome do elemento em falta.
 
+Todos os joins usam `relationship = "many-to-one"` para garantir que as
+tabelas de lookup nao contem chaves duplicadas. Se uma chave duplicada
+for detectada no momento do join, e emitido um erro imediato.
+
 As ligacoes sao feitas por:
 
 - `ugb_id == codigo_ugb` para o lookup de UGBs.

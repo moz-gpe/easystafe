@@ -73,6 +73,11 @@ tentar ler qualquer dado. Se alguma folha estiver ausente, e emitido um
 [`stop()`](https://rdrr.io/r/base/stop.html) imediato com o nome da
 folha em falta.
 
+Apos carregar cada folha, a funcao verifica se a coluna chave tem
+valores unicos. Se existirem duplicados, e emitido um
+[`stop()`](https://rdrr.io/r/base/stop.html) com o nome da folha e os
+valores duplicados, para facilitar a correccao na fonte.
+
 A leitura e feita com
 [`suppressMessages()`](https://rdrr.io/r/base/message.html) para
 suprimir os avisos de tipo de coluna emitidos por
