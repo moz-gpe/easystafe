@@ -40,6 +40,10 @@
 #' ler qualquer dado. Se alguma folha estiver ausente, e emitido um
 #' \code{stop()} imediato com o nome da folha em falta.
 #'
+#' Apos carregar cada folha, a funcao verifica se a coluna chave tem valores
+#' unicos. Se existirem duplicados, e emitido um \code{stop()} com o nome da
+#' folha e os valores duplicados, para facilitar a correccao na fonte.
+#'
 #' A leitura e feita com \code{suppressMessages()} para suprimir os avisos
 #' de tipo de coluna emitidos por \code{readxl::read_excel()}.
 #'
@@ -56,6 +60,18 @@
 #' @importFrom dplyr select filter starts_with mutate
 #'
 #' @export
+
+.check_unique_key <- function(df, key_col, sheet_name) {
+  vals <- df[[key_col]]
+  dup_vals <- unique(vals[duplicated(vals)])
+  if (length(dup_vals) > 0) {
+    stop(glue::glue(
+      "A folha '{sheet_name}' tem {length(dup_vals)} valor(es) duplicado(s) em '{key_col}': ",
+      "{paste(dup_vals, collapse = ', ')}."
+    ))
+  }
+  df
+}
 
 carregar_lookups_esistafe <- function(path) {
 
@@ -85,7 +101,8 @@ carregar_lookups_esistafe <- function(path) {
         nivel_da_instituicao,
         descricao
       ) |>
-      dplyr::filter(codigo_ugb != "Total"),
+      dplyr::filter(codigo_ugb != "Total") |>
+      .check_unique_key("codigo_ugb", "ugb"),
 
     funcao = suppressMessages(
       readxl::read_excel(path, sheet = "funcao")
@@ -95,7 +112,8 @@ carregar_lookups_esistafe <- function(path) {
         funcao,
         funcao_nivel = classificacao_funcional_por_nivel
       ) |>
-      dplyr::filter(!is.na(funcao)),
+      dplyr::filter(!is.na(funcao)) |>
+      .check_unique_key("funcao", "funcao"),
 
     programa = suppressMessages(
       readxl::read_excel(path, sheet = "programa")
@@ -105,34 +123,39 @@ carregar_lookups_esistafe <- function(path) {
         programa_ambito_fr,
         programa_tipo
       ) |>
-      dplyr::filter(!is.na(programa_tipo)),
+      dplyr::filter(!is.na(programa_tipo)) |>
+      .check_unique_key("programa_ambito_fr", "programa"),
 
     ced = suppressMessages(
       readxl::read_excel(path, sheet = "ced")
     ) |>
       janitor::clean_names() |>
       dplyr::select(ced, ced_nome) |>
-      dplyr::mutate(ced = as.character(ced)),
+      dplyr::mutate(ced = as.character(ced)) |>
+      .check_unique_key("ced", "ced"),
 
     ced_2 = suppressMessages(
       readxl::read_excel(path, sheet = "ced_2")
     ) |>
       janitor::clean_names() |>
       dplyr::select(ced_2, ced_2_nome) |>
-      dplyr::mutate(ced_2 = as.character(ced_2)),
+      dplyr::mutate(ced_2 = as.character(ced_2)) |>
+      .check_unique_key("ced_2", "ced_2"),
 
     ced_3 = suppressMessages(
       readxl::read_excel(path, sheet = "ced_3")
     ) |>
       janitor::clean_names() |>
       dplyr::select(ced_3, ced_3_nome) |>
-      dplyr::mutate(ced_3 = as.character(ced_3)),
+      dplyr::mutate(ced_3 = as.character(ced_3)) |>
+      .check_unique_key("ced_3", "ced_3"),
 
     ced_nivel = suppressMessages(
       readxl::read_excel(path, sheet = "ced_nivel")
     ) |>
       janitor::clean_names() |>
-      dplyr::select(ced_3_nome, ced_nivel)
+      dplyr::select(ced_3_nome, ced_nivel) |>
+      .check_unique_key("ced_3_nome", "ced_nivel")
   )
 }
 
@@ -176,6 +199,10 @@ carregar_lookups_esistafe <- function(path) {
 #' A funcao valida a presenca dos tres elementos obrigatorios na lista
 #' \code{lookups} antes de executar qualquer join. Se algum elemento estiver
 #' ausente, e emitido um \code{stop()} imediato com o nome do elemento em falta.
+#'
+#' Todos os joins usam \code{relationship = "many-to-one"} para garantir que
+#' as tabelas de lookup nao contem chaves duplicadas. Se uma chave duplicada
+#' for detectada no momento do join, e emitido um erro imediato.
 #'
 #' As ligacoes sao feitas por:
 #' \itemize{
@@ -232,27 +259,43 @@ adicionar_lookups_esistafe <- function(df, lookups) {
       ced_2 = stringr::str_c(stringr::str_sub(ced, 1, 2), "0000"),
       ced_3 = stringr::str_c(stringr::str_sub(ced, 1, 3), "000")
     ) |>
-    dplyr::left_join(lookups$ugb, by = dplyr::join_by(ugb_id == codigo_ugb)) |>
-    dplyr::left_join(lookups$ced, by = dplyr::join_by(ced == ced)) |>
+    dplyr::left_join(
+      lookups$ugb,
+      by = dplyr::join_by(ugb_id == codigo_ugb),
+      relationship = "many-to-one"
+    ) |>
+    dplyr::left_join(
+      lookups$ced,
+      by = dplyr::join_by(ced == ced),
+      relationship = "many-to-one"
+    ) |>
     dplyr::left_join(
       lookups$ced_2,
-      by = dplyr::join_by(ced_2 == ced_2)
+      by = dplyr::join_by(ced_2 == ced_2),
+      relationship = "many-to-one"
     ) |>
     dplyr::left_join(
       lookups$ced_3,
-      by = dplyr::join_by(ced_3 == ced_3)
+      by = dplyr::join_by(ced_3 == ced_3),
+      relationship = "many-to-one"
     ) |>
     dplyr::left_join(
       lookups$ced_nivel,
-      by = dplyr::join_by(ced_3_nome == ced_3_nome)
+      by = dplyr::join_by(ced_3_nome == ced_3_nome),
+      relationship = "many-to-one"
     ) |>
-    dplyr::left_join(lookups$funcao, by = dplyr::join_by(funcao == funcao)) |>
+    dplyr::left_join(
+      lookups$funcao,
+      by = dplyr::join_by(funcao == funcao),
+      relationship = "many-to-one"
+    ) |>
     dplyr::mutate(
       programa_ambito_fr = stringr::str_c(programa, ambito, fr, sep = "-")
     ) |>
     dplyr::left_join(
       lookups$programa,
-      by = dplyr::join_by(programa_ambito_fr == programa_ambito_fr)
+      by = dplyr::join_by(programa_ambito_fr == programa_ambito_fr),
+      relationship = "many-to-one"
     ) |>
     dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
