@@ -40,6 +40,11 @@ reference:
       - obter_conversao_bancomoc
       - adicionar_conversao_moeda
 
+  - title: "Dados"
+    desc: "Tabelas de referência incluídas no pacote"
+    contents:
+      - lookup_razao
+
   - title: "Enriquecer Dados"
     desc: "Funções para recodificar, classificar e adicionar variáveis aos dados processados"
     contents:
