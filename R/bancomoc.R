@@ -279,6 +279,7 @@ adicionar_conversao_moeda <- function(df, rates_diarias) {
       saldo_actual_mzn      = saldo_actual,
       saldo_inicial_fim_mzn = saldo_inicial_fim
     ) |>
+    dplyr::relocate(source_file, unidade_gestao, codigo_documento, descricao, provincia) |>
     dplyr::relocate(taxa_dolar, taxa_euro, .after = mes) |>
     dplyr::relocate(
       valor_lancamento_mzn, valor_lancamento_eur, valor_lancamento_usd,

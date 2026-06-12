@@ -10,26 +10,27 @@ adicionar_conversao_moeda(df, rates_diarias)
 \item{df}{Tibble. Output of \code{processar_extracto_razao_c()} or
 \code{processar_extracto_absa()}, containing at minimum the columns
 \code{source_file}, \code{data}, \code{mes}, \code{valor_lancamento},
-\code{valor_lancamento_usd}, \code{valor_lancamento_eur},
-\code{saldo_inicial_fim}, \code{saldo_inicial_fim_usd}, and
-\code{saldo_inicial_fim_eur}.}
+\code{saldo_actual}, and \code{saldo_inicial_fim}.}
 
 \item{rates_diarias}{Tibble. Wide daily-rates table returned by
 \code{obter_conversao_bancomoc(wide = TRUE)}, with columns \code{date},
 \code{taxa_dolar}, and \code{taxa_euro}.}
 }
 \value{
-\code{df} with \code{valor_lancamento_usd},
-\code{valor_lancamento_eur}, \code{saldo_inicial_fim_usd}, and
-\code{saldo_inicial_fim_eur} overwritten using daily rates, plus
-\code{taxa_dolar} and \code{taxa_euro} columns positioned after
-\code{mes}.
+\code{df} enriched with \code{taxa_dolar} and \code{taxa_euro}
+positioned after \code{mes}, and six currency columns appended at the end:
+\code{valor_lancamento_mzn}, \code{valor_lancamento_eur},
+\code{valor_lancamento_usd}, \code{saldo_actual_mzn},
+\code{saldo_actual_eur}, \code{saldo_actual_usd},
+\code{saldo_inicial_fim_mzn}, \code{saldo_inicial_fim_eur}, and
+\code{saldo_inicial_fim_usd}.
 }
 \description{
 Joins a wide daily-rates table (from \code{obter_conversao_bancomoc(wide =
-TRUE)}) to \code{df} on the transaction date, then overwrites the
-\code{_usd} and \code{_eur} columns using per-row \code{compra} rates.
-The EUR/USD cross rate is derived as \code{taxa_euro / taxa_dolar}.
-\code{taxa_dolar} and \code{taxa_euro} are appended and relocated after
-\code{mes}.
+TRUE)}) to \code{df} on the transaction date, then computes \code{_usd} and
+\code{_eur} variants of \code{valor_lancamento}, \code{saldo_actual}, and
+\code{saldo_inicial_fim} using per-row \code{compra} rates. The EUR/USD
+cross rate is derived as \code{taxa_euro / taxa_dolar}. \code{taxa_dolar}
+and \code{taxa_euro} are relocated after \code{mes}. The three source
+columns are renamed to their \code{_mzn} equivalents.
 }
