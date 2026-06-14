@@ -2,7 +2,7 @@
 % Please edit documentation in R/bancomoc.R
 \name{obter_conversao_bancomoc}
 \alias{obter_conversao_bancomoc}
-\title{Download and parse Banco de Mocambique exchange rate PDFs}
+\title{Descarregar e arrumar os ficheiros PDF com as taxas de câmbio do portal do Banco de Moçambique}
 \usage{
 obter_conversao_bancomoc(
   out_dir = "Data/pdfs_bancomoc",

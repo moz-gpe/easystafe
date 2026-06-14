@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_extracto.R
 \name{processar_extracto_absa}
 \alias{processar_extracto_absa}
-\title{Processar Extractos Bancarios ABSA}
+\title{Processar extractos bancarios ABSA}
 \usage{
 processar_extracto_absa(
   source_path,

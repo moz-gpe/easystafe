@@ -2,7 +2,7 @@
 % Please edit documentation in R/adicionar_lookups.R
 \name{adicionar_lookups_esistafe}
 \alias{adicionar_lookups_esistafe}
-\title{Adicionar metados ao dataframe e-SISTAFE com lookups descritivos}
+\title{Adicionar metadados a um 'tibble' contendo dados do 'Demonstrativo Consolidado' processado}
 \usage{
 adicionar_lookups_esistafe(df, lookups)
 }
