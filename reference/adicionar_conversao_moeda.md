@@ -1,4 +1,4 @@
-# Add daily exchange rate conversions to a razao contabilistica tibble
+# Adicionar conversões diárias de taxas de câmbio a 'tibbles' com dados da 'Razao Contabilistica'
 
 Joins a wide daily-rates table (from
 `obter_conversao_bancomoc(wide = TRUE)`) to `df` on the transaction

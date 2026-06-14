@@ -1,4 +1,4 @@
-# Download and parse Banco de Mocambique exchange rate PDFs
+# Descarregar e arrumar os ficheiros PDF com as taxas de câmbio do portal do Banco de Moçambique
 
 Scrapes PDF links from the Banco de Mocambique website, downloads any
 new files to `out_dir`, parses all files in that directory, and returns

@@ -1,4 +1,4 @@
-# Processar Extractos Bancarios ABSA
+# Processar extractos bancarios ABSA
 
 Localiza todos os ficheiros PDF com o padrao `"EXTRACTO ABSA"` numa
 pasta, processa cada um e devolve um unico tibble combinado compativel

@@ -1,4 +1,4 @@
-# Lookup table mapping razao contabilistica source file names to descriptions
+# LTabela de referência que associa os nomes dos ficheiros de origem da 'Razão Contabilística' às respetivas descrições
 
 A reference table that maps the PDF filenames produced by the e-SISTAFE
 razao contabilistica and ABSA bank extract exports to human-readable

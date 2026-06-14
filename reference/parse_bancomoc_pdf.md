@@ -1,6 +1,7 @@
-# Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+# Converter um ficheiro PDF com as taxas de câmbio do Banco de Moçambique num ficheiro 'tibble' arrumado
 
-Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+Converter um ficheiro PDF com as taxas de câmbio do Banco de Moçambique
+num ficheiro 'tibble' arrumado
 
 ## Usage
 

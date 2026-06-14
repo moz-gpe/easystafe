@@ -1,4 +1,4 @@
-# Adicionar metados ao dataframe e-SISTAFE com lookups descritivos
+# Adicionar metadados a um 'tibble' contendo dados do 'Demonstrativo Consolidado' processado
 
 Junta informacao descritiva de UGB, funcao e programa a um dataframe ja
 processado por

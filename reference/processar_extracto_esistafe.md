@@ -1,4 +1,4 @@
-# Processar extractos de exportacao e-SISTAFE
+# Processar extractos 'Demonstrativo Consolidado' do e-SISTAFE
 
 Carrega, limpa e processa um ou mais ficheiros de exportacao do
 e-SISTAFE no formato Excel, aplicando uma sequencia de transformacoes

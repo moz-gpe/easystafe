@@ -1,4 +1,4 @@
-# Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
+# Carregar lookups descritivos para enriquecimento de dados 'Demonstrativo Consolidado' do e-SISTAFE
 
 Le e processa as tabelas de referencia de UGBs, funcoes e programas a
 partir de um ficheiro Excel, devolvendo uma lista nomeada pronta a ser

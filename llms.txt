@@ -76,31 +76,33 @@ Funções principais de limpeza e processamento de ficheiros exportados do
 e-SISTAFE e extractos bancários
 
 - [`processar_extracto_esistafe()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_esistafe.md)
-  : Processar extractos de exportacao e-SISTAFE
+  : Processar extractos 'Demonstrativo Consolidado' do e-SISTAFE
 - [`processar_extracto_razao_c()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_razao_c.md)
-  : Processar extractos do razao contabilistico do e-SISTAFE a partir de
-  ficheiros PDF
+  : Processar extractos 'Razao Contabilistico' a partir de ficheiros PDF
 - [`processar_extracto_absa()`](https://moz-gpe.github.io/easystafe/reference/processar_extracto_absa.md)
-  : Processar Extractos Bancarios ABSA
+  : Processar extractos bancarios ABSA
 
 ## Taxas de Câmbio
 
 Funções para obter e aplicar taxas de câmbio diárias do BancoMOC
 
 - [`parse_bancomoc_pdf()`](https://moz-gpe.github.io/easystafe/reference/parse_bancomoc_pdf.md)
-  : Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+  : Converter um ficheiro PDF com as taxas de câmbio do Banco de
+  Moçambique num ficheiro 'tibble' arrumado
 - [`obter_conversao_bancomoc()`](https://moz-gpe.github.io/easystafe/reference/obter_conversao_bancomoc.md)
-  : Download and parse Banco de Mocambique exchange rate PDFs
+  : Descarregar e arrumar os ficheiros PDF com as taxas de câmbio do
+  portal do Banco de Moçambique
 - [`adicionar_conversao_moeda()`](https://moz-gpe.github.io/easystafe/reference/adicionar_conversao_moeda.md)
-  : Add daily exchange rate conversions to a razao contabilistica tibble
+  : Adicionar conversões diárias de taxas de câmbio a 'tibbles' com
+  dados da 'Razao Contabilistica'
 
 ## Dados
 
 Tabelas de referência incluídas no pacote
 
 - [`lookup_razao`](https://moz-gpe.github.io/easystafe/reference/lookup_razao.md)
-  : Lookup table mapping razao contabilistica source file names to
-  descriptions
+  : LTabela de referência que associa os nomes dos ficheiros de origem
+  da 'Razão Contabilística' às respetivas descrições
 
 ## Enriquecer Dados
 
@@ -108,11 +110,14 @@ Funções para recodificar, classificar e adicionar variáveis aos dados
 processados
 
 - [`extrair_meta_extracto()`](https://moz-gpe.github.io/easystafe/reference/extrair_meta_extracto.md)
-  : Extrair metadados de ficheiros de extracto e-SISTAFE
+  : Extrair metadados de ficheiros de extracto 'Demonstrativo
+  Consolidado' do e-SISTAFE
 - [`carregar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/carregar_lookups_esistafe.md)
-  : Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
+  : Carregar lookups descritivos para enriquecimento de dados
+  'Demonstrativo Consolidado' do e-SISTAFE
 - [`adicionar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/adicionar_lookups_esistafe.md)
-  : Adicionar metados ao dataframe e-SISTAFE com lookups descritivos
+  : Adicionar metadados a um 'tibble' contendo dados do 'Demonstrativo
+  Consolidado' processado
 
 ## Gravar Dados Processados
 
