@@ -76,9 +76,10 @@ ambas sao \code{NA} nas linhas \code{"Metrica"}. As colunas de percentagem
 sao sempre incluidas na estrutura original (preenchidas com \code{NA})
 salvo se \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem
 o nome da pasta imediata de onde os dados foram carregados. As colunas
-\code{ano} (numerico) e \code{mes} (caracter em portugues) sao derivadas
-do nome da pasta quando este segue o formato \code{YYYYMM}; caso
-contrario sao preenchidas com \code{NA} e e emitido um aviso.
+\code{ano} (inteiro), \code{mes} (caracter em portugues) e
+\code{periodo} (data do primeiro dia do mes, classe \code{Date}) sao
+derivados do nome da pasta quando este segue o formato \code{YYYYMM};
+caso contrario sao preenchidos com \code{NA} e e emitido um aviso.
 }
 \description{
 Carrega, limpa e processa um ou mais ficheiros de exportacao do e-SISTAFE
@@ -91,10 +92,10 @@ de colunas. Devolve um dataframe final desduplicado e pronto para analise.
 O processamento segue as seguintes etapas principais:
 \enumerate{
 \item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
-\item Adicao de \code{pasta_fonte}, \code{ano} e \code{mes} derivados do
-nome da pasta de origem. Se o nome da pasta nao seguir o formato
-\code{YYYYMM}, \code{ano} e \code{mes} sao \code{NA} e e emitido um
-\code{warning()}.
+\item Adicao de \code{pasta_fonte}, \code{ano}, \code{mes} e
+\code{periodo} derivados do nome da pasta de origem. Se o nome da
+pasta nao seguir o formato \code{YYYYMM}, \code{ano}, \code{mes} e
+\code{periodo} sao \code{NA} e e emitido um \code{warning()}.
 \item Adicao opcional de metadados via \code{extrair_meta_extracto()}
 (reporte_tipo, data_reporte, data_extraido -- sem ano nem mes).
 \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.

@@ -58,18 +58,19 @@
 #'   sao sempre incluidas na estrutura original (preenchidas com \code{NA})
 #'   salvo se \code{include_percent = FALSE}. A coluna \code{pasta_fonte} contem
 #'   o nome da pasta imediata de onde os dados foram carregados. As colunas
-#'   \code{ano} (numerico) e \code{mes} (caracter em portugues) sao derivadas
-#'   do nome da pasta quando este segue o formato \code{YYYYMM}; caso
-#'   contrario sao preenchidas com \code{NA} e e emitido um aviso.
+#'   \code{ano} (inteiro), \code{mes} (caracter em portugues) e
+#'   \code{periodo} (data do primeiro dia do mes, classe \code{Date}) sao
+#'   derivados do nome da pasta quando este segue o formato \code{YYYYMM};
+#'   caso contrario sao preenchidos com \code{NA} e e emitido um aviso.
 #'
 #' @details
 #' O processamento segue as seguintes etapas principais:
 #' \enumerate{
 #'   \item Carregamento e combinacao de todos os ficheiros em \code{source_path}.
-#'   \item Adicao de \code{pasta_fonte}, \code{ano} e \code{mes} derivados do
-#'     nome da pasta de origem. Se o nome da pasta nao seguir o formato
-#'     \code{YYYYMM}, \code{ano} e \code{mes} sao \code{NA} e e emitido um
-#'     \code{warning()}.
+#'   \item Adicao de \code{pasta_fonte}, \code{ano}, \code{mes} e
+#'     \code{periodo} derivados do nome da pasta de origem. Se o nome da
+#'     pasta nao seguir o formato \code{YYYYMM}, \code{ano}, \code{mes} e
+#'     \code{periodo} sao \code{NA} e e emitido um \code{warning()}.
 #'   \item Adicao opcional de metadados via \code{extrair_meta_extracto()}
 #'     (reporte_tipo, data_reporte, data_extraido -- sem ano nem mes).
 #'   \item Limpeza de nomes de colunas com \code{janitor::clean_names()}.
@@ -209,15 +210,17 @@ processar_extracto_esistafe <- function(
   )
 
   if (base::grepl("^\\d{6}$", pasta)) {
-    ano_fonte <- base::as.numeric(base::substr(pasta, 1, 4))
-    mes_num   <- base::as.numeric(base::substr(pasta, 5, 6))
-    mes_fonte <- meses_pt[mes_num]
+    ano_fonte     <- base::as.integer(base::substr(pasta, 1, 4))
+    mes_num       <- base::as.numeric(base::substr(pasta, 5, 6))
+    mes_fonte     <- meses_pt[mes_num]
+    periodo_fonte <- as.Date(base::paste(ano_fonte, mes_num, "01", sep = "-"))
   } else {
-    ano_fonte <- NA_real_
-    mes_fonte <- NA_character_
+    ano_fonte     <- NA_integer_
+    mes_fonte     <- NA_character_
+    periodo_fonte <- as.Date(NA)
     warning(glue::glue(
       "O nome da pasta '{pasta}' nao segue o formato YYYYMM. ",
-      "As colunas 'ano' e 'mes' foram preenchidas com NA."
+      "As colunas 'ano', 'mes' e 'periodo' foram preenchidas com NA."
     ))
   }
 
@@ -225,7 +228,8 @@ processar_extracto_esistafe <- function(
     dplyr::mutate(
       pasta_fonte = pasta,
       ano         = ano_fonte,
-      mes         = mes_fonte
+      mes         = mes_fonte,
+      periodo     = periodo_fonte
     )
 
   # --- 2. Adicionar ou remover metadados ---
@@ -373,6 +377,7 @@ processar_extracto_esistafe <- function(
     "reporte_tipo",
     "data_reporte",
     "data_extraido",
+    "periodo",
     "ano",
     "mes",
     # classificacao da linha -- sempre presente

@@ -308,3 +308,82 @@ adicionar_lookups_esistafe <- function(df, lookups) {
       .after = ced
     )
 }
+
+
+#' Prepare enriched e-SISTAFE output for loading into DuckDB
+#'
+#' Filters rows to \code{data_tipo == "Valor"} and selects a fixed set of
+#' columns from the dataframe produced by the pipeline
+#' \code{processar_extracto_esistafe()} |> \code{adicionar_lookups_esistafe()}.
+#'
+#' @param df A dataframe produced by \code{processar_extracto_esistafe()}
+#'   followed by \code{adicionar_lookups_esistafe()}. Must contain the column
+#'   \code{data_tipo} and the standard budget identifier and lookup columns.
+#'
+#' @return A tibble filtered to \code{data_tipo == "Valor"} rows, containing
+#'   the following columns when present: \code{reporte_tipo}, \code{periodo},
+#'   \code{ugb_id}, \code{funcao}, \code{funcao_nivel}, \code{programa},
+#'   \code{fr}, \code{ced}, \code{ced_nome}, \code{ced_nivel},
+#'   \code{ced_2_nome}, \code{ced_3_nome}, \code{provincia}, \code{distrito},
+#'   \code{ambito}, \code{nivel_da_instituicao}, \code{descricao},
+#'   \code{programa_tipo}, and the 11 numeric budget execution columns from
+#'   \code{dotacao_inicial} to \code{liq_ad_fundos_via_directa_lafvd}.
+#'
+#' @details
+#' Column selection uses \code{dplyr::any_of()} so the function does not
+#' error when optional columns are absent -- for example \code{reporte_tipo},
+#' which is only present when \code{include_file_metadata = TRUE} in
+#' \code{processar_extracto_esistafe()}.
+#'
+#' @examples
+#' \dontrun{
+#' lookups <- carregar_lookups_esistafe("Data/lookups.xlsx")
+#'
+#' df <- processar_extracto_esistafe(
+#'   source_path   = "Data/202602/",
+#'   df_ugb_lookup = lookups$ugb
+#' ) |>
+#'   adicionar_lookups_esistafe(lookups) |>
+#'   config_para_duckdb()
+#' }
+#'
+#' @importFrom dplyr filter select any_of
+#'
+#' @export
+config_para_duckdb <- function(df) {
+  keep_cols <- c(
+    "reporte_tipo",
+    "periodo",
+    "ugb_id",
+    "funcao",
+    "funcao_nivel",
+    "programa",
+    "fr",
+    "ced",
+    "ced_nome",
+    "ced_nivel",
+    "ced_2_nome",
+    "ced_3_nome",
+    "provincia",
+    "distrito",
+    "ambito",
+    "nivel_da_instituicao",
+    "descricao",
+    "programa_tipo",
+    "dotacao_inicial",
+    "dotacao_revista",
+    "dotacao_actualizada_da",
+    "dotacao_disponivel",
+    "dotacao_cabimentada_dc",
+    "ad_fundos_concedidos_af",
+    "despesa_paga_via_directa_dp",
+    "ad_fundos_desp_paga_vd_afdp",
+    "ad_fundos_liquidados_laf",
+    "despesa_liquidada_via_directa_lvd",
+    "liq_ad_fundos_via_directa_lafvd"
+  )
+
+  df |>
+    dplyr::filter(data_tipo == "Valor") |>
+    dplyr::select(dplyr::any_of(keep_cols))
+}

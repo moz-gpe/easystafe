@@ -35,8 +35,7 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    gt,
-    glue
+    gt
 Config/Needs/website: pkgdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
