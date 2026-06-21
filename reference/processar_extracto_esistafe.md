@@ -97,9 +97,10 @@ digitos); ambas sao `NA` nas linhas `"Metrica"`. As colunas de
 percentagem sao sempre incluidas na estrutura original (preenchidas com
 `NA`) salvo se `include_percent = FALSE`. A coluna `pasta_fonte` contem
 o nome da pasta imediata de onde os dados foram carregados. As colunas
-`ano` (numerico) e `mes` (caracter em portugues) sao derivadas do nome
-da pasta quando este segue o formato `YYYYMM`; caso contrario sao
-preenchidas com `NA` e e emitido um aviso.
+`ano` (inteiro), `mes` (caracter em portugues) e `periodo` (data do
+primeiro dia do mes, classe `Date`) sao derivados do nome da pasta
+quando este segue o formato `YYYYMM`; caso contrario sao preenchidos com
+`NA` e e emitido um aviso.
 
 ## Details
 
@@ -107,9 +108,9 @@ O processamento segue as seguintes etapas principais:
 
 1.  Carregamento e combinacao de todos os ficheiros em `source_path`.
 
-2.  Adicao de `pasta_fonte`, `ano` e `mes` derivados do nome da pasta de
-    origem. Se o nome da pasta nao seguir o formato `YYYYMM`, `ano` e
-    `mes` sao `NA` e e emitido um
+2.  Adicao de `pasta_fonte`, `ano`, `mes` e `periodo` derivados do nome
+    da pasta de origem. Se o nome da pasta nao seguir o formato
+    `YYYYMM`, `ano`, `mes` e `periodo` sao `NA` e e emitido um
     [`warning()`](https://rdrr.io/r/base/warning.html).
 
 3.  Adicao opcional de metadados via

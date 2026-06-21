@@ -48,6 +48,10 @@ processados
 - [`adicionar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/adicionar_lookups_esistafe.md)
   : Adicionar metadados a um 'tibble' contendo dados do 'Demonstrativo
   Consolidado' processado
+- [`config_para_duckdb()`](https://moz-gpe.github.io/easystafe/reference/config_para_duckdb.md)
+  : Prepare enriched e-SISTAFE output for loading into DuckDB
+- [`codificar_dimensoes()`](https://moz-gpe.github.io/easystafe/reference/codificar_dimensoes.md)
+  : Codificar variaveis de dimensao para modelacao dimensional
 
 ## Gravar Dados Processados
 

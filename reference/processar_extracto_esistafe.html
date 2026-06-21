@@ -148,17 +148,18 @@ ambas sao <code>NA</code> nas linhas <code>"Metrica"</code>. As colunas de perce
 sao sempre incluidas na estrutura original (preenchidas com <code>NA</code>)
 salvo se <code>include_percent = FALSE</code>. A coluna <code>pasta_fonte</code> contem
 o nome da pasta imediata de onde os dados foram carregados. As colunas
-<code>ano</code> (numerico) e <code>mes</code> (caracter em portugues) sao derivadas
-do nome da pasta quando este segue o formato <code>YYYYMM</code>; caso
-contrario sao preenchidas com <code>NA</code> e e emitido um aviso.</p>
+<code>ano</code> (inteiro), <code>mes</code> (caracter em portugues) e
+<code>periodo</code> (data do primeiro dia do mes, classe <code>Date</code>) sao
+derivados do nome da pasta quando este segue o formato <code>YYYYMM</code>;
+caso contrario sao preenchidos com <code>NA</code> e e emitido um aviso.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>O processamento segue as seguintes etapas principais:</p><ol><li><p>Carregamento e combinacao de todos os ficheiros em <code>source_path</code>.</p></li>
-<li><p>Adicao de <code>pasta_fonte</code>, <code>ano</code> e <code>mes</code> derivados do
-nome da pasta de origem. Se o nome da pasta nao seguir o formato
-<code>YYYYMM</code>, <code>ano</code> e <code>mes</code> sao <code>NA</code> e e emitido um
-<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>.</p></li>
+<li><p>Adicao de <code>pasta_fonte</code>, <code>ano</code>, <code>mes</code> e
+<code>periodo</code> derivados do nome da pasta de origem. Se o nome da
+pasta nao seguir o formato <code>YYYYMM</code>, <code>ano</code>, <code>mes</code> e
+<code>periodo</code> sao <code>NA</code> e e emitido um <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>.</p></li>
 <li><p>Adicao opcional de metadados via <code><a href="extrair_meta_extracto.html">extrair_meta_extracto()</a></code>
 (reporte_tipo, data_reporte, data_extraido – sem ano nem mes).</p></li>
 <li><p>Limpeza de nomes de colunas com <code><a href="https://sfirke.github.io/janitor/reference/clean_names.html" class="external-link">janitor::clean_names()</a></code>.</p></li>
