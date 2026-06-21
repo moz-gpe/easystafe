@@ -66,15 +66,21 @@ pipeline de preparacao de dados.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>O dataframe de entrada com <code>provincia</code> substituida por
-<code>provincia_id</code> (inteiro). Valores de <code>provincia</code> nao
-reconhecidos ou <code>NA</code> sao codificados como <code>99L</code>.</p>
+    <p>O dataframe de entrada com <code>provincia</code> e <code>distrito</code>
+substituidas por <code>provincia_id</code> e <code>distrito_id</code> (inteiros).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Actualmente codifica:</p><dl><dt>provincia_id</dt>
-<dd><p>Identificador numerico de dois digitos derivado de
-<code>provincia</code>. A coluna <code>provincia</code> original e removida.</p></dd>
+    <p>Codifica as seguintes dimensoes:</p><dl><dt>provincia_id</dt>
+<dd><p>Inteiro de dois digitos derivado de <code>provincia</code>.
+Valores nao reconhecidos ou <code>NA</code> sao codificados como <code>99L</code>.
+A coluna <code>provincia</code> original e removida.</p></dd>
+
+<dt>distrito_id</dt>
+<dd><p>Inteiro de quatro digitos (prefixo de provincia mais
+numero sequencial do distrito) derivado de <code>distrito</code>. Valores nao
+reconhecidos ou <code>NA</code> sao codificados como <code>9999L</code>.
+A coluna <code>distrito</code> original e removida.</p></dd>
 
 
 </dl></div>

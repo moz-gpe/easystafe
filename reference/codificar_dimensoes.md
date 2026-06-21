@@ -21,18 +21,24 @@ codificar_dimensoes(df)
 
 ## Value
 
-O dataframe de entrada com `provincia` substituida por `provincia_id`
-(inteiro). Valores de `provincia` nao reconhecidos ou `NA` sao
-codificados como `99L`.
+O dataframe de entrada com `provincia` e `distrito` substituidas por
+`provincia_id` e `distrito_id` (inteiros).
 
 ## Details
 
-Actualmente codifica:
+Codifica as seguintes dimensoes:
 
 - provincia_id:
 
-  Identificador numerico de dois digitos derivado de `provincia`. A
-  coluna `provincia` original e removida.
+  Inteiro de dois digitos derivado de `provincia`. Valores nao
+  reconhecidos ou `NA` sao codificados como `99L`. A coluna `provincia`
+  original e removida.
+
+- distrito_id:
+
+  Inteiro de quatro digitos (prefixo de provincia mais numero sequencial
+  do distrito) derivado de `distrito`. Valores nao reconhecidos ou `NA`
+  sao codificados como `9999L`. A coluna `distrito` original e removida.
 
 ## Examples
 
