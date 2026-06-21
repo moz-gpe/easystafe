@@ -51,6 +51,7 @@ reference:
       - extrair_meta_extracto
       - carregar_lookups_esistafe
       - adicionar_lookups_esistafe
+      - config_para_duckdb
 
   - title: "Gravar Dados Processados"
     desc: "Funções para gravar outputs processados"
