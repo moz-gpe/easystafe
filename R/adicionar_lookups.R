@@ -1,4 +1,4 @@
-.check_unique_key <- function(df, key_col, sheet_name) {
+﻿.check_unique_key <- function(df, key_col, sheet_name) {
   vals <- df[[key_col]]
   dup_vals <- unique(vals[duplicated(vals)])
   if (length(dup_vals) > 0) {
@@ -386,4 +386,63 @@ config_para_duckdb <- function(df) {
   df |>
     dplyr::filter(data_tipo == "Valor") |>
     dplyr::select(dplyr::any_of(keep_cols))
+}
+
+
+#' Codificar variaveis de dimensao para modelacao dimensional
+#'
+#' Substitui variaveis geograficas de texto por identificadores numericos
+#' compactos adequados para carregamento em DuckDB ou outras bases de dados
+#' relacionais. A funcao e aplicada apos \code{config_para_duckdb()} no
+#' pipeline de preparacao de dados.
+#'
+#' Actualmente codifica:
+#' \describe{
+#'   \item{provincia_id}{Identificador numerico de dois digitos derivado de
+#'     \code{provincia}. A coluna \code{provincia} original e removida.}
+#' }
+#'
+#' @param df Um dataframe, tipicamente o resultado de
+#'   \code{config_para_duckdb()}.
+#'
+#' @return O dataframe de entrada com \code{provincia} substituida por
+#'   \code{provincia_id} (inteiro). Valores de \code{provincia} nao
+#'   reconhecidos ou \code{NA} sao codificados como \code{99L}.
+#'
+#' @examples
+#' \dontrun{
+#' lookups <- carregar_lookups_esistafe("Data/lookups.xlsx")
+#'
+#' df <- processar_extracto_esistafe(
+#'   source_path   = "Data/202602/",
+#'   df_ugb_lookup = lookups$ugb
+#' ) |>
+#'   adicionar_lookups_esistafe(lookups) |>
+#'   config_para_duckdb() |>
+#'   codificar_dimensoes()
+#' }
+#'
+#' @importFrom dplyr mutate select
+#'
+#' @export
+codificar_dimensoes <- function(df) {
+  provincia_map <- c(
+    "Niassa"                 = 1L,
+    "Cabo Delgado"           = 2L,
+    "Nampula"                = 3L,
+    "Zamb\u00e9zia"          = 4L,
+    "Tete"                   = 5L,
+    "Manica"                 = 6L,
+    "Sofala"                 = 7L,
+    "Inhambane"              = 8L,
+    "Gaza"                   = 9L,
+    "Maputo Prov\u00edncia"  = 10L,
+    "Maputo Cidade"          = 11L
+  )
+
+  df |>
+    dplyr::mutate(
+      provincia_id = dplyr::coalesce(provincia_map[provincia], 99L)
+    ) |>
+    dplyr::select(-"provincia")
 }

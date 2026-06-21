@@ -52,6 +52,7 @@ reference:
       - carregar_lookups_esistafe
       - adicionar_lookups_esistafe
       - config_para_duckdb
+      - codificar_dimensoes
 
   - title: "Gravar Dados Processados"
     desc: "Funções para gravar outputs processados"
