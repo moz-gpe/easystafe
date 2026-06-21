@@ -75,9 +75,16 @@
 #' @export
 
 carregar_lookups_esistafe <- function(path) {
-
   # --- Validar presenca das folhas obrigatorias ---
-  required_sheets <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3", "ced_nivel")
+  required_sheets <- c(
+    "ugb",
+    "funcao",
+    "programa",
+    "ced",
+    "ced_2",
+    "ced_3",
+    "ced_nivel"
+  )
   available_sheets <- readxl::excel_sheets(path)
   missing_sheets <- required_sheets[!required_sheets %in% available_sheets]
   if (length(missing_sheets) > 0) {
@@ -245,7 +252,15 @@ carregar_lookups_esistafe <- function(path) {
 
 adicionar_lookups_esistafe <- function(df, lookups) {
   # --- Validar presenca dos elementos obrigatorios ---
-  required <- c("ugb", "funcao", "programa", "ced", "ced_2", "ced_3", "ced_nivel")
+  required <- c(
+    "ugb",
+    "funcao",
+    "programa",
+    "ced",
+    "ced_2",
+    "ced_3",
+    "ced_nivel"
+  )
   missing <- required[!required %in% names(lookups)]
   if (length(missing) > 0) {
     stop(glue::glue(
@@ -301,10 +316,19 @@ adicionar_lookups_esistafe <- function(df, lookups) {
     dplyr::select(-programa_ambito_fr) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
     dplyr::relocate(
-      ced_nome, ced_nivel, ced_2, ced_2_nome, ced_3, ced_3_nome,
-      provincia, distrito, ambito,
+      ced_nome,
+      ced_nivel,
+      ced_2,
+      ced_2_nome,
+      ced_3,
+      ced_3_nome,
+      provincia,
+      distrito,
+      ambito,
       dplyr::starts_with("adm"),
-      nivel_da_instituicao, descricao, programa_tipo,
+      nivel_da_instituicao,
+      descricao,
+      programa_tipo,
       .after = ced
     )
 }
@@ -396,18 +420,22 @@ config_para_duckdb <- function(df) {
 #' relacionais. A funcao e aplicada apos \code{config_para_duckdb()} no
 #' pipeline de preparacao de dados.
 #'
-#' Actualmente codifica:
+#' Codifica as seguintes dimensoes:
 #' \describe{
-#'   \item{provincia_id}{Identificador numerico de dois digitos derivado de
-#'     \code{provincia}. A coluna \code{provincia} original e removida.}
+#'   \item{provincia_id}{Inteiro de dois digitos derivado de \code{provincia}.
+#'     Valores nao reconhecidos ou \code{NA} sao codificados como \code{99L}.
+#'     A coluna \code{provincia} original e removida.}
+#'   \item{distrito_id}{Inteiro de quatro digitos (prefixo de provincia mais
+#'     numero sequencial do distrito) derivado de \code{distrito}. Valores nao
+#'     reconhecidos ou \code{NA} sao codificados como \code{9999L}.
+#'     A coluna \code{distrito} original e removida.}
 #' }
 #'
 #' @param df Um dataframe, tipicamente o resultado de
 #'   \code{config_para_duckdb()}.
 #'
-#' @return O dataframe de entrada com \code{provincia} substituida por
-#'   \code{provincia_id} (inteiro). Valores de \code{provincia} nao
-#'   reconhecidos ou \code{NA} sao codificados como \code{99L}.
+#' @return O dataframe de entrada com \code{provincia} e \code{distrito}
+#'   substituidas por \code{provincia_id} e \code{distrito_id} (inteiros).
 #'
 #' @examples
 #' \dontrun{
@@ -422,27 +450,191 @@ config_para_duckdb <- function(df) {
 #'   codificar_dimensoes()
 #' }
 #'
-#' @importFrom dplyr mutate select
+#' @importFrom dplyr mutate select coalesce
 #'
 #' @export
 codificar_dimensoes <- function(df) {
   provincia_map <- c(
-    "Niassa"                 = 1L,
-    "Cabo Delgado"           = 2L,
-    "Nampula"                = 3L,
-    "Zamb\u00e9zia"          = 4L,
-    "Tete"                   = 5L,
-    "Manica"                 = 6L,
-    "Sofala"                 = 7L,
-    "Inhambane"              = 8L,
-    "Gaza"                   = 9L,
-    "Maputo Prov\u00edncia"  = 10L,
-    "Maputo Cidade"          = 11L
+    "Cabo Delgado" = 1L,
+    "Niassa" = 2L,
+    "Nampula" = 3L,
+    "Zamb\u00e9zia" = 4L,
+    "Tete" = 5L,
+    "Manica" = 6L,
+    "Sofala" = 7L,
+    "Inhambane" = 8L,
+    "Gaza" = 9L,
+    "Maputo Prov\u00edncia" = 10L,
+    "Maputo Cidade" = 11L
+  )
+
+  distrito_map <- c(
+    "Ancuabe" = 101L,
+    "Chi\u00fare" = 102L,
+    "Ibo" = 103L,
+    "Macomia" = 104L,
+    "Mec\u00fafi" = 105L,
+    "Meluco" = 106L,
+    "Moc\u00edmboa da Praia" = 107L,
+    "Montepuez" = 108L,
+    "Mueda" = 109L,
+    "Namuno" = 110L,
+    "Palma" = 111L,
+    "Pemba - Metuge" = 112L,
+    "Quissanga" = 113L,
+    "Cidade de Pemba" = 114L,
+    "Balama" = 115L,
+    "Muidumbe" = 116L,
+    "Nangade" = 117L,
+    "Cuamba" = 201L,
+    "Majune" = 202L,
+    "Mandimba" = 203L,
+    "Marrupa" = 204L,
+    "Ma\u00faa" = 205L,
+    "Mavago" = 206L,
+    "Mecanhelas" = 207L,
+    "Mecula" = 208L,
+    "Lago" = 209L,
+    "Chimbunila" = 210L,
+    "Lichinga" = 211L,
+    "Sanga" = 212L,
+    "Muembe" = 213L,
+    "N'Gauma" = 214L,
+    "Metarica" = 215L,
+    "Nipepe" = 216L,
+    "Angoche" = 301L,
+    "Nacar\u00f4a" = 302L,
+    "Ilha de Mo\u00e7ambique" = 303L,
+    "Nacala - Porto" = 304L,
+    "Malema" = 305L,
+    "Meconta" = 306L,
+    "Mecub\u00fari" = 307L,
+    "Memba" = 308L,
+    "Mogincual" = 309L,
+    "Mogovolas" = 310L,
+    "Moma" = 311L,
+    "Monapo" = 312L,
+    "Mossuril" = 313L,
+    "Muecate" = 314L,
+    "Murrupula" = 315L,
+    "Nacala - Velha" = 316L,
+    "Nampula - Distrito" = 317L,
+    "Cidade de Nampula" = 318L,
+    "Ribau\u00e9" = 319L,
+    "Lalaua" = 320L,
+    "Namapa - Er\u00e1ti" = 321L,
+    "Larde" = 322L,
+    "Liupo" = 323L,
+    "Alto Mol\u00f3cu\u00e9" = 401L,
+    "Chinde" = 402L,
+    "Gil\u00e9" = 403L,
+    "Guru\u00e9" = 404L,
+    "Ile" = 405L,
+    "Lugela" = 406L,
+    "Maganja da Costa" = 407L,
+    "Milange" = 408L,
+    "Mocuba" = 409L,
+    "Mopeia" = 410L,
+    "Morrumbala" = 411L,
+    "Namacurra" = 412L,
+    "Namarroi" = 413L,
+    "Pebane" = 414L,
+    "Cidade de Quelimane" = 415L,
+    "Nicoadala" = 416L,
+    "Inhassungue" = 417L,
+    "Luabo" = 418L,
+    "Mocubela" = 419L,
+    "Mulevala" = 420L,
+    "Molumbo" = 421L,
+    "Derre" = 422L,
+    "Ang\u00f3nia" = 501L,
+    "Cahora Bassa" = 502L,
+    "Chi\u00fata" = 503L,
+    "Macanga" = 504L,
+    "Mar\u00e1via" = 505L,
+    "Moatize" = 506L,
+    "M\u00e1goe" = 507L,
+    "Mutarara" = 508L,
+    "Cidade de Tete" = 509L,
+    "Zumbo" = 510L,
+    "Changara" = 511L,
+    "Tsangano" = 512L,
+    "Chifunde" = 513L,
+    "D\u00f4a" = 514L,
+    "Marara" = 515L,
+    "B\u00e1ru\u00e9" = 601L,
+    "Gondola" = 602L,
+    "Cidade de Chimoio" = 603L,
+    "Guro" = 604L,
+    "Manica" = 605L,
+    "Mossurize" = 606L,
+    "Sussundenga" = 607L,
+    "Tambara" = 608L,
+    "Machaze" = 609L,
+    "Macossa" = 610L,
+    "Macate" = 611L,
+    "Vanduzi" = 612L,
+    "Cidade da Beira" = 701L,
+    "B\u00fazi" = 702L,
+    "Caia" = 703L,
+    "Chemba" = 704L,
+    "Cheringoma" = 705L,
+    "Muanza" = 706L,
+    "Chibabava" = 707L,
+    "Machanga" = 708L,
+    "Dondo" = 709L,
+    "Nhamatanda" = 710L,
+    "Gorongosa" = 711L,
+    "Mar\u00edngue" = 712L,
+    "Marromeu" = 713L,
+    "Govuro" = 801L,
+    "Mabote" = 802L,
+    "Homo\u00edne" = 803L,
+    "Cidade de Inhambane" = 804L,
+    "Jangamo" = 805L,
+    "Inharrime" = 806L,
+    "Massinga" = 807L,
+    "Funhalouro" = 808L,
+    "Morrumbene" = 809L,
+    "Panda" = 810L,
+    "Vilankulo" = 811L,
+    "Zavala" = 812L,
+    "Cidade da Maxixe" = 813L,
+    "Inhassoro" = 814L,
+    "Bilene - Macia" = 901L,
+    "Guij\u00e1" = 902L,
+    "Chibuto" = 903L,
+    "Chicualacuala" = 904L,
+    "Chongoene" = 905L,
+    "Chokwe" = 906L,
+    "Manjacaze - Dingane" = 907L,
+    "Massingir" = 908L,
+    "Cidade de Xai-Xai" = 909L,
+    "Chigubo" = 910L,
+    "Mabalane" = 911L,
+    "Massangena" = 912L,
+    "Mapai" = 913L,
+    "Limpopo" = 914L,
+    "Boane" = 1001L,
+    "Magude" = 1002L,
+    "Manhi\u00e7a" = 1003L,
+    "Marracuene" = 1004L,
+    "Matutu\u00edne" = 1005L,
+    "Moamba" = 1006L,
+    "Namaacha" = 1007L,
+    "Cidade da Matola" = 1008L,
+    "Municipal KaMfumo (DU 1)" = 1101L,
+    "Municipal de Nhlamankulo (DU 2)" = 1102L,
+    "Municipal KaMaxakeni (DU 3)" = 1103L,
+    "Municipal Ka Mavota (DU 4)" = 1104L,
+    "Municipal KaMubukwana (DU 5)" = 1105L,
+    "Municipal KaTembe" = 1106L,
+    "Municipal de Inhaca" = 1107L
   )
 
   df |>
     dplyr::mutate(
-      provincia_id = dplyr::coalesce(provincia_map[provincia], 99L)
-    ) |>
-    dplyr::select(-"provincia")
+      provincia_id = dplyr::coalesce(provincia_map[provincia], 99L),
+      distrito_id = dplyr::coalesce(distrito_map[distrito], 9999L)
+    )
 }

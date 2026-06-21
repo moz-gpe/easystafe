@@ -11,9 +11,8 @@ codificar_dimensoes(df)
 \code{config_para_duckdb()}.}
 }
 \value{
-O dataframe de entrada com \code{provincia} substituida por
-\code{provincia_id} (inteiro). Valores de \code{provincia} nao
-reconhecidos ou \code{NA} sao codificados como \code{99L}.
+O dataframe de entrada com \code{provincia} e \code{distrito}
+substituidas por \code{provincia_id} e \code{distrito_id} (inteiros).
 }
 \description{
 Substitui variaveis geograficas de texto por identificadores numericos
@@ -22,10 +21,15 @@ relacionais. A funcao e aplicada apos \code{config_para_duckdb()} no
 pipeline de preparacao de dados.
 }
 \details{
-Actualmente codifica:
+Codifica as seguintes dimensoes:
 \describe{
-\item{provincia_id}{Identificador numerico de dois digitos derivado de
-\code{provincia}. A coluna \code{provincia} original e removida.}
+\item{provincia_id}{Inteiro de dois digitos derivado de \code{provincia}.
+Valores nao reconhecidos ou \code{NA} sao codificados como \code{99L}.
+A coluna \code{provincia} original e removida.}
+\item{distrito_id}{Inteiro de quatro digitos (prefixo de provincia mais
+numero sequencial do distrito) derivado de \code{distrito}. Valores nao
+reconhecidos ou \code{NA} sao codificados como \code{9999L}.
+A coluna \code{distrito} original e removida.}
 }
 }
 \examples{
