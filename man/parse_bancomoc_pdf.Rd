@@ -2,7 +2,7 @@
 % Please edit documentation in R/bancomoc.R
 \name{parse_bancomoc_pdf}
 \alias{parse_bancomoc_pdf}
-\title{Parse a Banco de Mocambique exchange rate PDF into a tidy tibble}
+\title{Converter um ficheiro PDF com as taxas de câmbio do Banco de Moçambique num ficheiro 'tibble' arrumado}
 \usage{
 parse_bancomoc_pdf(filepath)
 }
@@ -15,5 +15,5 @@ A tibble with columns \code{date}, \code{country}, \code{currency},
 \code{compra}, \code{venda}, \code{media}, and \code{per_1000}.
 }
 \description{
-Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+Converter um ficheiro PDF com as taxas de câmbio do Banco de Moçambique num ficheiro 'tibble' arrumado
 }

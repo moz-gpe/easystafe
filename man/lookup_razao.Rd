@@ -3,7 +3,7 @@
 \docType{data}
 \name{lookup_razao}
 \alias{lookup_razao}
-\title{Lookup table mapping razao contabilistica source file names to descriptions}
+\title{LTabela de referência que associa os nomes dos ficheiros de origem da 'Razão Contabilística' às respetivas descrições}
 \format{
 A tibble with 32 rows and 3 columns:
 \describe{

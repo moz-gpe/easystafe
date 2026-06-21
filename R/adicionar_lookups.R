@@ -11,7 +11,7 @@
 }
 
 
-#' Carregar lookups descritivos para enriquecimento de dados e-SISTAFE
+#' Carregar lookups descritivos para enriquecimento de dados 'Demonstrativo Consolidado' do e-SISTAFE
 #'
 #' Le e processa as tabelas de referencia de UGBs, funcoes e programas a
 #' partir de um ficheiro Excel, devolvendo uma lista nomeada pronta a ser
@@ -161,7 +161,7 @@ carregar_lookups_esistafe <- function(path) {
 }
 
 
-#' Adicionar metados ao dataframe e-SISTAFE com lookups descritivos
+#' Adicionar metadados a um 'tibble' contendo dados do 'Demonstrativo Consolidado' processado
 #'
 #' Junta informacao descritiva de UGB, funcao e programa a um dataframe
 #' ja processado por \code{processar_extracto_esistafe()}, adicionando

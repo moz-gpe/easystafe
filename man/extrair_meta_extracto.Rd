@@ -2,7 +2,7 @@
 % Please edit documentation in R/extrair_meta_extracto.R
 \name{extrair_meta_extracto}
 \alias{extrair_meta_extracto}
-\title{Extrair metadados de ficheiros de extracto e-SISTAFE}
+\title{Extrair metadados de ficheiros de extracto 'Demonstrativo Consolidado' do e-SISTAFE}
 \usage{
 extrair_meta_extracto(caminho)
 }

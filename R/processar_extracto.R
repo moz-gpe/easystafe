@@ -1,4 +1,4 @@
-#' Processar extractos de exportacao e-SISTAFE
+#' Processar extractos 'Demonstrativo Consolidado' do e-SISTAFE
 #'
 #' Carrega, limpa e processa um ou mais ficheiros de exportacao do e-SISTAFE
 #' no formato Excel, aplicando uma sequencia de transformacoes que inclui
@@ -538,7 +538,7 @@ processar_extracto_esistafe <- function(
 
 
 
-#' Processar extractos do razao contabilistico do e-SISTAFE a partir de ficheiros PDF
+#' Processar extractos 'Razao Contabilistico' a partir de ficheiros PDF
 #'
 #' Le todos os ficheiros PDF de uma pasta, extrai as transaccoes e saldos
 #' de cada extracto da razao contabilistico, e combina os resultados num
@@ -813,7 +813,7 @@ processar_extracto_razao_c <- function(
 
 
 
-#' Processar Extractos Bancarios ABSA
+#' Processar extractos bancarios ABSA
 #'
 #' Localiza todos os ficheiros PDF com o padrao \code{"EXTRACTO ABSA"} numa
 #' pasta, processa cada um e devolve um unico tibble combinado compativel com o

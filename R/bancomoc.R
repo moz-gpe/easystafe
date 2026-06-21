@@ -1,4 +1,4 @@
-﻿#' Parse a Banco de Mocambique exchange rate PDF into a tidy tibble
+#' Converter um ficheiro PDF com as taxas de câmbio do Banco de Moçambique num ficheiro 'tibble' arrumado
 #'
 #' @param filepath Path to a PDF file downloaded from bancomoc.mz. The filename
 #'   must contain an 8-digit date string in \code{DDMMYYYY} format.
@@ -67,7 +67,7 @@ parse_bancomoc_pdf <- function(filepath) {
 }
 
 
-#' Download and parse Banco de Mocambique exchange rate PDFs
+#' Descarregar e arrumar os ficheiros PDF com as taxas de câmbio do portal do Banco de Moçambique
 #'
 #' Scrapes PDF links from the Banco de Mocambique website, downloads any new
 #' files to \code{out_dir}, parses all files in that directory, and returns a
@@ -152,7 +152,7 @@ obter_conversao_bancomoc <- function(
 }
 
 
-#' Add daily exchange rate conversions to a razao contabilistica tibble
+#' Adicionar conversões diárias de taxas de câmbio a 'tibbles' com dados da 'Razao Contabilistica'
 #'
 #' Joins a wide daily-rates table (from \code{obter_conversao_bancomoc(wide =
 #' TRUE)}) to \code{df} on the transaction date, then computes \code{_usd} and

@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_extracto.R
 \name{processar_extracto_razao_c}
 \alias{processar_extracto_razao_c}
-\title{Processar extractos do razao contabilistico do e-SISTAFE a partir de ficheiros PDF}
+\title{Processar extractos 'Razao Contabilistico' a partir de ficheiros PDF}
 \usage{
 processar_extracto_razao_c(
   source_path,

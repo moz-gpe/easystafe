@@ -1,4 +1,4 @@
-#' Extrair metadados de ficheiros de extracto e-SISTAFE
+#' Extrair metadados de ficheiros de extracto 'Demonstrativo Consolidado' do e-SISTAFE
 #'
 #' Extrai metadados relevantes a partir dos nomes de ficheiros de exportação
 #' do e-SISTAFE, incluindo o tipo de relatório e datas de referência e de

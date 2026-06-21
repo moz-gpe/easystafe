@@ -2,7 +2,7 @@
 % Please edit documentation in R/adicionar_lookups.R
 \name{carregar_lookups_esistafe}
 \alias{carregar_lookups_esistafe}
-\title{Carregar lookups descritivos para enriquecimento de dados e-SISTAFE}
+\title{Carregar lookups descritivos para enriquecimento de dados 'Demonstrativo Consolidado' do e-SISTAFE}
 \usage{
 carregar_lookups_esistafe(path)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/processar_extracto.R
 \name{processar_extracto_esistafe}
 \alias{processar_extracto_esistafe}
-\title{Processar extractos de exportacao e-SISTAFE}
+\title{Processar extractos 'Demonstrativo Consolidado' do e-SISTAFE}
 \usage{
 processar_extracto_esistafe(
   source_path = "Data/",

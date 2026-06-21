@@ -2,7 +2,7 @@
 % Please edit documentation in R/bancomoc.R
 \name{adicionar_conversao_moeda}
 \alias{adicionar_conversao_moeda}
-\title{Add daily exchange rate conversions to a razao contabilistica tibble}
+\title{Adicionar conversões diárias de taxas de câmbio a 'tibbles' com dados da 'Razao Contabilistica'}
 \usage{
 adicionar_conversao_moeda(df, rates_diarias)
 }
