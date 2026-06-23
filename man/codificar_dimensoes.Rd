@@ -4,15 +4,21 @@
 \alias{codificar_dimensoes}
 \title{Codificar variaveis de dimensao geografica}
 \usage{
-codificar_dimensoes(df)
+codificar_dimensoes(df, col_provincia = "provincia", col_distrito = "distrito")
 }
 \arguments{
-\item{df}{Um dataframe contendo colunas \code{provincia} e \code{distrito}.
-A funcao para com erro informativo se qualquer uma dessas colunas estiver
-ausente.}
+\item{df}{Um dataframe contendo colunas de provincia e distrito.
+A funcao para com erro informativo se qualquer uma das colunas de join
+estiver ausente.}
+
+\item{col_provincia}{Nome da coluna no \code{df} que sera usada para fazer
+join com \code{provincia_map}. Por defeito \code{"provincia"}.}
+
+\item{col_distrito}{Nome da coluna no \code{df} que sera usada para fazer
+join com \code{distrito_map}. Por defeito \code{"distrito"}.}
 }
 \value{
-O dataframe de entrada com \code{provincia} e \code{distrito}
+O dataframe de entrada com as colunas de provincia e distrito
 sobrescritas com nomes canonicos (onde reconhecidos), e duas novas colunas
 adicionadas: \code{provincia_id} e \code{distrito_id} (inteiros).
 }
@@ -51,6 +57,10 @@ df <- processar_extracto_esistafe(
 # Com qualquer dataframe que contenha colunas provincia e distrito
 df_outro <- data.frame(provincia = "Nampula", distrito = "Angoche")
 codificar_dimensoes(df_outro)
+
+# Com nomes de colunas alternativos no dataframe de entrada
+df_alt <- data.frame(prov = "Nampula", dist = "Angoche")
+codificar_dimensoes(df_alt, col_provincia = "prov", col_distrito = "dist")
 }
 
 }
