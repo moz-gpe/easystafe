@@ -4,7 +4,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git status)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "PowerShell(Get-Command R -ErrorAction SilentlyContinue)",
+      "PowerShell(& \"C:\\\\Program Files\\\\R\\\\R-4.6.0\\\\bin\\\\Rscript.exe\" -e \"load\\('c:/Users/Joe/Documents/R/easystafe/data/lookup_razao.rda'\\); razao_map <- lookup_razao; save\\(razao_map, file = 'c:/Users/Joe/Documents/R/easystafe/data/razao_map.rda', compress = 'bzip2'\\); cat\\('Done'\\)\")"
     ],
     "ask": [
       "Bash(git push:*)"

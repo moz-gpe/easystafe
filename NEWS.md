@@ -9,7 +9,7 @@
   tabelas de taxas diárias do portal do Banco de Moçambique.
 - Adicionada a função `parse_bancomoc_pdf()` para interpretar PDFs individuais
   de taxas de câmbio do BancoMOC.
-- Adicionado o conjunto de dados `lookup_razao` com a tabela de referência que
+- Adicionado o conjunto de dados `razao_map` com a tabela de referência que
   mapeia nomes de ficheiros PDF da razão contabilística para descrições e
   províncias.
 

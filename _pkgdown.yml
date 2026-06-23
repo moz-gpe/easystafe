@@ -43,7 +43,7 @@ reference:
   - title: "Dados"
     desc: "Tabelas de referência incluídas no pacote"
     contents:
-      - lookup_razao
+      - razao_map
 
   - title: "Enriquecer Dados"
     desc: "Funções para recodificar, classificar e adicionar variáveis aos dados processados"

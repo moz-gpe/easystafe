@@ -2,38 +2,43 @@
 % Please edit documentation in R/adicionar_lookups.R
 \name{codificar_dimensoes}
 \alias{codificar_dimensoes}
-\title{Codificar variaveis de dimensao para modelacao dimensional}
+\title{Codificar variaveis de dimensao geografica}
 \usage{
 codificar_dimensoes(df)
 }
 \arguments{
-\item{df}{Um dataframe, tipicamente o resultado de
-\code{config_para_duckdb()}.}
+\item{df}{Um dataframe contendo colunas \code{provincia} e \code{distrito}.
+A funcao para com erro informativo se qualquer uma dessas colunas estiver
+ausente.}
 }
 \value{
 O dataframe de entrada com \code{provincia} e \code{distrito}
-substituidas por \code{provincia_id} e \code{distrito_id} (inteiros).
+sobrescritas com nomes canonicos (onde reconhecidos), e duas novas colunas
+adicionadas: \code{provincia_id} e \code{distrito_id} (inteiros).
 }
 \description{
-Substitui variaveis geograficas de texto por identificadores numericos
-compactos adequados para carregamento em DuckDB ou outras bases de dados
-relacionais. A funcao e aplicada apos \code{config_para_duckdb()} no
-pipeline de preparacao de dados.
+Aplica identificadores numericos inteiros e nomes canonicos as colunas
+\code{provincia} e \code{distrito} de qualquer dataframe. Util para
+preparar dados para carregamento em DuckDB ou outras bases de dados
+relacionais, ou para normalizar a ortografia de nomes geograficos.
 }
 \details{
 Codifica as seguintes dimensoes:
 \describe{
 \item{provincia_id}{Inteiro de dois digitos derivado de \code{provincia}.
 Valores nao reconhecidos ou \code{NA} sao codificados como \code{99L}.
-A coluna \code{provincia} original e removida.}
+A coluna \code{provincia} e sobrescrita com a ortografia canonica quando
+o valor e reconhecido; caso contrario, o valor original e mantido.}
 \item{distrito_id}{Inteiro de quatro digitos (prefixo de provincia mais
 numero sequencial do distrito) derivado de \code{distrito}. Valores nao
 reconhecidos ou \code{NA} sao codificados como \code{9999L}.
-A coluna \code{distrito} original e removida.}
+A coluna \code{distrito} e sobrescrita com a ortografia canonica quando
+o valor e reconhecido; caso contrario, o valor original e mantido.}
 }
 }
 \examples{
 \dontrun{
+# A partir do pipeline esistafe
 lookups <- carregar_lookups_esistafe("Data/lookups.xlsx")
 
 df <- processar_extracto_esistafe(
@@ -41,8 +46,11 @@ df <- processar_extracto_esistafe(
   df_ugb_lookup = lookups$ugb
 ) |>
   adicionar_lookups_esistafe(lookups) |>
-  config_para_duckdb() |>
   codificar_dimensoes()
+
+# Com qualquer dataframe que contenha colunas provincia e distrito
+df_outro <- data.frame(provincia = "Nampula", distrito = "Angoche")
+codificar_dimensoes(df_outro)
 }
 
 }

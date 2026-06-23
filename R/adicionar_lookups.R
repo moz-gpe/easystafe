@@ -413,32 +413,37 @@ config_para_duckdb <- function(df) {
 }
 
 
-#' Codificar variaveis de dimensao para modelacao dimensional
+#' Codificar variaveis de dimensao geografica
 #'
-#' Substitui variaveis geograficas de texto por identificadores numericos
-#' compactos adequados para carregamento em DuckDB ou outras bases de dados
-#' relacionais. A funcao e aplicada apos \code{config_para_duckdb()} no
-#' pipeline de preparacao de dados.
+#' Aplica identificadores numericos inteiros e nomes canonicos as colunas
+#' \code{provincia} e \code{distrito} de qualquer dataframe. Util para
+#' preparar dados para carregamento em DuckDB ou outras bases de dados
+#' relacionais, ou para normalizar a ortografia de nomes geograficos.
 #'
 #' Codifica as seguintes dimensoes:
 #' \describe{
 #'   \item{provincia_id}{Inteiro de dois digitos derivado de \code{provincia}.
 #'     Valores nao reconhecidos ou \code{NA} sao codificados como \code{99L}.
-#'     A coluna \code{provincia} original e removida.}
+#'     A coluna \code{provincia} e sobrescrita com a ortografia canonica quando
+#'     o valor e reconhecido; caso contrario, o valor original e mantido.}
 #'   \item{distrito_id}{Inteiro de quatro digitos (prefixo de provincia mais
 #'     numero sequencial do distrito) derivado de \code{distrito}. Valores nao
 #'     reconhecidos ou \code{NA} sao codificados como \code{9999L}.
-#'     A coluna \code{distrito} original e removida.}
+#'     A coluna \code{distrito} e sobrescrita com a ortografia canonica quando
+#'     o valor e reconhecido; caso contrario, o valor original e mantido.}
 #' }
 #'
-#' @param df Um dataframe, tipicamente o resultado de
-#'   \code{config_para_duckdb()}.
+#' @param df Um dataframe contendo colunas \code{provincia} e \code{distrito}.
+#'   A funcao para com erro informativo se qualquer uma dessas colunas estiver
+#'   ausente.
 #'
 #' @return O dataframe de entrada com \code{provincia} e \code{distrito}
-#'   substituidas por \code{provincia_id} e \code{distrito_id} (inteiros).
+#'   sobrescritas com nomes canonicos (onde reconhecidos), e duas novas colunas
+#'   adicionadas: \code{provincia_id} e \code{distrito_id} (inteiros).
 #'
 #' @examples
 #' \dontrun{
+#' # A partir do pipeline esistafe
 #' lookups <- carregar_lookups_esistafe("Data/lookups.xlsx")
 #'
 #' df <- processar_extracto_esistafe(
@@ -446,195 +451,268 @@ config_para_duckdb <- function(df) {
 #'   df_ugb_lookup = lookups$ugb
 #' ) |>
 #'   adicionar_lookups_esistafe(lookups) |>
-#'   config_para_duckdb() |>
 #'   codificar_dimensoes()
+#'
+#' # Com qualquer dataframe que contenha colunas provincia e distrito
+#' df_outro <- data.frame(provincia = "Nampula", distrito = "Angoche")
+#' codificar_dimensoes(df_outro)
 #' }
 #'
-#' @importFrom dplyr mutate select coalesce
+#' @importFrom dplyr mutate coalesce left_join select
+#' @importFrom tibble tribble
 #'
 #' @export
 codificar_dimensoes <- function(df) {
-  provincia_map <- c(
-    "Cabo Delgado" = 1L,
-    "Niassa" = 2L,
-    "Nampula" = 3L,
-    "Zamb\u00e9zia" = 4L,
-    "Tete" = 5L,
-    "Manica" = 6L,
-    "Sofala" = 7L,
-    "Inhambane" = 8L,
-    "Gaza" = 9L,
-    "Maputo Prov\u00edncia" = 10L,
-    "Maputo Cidade" = 11L
+  missing_cols <- setdiff(c("provincia", "distrito"), names(df))
+  if (length(missing_cols) > 0) {
+    stop(
+      "codificar_dimensoes: coluna(s) em falta no dataframe: ",
+      paste(missing_cols, collapse = ", ")
+    )
+  }
+
+  prov_map <- tibble::tribble(
+    ~provincia_fonte,     ~provincia_oficial,  ~provincia_id,
+    "Niassa",             "Niassa",             1L,
+    "Cabo Delgado",       "Cabo Delgado",       2L,
+    "Nampula",            "Nampula",            3L,
+    "Zamb\u00e9zia",      "Zamb\u00e9zia",      4L,
+    "Zambezia",           "Zamb\u00e9zia",      4L,
+    "Tete",               "Tete",               5L,
+    "Manica",             "Manica",             6L,
+    "Sofala",             "Sofala",             7L,
+    "Inhambane",          "Inhambane",          8L,
+    "Gaza",               "Gaza",               9L,
+    "Maputo Prov\u00edncia", "Maputo Prov\u00edncia", 10L,
+    "Maputo Provincia",   "Maputo Prov\u00edncia", 10L,
+    "Maputo",             "Maputo Prov\u00edncia", 10L,
+    "Maputo Cidade",      "Maputo Cidade",      11L,
+    "Cidade de Maputo",   "Maputo Cidade",      11L
   )
 
-  distrito_map <- c(
-    "Ancuabe" = 101L,
-    "Chi\u00fare" = 102L,
-    "Ibo" = 103L,
-    "Macomia" = 104L,
-    "Mec\u00fafi" = 105L,
-    "Meluco" = 106L,
-    "Moc\u00edmboa da Praia" = 107L,
-    "Montepuez" = 108L,
-    "Mueda" = 109L,
-    "Namuno" = 110L,
-    "Palma" = 111L,
-    "Pemba - Metuge" = 112L,
-    "Quissanga" = 113L,
-    "Cidade de Pemba" = 114L,
-    "Balama" = 115L,
-    "Muidumbe" = 116L,
-    "Nangade" = 117L,
-    "Cuamba" = 201L,
-    "Majune" = 202L,
-    "Mandimba" = 203L,
-    "Marrupa" = 204L,
-    "Ma\u00faa" = 205L,
-    "Mavago" = 206L,
-    "Mecanhelas" = 207L,
-    "Mecula" = 208L,
-    "Lago" = 209L,
-    "Chimbunila" = 210L,
-    "Lichinga" = 211L,
-    "Sanga" = 212L,
-    "Muembe" = 213L,
-    "N'Gauma" = 214L,
-    "Metarica" = 215L,
-    "Nipepe" = 216L,
-    "Angoche" = 301L,
-    "Nacar\u00f4a" = 302L,
-    "Ilha de Mo\u00e7ambique" = 303L,
-    "Nacala - Porto" = 304L,
-    "Malema" = 305L,
-    "Meconta" = 306L,
-    "Mecub\u00fari" = 307L,
-    "Memba" = 308L,
-    "Mogincual" = 309L,
-    "Mogovolas" = 310L,
-    "Moma" = 311L,
-    "Monapo" = 312L,
-    "Mossuril" = 313L,
-    "Muecate" = 314L,
-    "Murrupula" = 315L,
-    "Nacala - Velha" = 316L,
-    "Nampula - Distrito" = 317L,
-    "Cidade de Nampula" = 318L,
-    "Ribau\u00e9" = 319L,
-    "Lalaua" = 320L,
-    "Namapa - Er\u00e1ti" = 321L,
-    "Larde" = 322L,
-    "Liupo" = 323L,
-    "Alto Mol\u00f3cu\u00e9" = 401L,
-    "Chinde" = 402L,
-    "Gil\u00e9" = 403L,
-    "Guru\u00e9" = 404L,
-    "Ile" = 405L,
-    "Lugela" = 406L,
-    "Maganja da Costa" = 407L,
-    "Milange" = 408L,
-    "Mocuba" = 409L,
-    "Mopeia" = 410L,
-    "Morrumbala" = 411L,
-    "Namacurra" = 412L,
-    "Namarroi" = 413L,
-    "Pebane" = 414L,
-    "Cidade de Quelimane" = 415L,
-    "Nicoadala" = 416L,
-    "Inhassungue" = 417L,
-    "Luabo" = 418L,
-    "Mocubela" = 419L,
-    "Mulevala" = 420L,
-    "Molumbo" = 421L,
-    "Derre" = 422L,
-    "Ang\u00f3nia" = 501L,
-    "Cahora Bassa" = 502L,
-    "Chi\u00fata" = 503L,
-    "Macanga" = 504L,
-    "Mar\u00e1via" = 505L,
-    "Moatize" = 506L,
-    "M\u00e1goe" = 507L,
-    "Mutarara" = 508L,
-    "Cidade de Tete" = 509L,
-    "Zumbo" = 510L,
-    "Changara" = 511L,
-    "Tsangano" = 512L,
-    "Chifunde" = 513L,
-    "D\u00f4a" = 514L,
-    "Marara" = 515L,
-    "B\u00e1ru\u00e9" = 601L,
-    "Gondola" = 602L,
-    "Cidade de Chimoio" = 603L,
-    "Guro" = 604L,
-    "Manica" = 605L,
-    "Mossurize" = 606L,
-    "Sussundenga" = 607L,
-    "Tambara" = 608L,
-    "Machaze" = 609L,
-    "Macossa" = 610L,
-    "Macate" = 611L,
-    "Vanduzi" = 612L,
-    "Cidade da Beira" = 701L,
-    "B\u00fazi" = 702L,
-    "Caia" = 703L,
-    "Chemba" = 704L,
-    "Cheringoma" = 705L,
-    "Muanza" = 706L,
-    "Chibabava" = 707L,
-    "Machanga" = 708L,
-    "Dondo" = 709L,
-    "Nhamatanda" = 710L,
-    "Gorongosa" = 711L,
-    "Mar\u00edngue" = 712L,
-    "Marromeu" = 713L,
-    "Govuro" = 801L,
-    "Mabote" = 802L,
-    "Homo\u00edne" = 803L,
-    "Cidade de Inhambane" = 804L,
-    "Jangamo" = 805L,
-    "Inharrime" = 806L,
-    "Massinga" = 807L,
-    "Funhalouro" = 808L,
-    "Morrumbene" = 809L,
-    "Panda" = 810L,
-    "Vilankulo" = 811L,
-    "Zavala" = 812L,
-    "Cidade da Maxixe" = 813L,
-    "Inhassoro" = 814L,
-    "Bilene - Macia" = 901L,
-    "Guij\u00e1" = 902L,
-    "Chibuto" = 903L,
-    "Chicualacuala" = 904L,
-    "Chongoene" = 905L,
-    "Chokwe" = 906L,
-    "Manjacaze - Dingane" = 907L,
-    "Massingir" = 908L,
-    "Cidade de Xai-Xai" = 909L,
-    "Chigubo" = 910L,
-    "Mabalane" = 911L,
-    "Massangena" = 912L,
-    "Mapai" = 913L,
-    "Limpopo" = 914L,
-    "Boane" = 1001L,
-    "Magude" = 1002L,
-    "Manhi\u00e7a" = 1003L,
-    "Marracuene" = 1004L,
-    "Matutu\u00edne" = 1005L,
-    "Moamba" = 1006L,
-    "Namaacha" = 1007L,
-    "Cidade da Matola" = 1008L,
-    "Municipal KaMfumo (DU 1)" = 1101L,
-    "Municipal de Nhlamankulo (DU 2)" = 1102L,
-    "Municipal KaMaxakeni (DU 3)" = 1103L,
-    "Municipal Ka Mavota (DU 4)" = 1104L,
-    "Municipal KaMubukwana (DU 5)" = 1105L,
-    "Municipal KaTembe" = 1106L,
-    "Municipal de Inhaca" = 1107L
+  dist_map <- tibble::tribble(
+    ~distrito_fonte,                      ~distrito_oficial,                    ~distrito_id,
+    "Ancuabe",                            "Ancuabe",                            101L,
+    "Chi\u00fare",                        "Chi\u00fare",                        102L,
+    "Ibo",                                "Ibo",                                103L,
+    "Macomia",                            "Macomia",                            104L,
+    "Mec\u00fafi",                        "Mec\u00fafi",                        105L,
+    "Meluco",                             "Meluco",                             106L,
+    "Moc\u00edmboa da Praia",             "Moc\u00edmboa da Praia",             107L,
+    "Montepuez",                          "Montepuez",                          108L,
+    "Mueda",                              "Mueda",                              109L,
+    "Namuno",                             "Namuno",                             110L,
+    "Palma",                              "Palma",                              111L,
+    "Pemba - Metuge",                     "Pemba - Metuge",                     112L,
+    "Quissanga",                          "Quissanga",                          113L,
+    "Cidade de Pemba",                    "Cidade de Pemba",                    114L,
+    "Balama",                             "Balama",                             115L,
+    "Muidumbe",                           "Muidumbe",                           116L,
+    "Nangade",                            "Nangade",                            117L,
+    "Chi\u00c3\u00bare",                  "Chi\u00fare",                        102L,
+    "Mecufi",                             "Mec\u00fafi",                        105L,
+    "Metuge",                             "Pemba - Metuge",                     112L,
+    "Moc\u00c3\u00admboa Da Praia",       "Moc\u00edmboa da Praia",             107L,
+    "Cuamba",                             "Cuamba",                             201L,
+    "Majune",                             "Majune",                             202L,
+    "Mandimba",                           "Mandimba",                           203L,
+    "Marrupa",                            "Marrupa",                            204L,
+    "Ma\u00faa",                          "Ma\u00faa",                          205L,
+    "Mavago",                             "Mavago",                             206L,
+    "Mecanhelas",                         "Mecanhelas",                         207L,
+    "Mecula",                             "Mecula",                             208L,
+    "Lago",                               "Lago",                               209L,
+    "Chimbunila",                         "Chimbunila",                         210L,
+    "Lichinga",                           "Lichinga",                           211L,
+    "Sanga",                              "Sanga",                              212L,
+    "Muembe",                             "Muembe",                             213L,
+    "N'Gauma",                            "N'Gauma",                            214L,
+    "Metarica",                           "Metarica",                           215L,
+    "Nipepe",                             "Nipepe",                             216L,
+    "Chimbonila",                         "Chimbunila",                         210L,
+    "Distrito De Lichinga",               "Lichinga",                           211L,
+    "Ma\u00c3\u00baa",                    "Ma\u00faa",                          205L,
+    "Nga\u00c3\u00bama",                  "N'Gauma",                            214L,
+    "Angoche",                            "Angoche",                            301L,
+    "Nacar\u00f4a",                       "Nacar\u00f4a",                       302L,
+    "Ilha de Mo\u00e7ambique",            "Ilha de Mo\u00e7ambique",            303L,
+    "Nacala - Porto",                     "Nacala - Porto",                     304L,
+    "Malema",                             "Malema",                             305L,
+    "Meconta",                            "Meconta",                            306L,
+    "Mecub\u00fari",                      "Mecub\u00fari",                      307L,
+    "Memba",                              "Memba",                              308L,
+    "Mogincual",                          "Mogincual",                          309L,
+    "Mogovolas",                          "Mogovolas",                          310L,
+    "Moma",                               "Moma",                               311L,
+    "Monapo",                             "Monapo",                             312L,
+    "Mossuril",                           "Mossuril",                           313L,
+    "Muecate",                            "Muecate",                            314L,
+    "Murrupula",                          "Murrupula",                          315L,
+    "Nacala - Velha",                     "Nacala - Velha",                     316L,
+    "Nampula - Distrito",                 "Nampula - Distrito",                 317L,
+    "Cidade de Nampula",                  "Cidade de Nampula",                  318L,
+    "Ribau\u00e9",                        "Ribau\u00e9",                        319L,
+    "Lalaua",                             "Lalaua",                             320L,
+    "Namapa - Er\u00e1ti",               "Namapa - Er\u00e1ti",               321L,
+    "Larde",                              "Larde",                              322L,
+    "Liupo",                              "Liupo",                              323L,
+    "Distrito De Nampula",                "Nampula - Distrito",                 317L,
+    "Erati",                              "Namapa - Er\u00e1ti",               321L,
+    "Ilha De Mo\u00c3\u00a7ambique",      "Ilha de Mo\u00e7ambique",            303L,
+    "Mecuburi",                           "Mecub\u00fari",                      307L,
+    "Nacala-A-Velha",                     "Nacala - Velha",                     316L,
+    "Nacala-Porto",                       "Nacala - Porto",                     304L,
+    "Nacaroa",                            "Nacar\u00f4a",                       302L,
+    "Rapale",                             "Cidade de Nampula",                  318L,
+    "Ribaue",                             "Ribau\u00e9",                        319L,
+    "Alto Mol\u00f3cu\u00e9",             "Alto Mol\u00f3cu\u00e9",             401L,
+    "Chinde",                             "Chinde",                             402L,
+    "Gil\u00e9",                          "Gil\u00e9",                          403L,
+    "Guru\u00e9",                         "Guru\u00e9",                         404L,
+    "Ile",                                "Ile",                                405L,
+    "Lugela",                             "Lugela",                             406L,
+    "Maganja da Costa",                   "Maganja da Costa",                   407L,
+    "Milange",                            "Milange",                            408L,
+    "Mocuba",                             "Mocuba",                             409L,
+    "Mopeia",                             "Mopeia",                             410L,
+    "Morrumbala",                         "Morrumbala",                         411L,
+    "Namacurra",                          "Namacurra",                          412L,
+    "Namarroi",                           "Namarroi",                           413L,
+    "Pebane",                             "Pebane",                             414L,
+    "Cidade de Quelimane",                "Cidade de Quelimane",                415L,
+    "Nicoadala",                          "Nicoadala",                          416L,
+    "Inhassungue",                        "Inhassungue",                        417L,
+    "Luabo",                              "Luabo",                              418L,
+    "Mocubela",                           "Mocubela",                           419L,
+    "Mulevala",                           "Mulevala",                           420L,
+    "Molumbo",                            "Molumbo",                            421L,
+    "Derre",                              "Derre",                              422L,
+    "Quelimane",                          "Cidade de Quelimane",                415L,
+    "Alto Mol\u00c3\u00b3cu\u00c3\u00a8", "Alto Mol\u00f3cu\u00e9",             401L,
+    "Gil\u00c3\u00a9",                    "Gil\u00e9",                          403L,
+    "Guru\u00c3\u00a9",                   "Guru\u00e9",                         404L,
+    "Inhassunge",                         "Inhassungue",                        417L,
+    "Ang\u00f3nia",                       "Ang\u00f3nia",                       501L,
+    "Cahora Bassa",                       "Cahora Bassa",                       502L,
+    "Chi\u00fata",                        "Chi\u00fata",                        503L,
+    "Macanga",                            "Macanga",                            504L,
+    "Mar\u00e1via",                       "Mar\u00e1via",                       505L,
+    "Moatize",                            "Moatize",                            506L,
+    "M\u00e1go\u00e9",                    "M\u00e1go\u00e9",                    507L,
+    "Mutarara",                           "Mutarara",                           508L,
+    "Cidade de Tete",                     "Cidade de Tete",                     509L,
+    "Zumbo",                              "Zumbo",                              510L,
+    "Changara",                           "Changara",                           511L,
+    "Tsangano",                           "Tsangano",                           512L,
+    "Chifunde",                           "Chifunde",                           513L,
+    "D\u00f4a",                           "D\u00f4a",                           514L,
+    "Marara",                             "Marara",                             515L,
+    "Ang\u00c3\u00b3nia",                 "Ang\u00f3nia",                       501L,
+    "Chiuta",                             "Chi\u00fata",                        503L,
+    "Doa",                                "D\u00f4a",                           514L,
+    "Mar\u00c3\u00a1via",                 "Mar\u00e1via",                       505L,
+    "M\u00c3\u00a1go\u00c3\u00a8",        "M\u00e1go\u00e9",                    507L,
+    "B\u00e1ru\u00e9",                    "B\u00e1ru\u00e9",                    601L,
+    "Gondola",                            "Gondola",                            602L,
+    "Cidade de Chimoio",                  "Cidade de Chimoio",                  603L,
+    "Guro",                               "Guro",                               604L,
+    "Manica",                             "Manica",                             605L,
+    "Mossurize",                          "Mossurize",                          606L,
+    "Sussundenga",                        "Sussundenga",                        607L,
+    "Tambara",                            "Tambara",                            608L,
+    "Machaze",                            "Machaze",                            609L,
+    "Macossa",                            "Macossa",                            610L,
+    "Macate",                             "Macate",                             611L,
+    "Vanduzi",                            "Vanduzi",                            612L,
+    "B\u00c3\u00a1rue",                   "B\u00e1ru\u00e9",                    601L,
+    "Cidade da Beira",                    "Cidade da Beira",                    701L,
+    "B\u00fazi",                          "B\u00fazi",                          702L,
+    "Caia",                               "Caia",                               703L,
+    "Chemba",                             "Chemba",                             704L,
+    "Cheringoma",                         "Cheringoma",                         705L,
+    "Muanza",                             "Muanza",                             706L,
+    "Chibabava",                          "Chibabava",                          707L,
+    "Machanga",                           "Machanga",                           708L,
+    "Dondo",                              "Dondo",                              709L,
+    "Nhamatanda",                         "Nhamatanda",                         710L,
+    "Gorongosa",                          "Gorongosa",                          711L,
+    "Mar\u00edngue",                      "Mar\u00edngue",                      712L,
+    "Marromeu",                           "Marromeu",                           713L,
+    "B\u00c3\u00bazi",                    "B\u00fazi",                          702L,
+    "Mar\u00c3\u00adngue",               "Mar\u00edngue",                      712L,
+    "Govuro",                             "Govuro",                             801L,
+    "Mabote",                             "Mabote",                             802L,
+    "Homo\u00edne",                       "Homo\u00edne",                       803L,
+    "Cidade de Inhambane",                "Cidade de Inhambane",                804L,
+    "Jangamo",                            "Jangamo",                            805L,
+    "Inharrime",                          "Inharrime",                          806L,
+    "Massinga",                           "Massinga",                           807L,
+    "Funhalouro",                         "Funhalouro",                         808L,
+    "Morrumbene",                         "Morrumbene",                         809L,
+    "Panda",                              "Panda",                              810L,
+    "Vilankulo",                          "Vilankulo",                          811L,
+    "Zavala",                             "Zavala",                             812L,
+    "Cidade da Maxixe",                   "Cidade da Maxixe",                   813L,
+    "Inhassoro",                          "Inhassoro",                          814L,
+    "Homoine",                            "Homo\u00edne",                       803L,
+    "Maxixe",                             "Cidade da Maxixe",                   813L,
+    "Vilankulos",                         "Vilankulo",                          811L,
+    "Bilene - Macia",                     "Bilene - Macia",                     901L,
+    "Guij\u00e1",                         "Guij\u00e1",                         902L,
+    "Chibuto",                            "Chibuto",                            903L,
+    "Chicualacuala",                      "Chicualacuala",                      904L,
+    "Chongoene",                          "Chongoene",                          905L,
+    "Chokwe",                             "Chokwe",                             906L,
+    "Manjacaze - Dingane",                "Manjacaze - Dingane",                907L,
+    "Massingir",                          "Massingir",                          908L,
+    "Cidade de Xai-Xai",                  "Cidade de Xai-Xai",                  909L,
+    "Chigubo",                            "Chigubo",                            910L,
+    "Mabalane",                           "Mabalane",                           911L,
+    "Massangena",                         "Massangena",                         912L,
+    "Mapai",                              "Mapai",                              913L,
+    "Limpopo",                            "Limpopo",                            914L,
+    "Bilene",                             "Bilene - Macia",                     901L,
+    "Chokw\u00c3\u00a9",                  "Chokwe",                             906L,
+    "Guij\u00c3\u00a1",                   "Guij\u00e1",                         902L,
+    "Mandlakazi",                         "Manjacaze - Dingane",                907L,
+    "Boane",                              "Boane",                              1001L,
+    "Magude",                             "Magude",                             1002L,
+    "Manhi\u00e7a",                       "Manhi\u00e7a",                       1003L,
+    "Marracuene",                         "Marracuene",                         1004L,
+    "Matutu\u00edne",                     "Matutu\u00edne",                     1005L,
+    "Moamba",                             "Moamba",                             1006L,
+    "Namaacha",                           "Namaacha",                           1007L,
+    "Cidade da Matola",                   "Cidade da Matola",                   1008L,
+    "Manhi\u00c3\u00a7a",                 "Manhi\u00e7a",                       1003L,
+    "Matola",                             "Cidade da Matola",                   1008L,
+    "Matutu\u00c3\u00acne",               "Matutu\u00edne",                     1005L,
+    "Municipal KaMfumo (DU 1)",           "Municipal KaMfumo (DU 1)",           1101L,
+    "Municipal de Nhlamankulo (DU 2)",    "Municipal de Nhlamankulo (DU 2)",    1102L,
+    "Municipal KaMaxakeni (DU 3)",        "Municipal KaMaxakeni (DU 3)",        1103L,
+    "Municipal Ka Mavota (DU 4)",         "Municipal Ka Mavota (DU 4)",         1104L,
+    "Municipal KaMubukwana (DU 5)",       "Municipal KaMubukwana (DU 5)",       1105L,
+    "Municipal KaTembe",                  "Municipal KaTembe",                  1106L,
+    "Municipal de Inhaca",                "Municipal de Inhaca",                1107L,
+    "Kamavota",                           "Municipal Ka Mavota (DU 4)",         1104L,
+    "Kamaxakene",                         "Municipal KaMaxakeni (DU 3)",        1103L,
+    "Kampfumo",                           "Municipal KaMfumo (DU 1)",           1101L,
+    "Kamubukwana",                        "Municipal KaMubukwana (DU 5)",       1105L,
+    "Kanyaka",                            "Municipal de Inhaca",                1107L,
+    "Katembe",                            "Municipal KaTembe",                  1106L,
+    "Nlhamankulu",                        "Municipal de Nhlamankulo (DU 2)",    1102L
   )
 
   df |>
+    dplyr::left_join(prov_map, by = c("provincia" = "provincia_fonte")) |>
     dplyr::mutate(
-      provincia_id = dplyr::coalesce(provincia_map[provincia], 99L),
-      distrito_id = dplyr::coalesce(distrito_map[distrito], 9999L)
-    )
+      provincia_id = dplyr::coalesce(provincia_id, 99L),
+      provincia    = dplyr::coalesce(provincia_oficial, provincia)
+    ) |>
+    dplyr::select(-provincia_oficial) |>
+    dplyr::left_join(dist_map, by = c("distrito" = "distrito_fonte")) |>
+    dplyr::mutate(
+      distrito_id = dplyr::coalesce(distrito_id, 9999L),
+      distrito    = dplyr::coalesce(distrito_oficial, distrito)
+    ) |>
+    dplyr::select(-distrito_oficial)
 }
