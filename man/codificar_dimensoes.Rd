@@ -7,9 +7,10 @@
 codificar_dimensoes(df, col_provincia = "provincia", col_distrito = "distrito")
 }
 \arguments{
-\item{df}{Um dataframe contendo colunas de provincia e distrito.
-A funcao para com erro informativo se qualquer uma das colunas de join
-estiver ausente.}
+\item{df}{Um dataframe contendo colunas de provincia e/ou distrito.
+Se uma das colunas de join estiver ausente, e emitido um aviso e o
+respectivo join e ignorado; a outra dimensao continua a ser processada
+normalmente.}
 
 \item{col_provincia}{Nome da coluna no \code{df} que sera usada para fazer
 join com \code{provincia_map}. Por defeito \code{"provincia"}.}

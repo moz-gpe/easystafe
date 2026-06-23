@@ -435,9 +435,10 @@ config_para_duckdb <- function(df) {
 #'     o valor e reconhecido; caso contrario, o valor original e mantido.}
 #' }
 #'
-#' @param df Um dataframe contendo colunas de provincia e distrito.
-#'   A funcao para com erro informativo se qualquer uma das colunas de join
-#'   estiver ausente.
+#' @param df Um dataframe contendo colunas de provincia e/ou distrito.
+#'   Se uma das colunas de join estiver ausente, e emitido um aviso e o
+#'   respectivo join e ignorado; a outra dimensao continua a ser processada
+#'   normalmente.
 #' @param col_provincia Nome da coluna no \code{df} que sera usada para fazer
 #'   join com \code{provincia_map}. Por defeito \code{"provincia"}.
 #' @param col_distrito Nome da coluna no \code{df} que sera usada para fazer
@@ -476,34 +477,42 @@ codificar_dimensoes <- function(
   col_provincia = "provincia",
   col_distrito = "distrito"
 ) {
-  missing_cols <- setdiff(c(col_provincia, col_distrito), names(df))
-  if (length(missing_cols) > 0) {
-    stop(
-      "codificar_dimensoes: coluna(s) em falta no dataframe: ",
-      paste(missing_cols, collapse = ", ")
-    )
+  for (col in c(col_provincia, col_distrito)) {
+    if (!col %in% names(df)) {
+      warning(
+        "codificar_dimensoes: coluna '", col, "' nao encontrada no dataframe; join ignorado."
+      )
+    }
   }
 
-  df |>
-    dplyr::left_join(
-      provincia_map,
-      by = stats::setNames("provincia_fonte", col_provincia)
-    ) |>
-    dplyr::mutate(
-      provincia_id = dplyr::coalesce(provincia_id, 99L),
-      !!col_provincia := dplyr::coalesce(
-        provincia_oficial,
-        .data[[col_provincia]]
-      )
-    ) |>
-    dplyr::select(-provincia_oficial) |>
-    dplyr::left_join(
-      distrito_map,
-      by = stats::setNames("distrito_fonte", col_distrito)
-    ) |>
-    dplyr::mutate(
-      distrito_id = dplyr::coalesce(distrito_id, 999L),
-      !!col_distrito := dplyr::coalesce(distrito_oficial, .data[[col_distrito]])
-    ) |>
-    dplyr::select(-distrito_oficial)
+  if (col_provincia %in% names(df)) {
+    df <- df |>
+      dplyr::left_join(
+        provincia_map,
+        by = stats::setNames("provincia_fonte", col_provincia)
+      ) |>
+      dplyr::mutate(
+        provincia_id = dplyr::coalesce(provincia_id, 99L),
+        !!col_provincia := dplyr::coalesce(
+          provincia_oficial,
+          .data[[col_provincia]]
+        )
+      ) |>
+      dplyr::select(-provincia_oficial)
+  }
+
+  if (col_distrito %in% names(df)) {
+    df <- df |>
+      dplyr::left_join(
+        distrito_map,
+        by = stats::setNames("distrito_fonte", col_distrito)
+      ) |>
+      dplyr::mutate(
+        distrito_id = dplyr::coalesce(distrito_id, 9999),
+        !!col_distrito := dplyr::coalesce(distrito_oficial, .data[[col_distrito]])
+      ) |>
+      dplyr::select(-distrito_oficial)
+  }
+
+  df
 }
