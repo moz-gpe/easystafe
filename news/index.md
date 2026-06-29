@@ -15,9 +15,9 @@
 - Adicionada a função
   [`parse_bancomoc_pdf()`](https://moz-gpe.github.io/easystafe/reference/parse_bancomoc_pdf.md)
   para interpretar PDFs individuais de taxas de câmbio do BancoMOC.
-- Adicionado o conjunto de dados `lookup_razao` com a tabela de
-  referência que mapeia nomes de ficheiros PDF da razão contabilística
-  para descrições e províncias.
+- Adicionado o conjunto de dados `razao_map` com a tabela de referência
+  que mapeia nomes de ficheiros PDF da razão contabilística para
+  descrições e províncias.
 
 ### Alterações a funções existentes
 

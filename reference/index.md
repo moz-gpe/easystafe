@@ -30,9 +30,12 @@ Funções para obter e aplicar taxas de câmbio diárias do BancoMOC
 
 Tabelas de referência incluídas no pacote
 
-- [`lookup_razao`](https://moz-gpe.github.io/easystafe/reference/lookup_razao.md)
-  : LTabela de referência que associa os nomes dos ficheiros de origem
-  da 'Razão Contabilística' às respetivas descrições
+- [`razao_map`](https://moz-gpe.github.io/easystafe/reference/razao_map.md)
+  : Razão Contabilística source-file mapping table
+- [`provincia_map`](https://moz-gpe.github.io/easystafe/reference/provincia_map.md)
+  : Province name mapping table for Mozambique
+- [`distrito_map`](https://moz-gpe.github.io/easystafe/reference/distrito_map.md)
+  : District name mapping table for Mozambique
 
 ## Enriquecer Dados
 
@@ -51,7 +54,7 @@ processados
 - [`config_para_duckdb()`](https://moz-gpe.github.io/easystafe/reference/config_para_duckdb.md)
   : Prepare enriched e-SISTAFE output for loading into DuckDB
 - [`codificar_dimensoes()`](https://moz-gpe.github.io/easystafe/reference/codificar_dimensoes.md)
-  : Codificar variaveis de dimensao para modelacao dimensional
+  : Codificar variaveis de dimensao geografica
 
 ## Gravar Dados Processados
 
