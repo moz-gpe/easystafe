@@ -44,6 +44,8 @@ reference:
     desc: "Tabelas de referência incluídas no pacote"
     contents:
       - razao_map
+      - provincia_map
+      - distrito_map
 
   - title: "Enriquecer Dados"
     desc: "Funções para recodificar, classificar e adicionar variáveis aos dados processados"
