@@ -42,10 +42,11 @@
 #'   negative was \eqn{\geq 1}). If \code{FALSE}, this entire block is
 #'   skipped: negative values are left as-is, no \code{"Corregido"} rows are
 #'   added, and the two flag columns are not created.
-#' @param quiet Logical. If \code{TRUE} (default), progress messages are
-#'   suppressed. If \code{FALSE}, a message is emitted for each processing
-#'   step. Regardless of this parameter, a final message with the number of
-#'   processed files is always emitted.
+#' @param quiet Logical. If \code{TRUE} (default), no messages are emitted. If
+#'   \code{FALSE}, a single progress line is emitted per folder with the folder
+#'   name and number of files found. Detailed per-period summaries (completude,
+#'   negatives, etc.) are produced separately by
+#'   \code{\link{resumir_processamento_esistafe}} after all folders are combined.
 #'
 #' @return Um tibble com uma linha por entrada CED deduplificada, contendo
 #'   as colunas originais do extracto e-SISTAFE apos limpeza e subtraccao
@@ -176,13 +177,8 @@ processar_extracto_esistafe <- function(
     correct_negatives  = TRUE,
     quiet              = TRUE
 ) {
-  # --- Mensagens internas ---
-  msg <- function(...) {
-    if (!quiet) message(...)
-  }
 
   # --- 1. Identificar e carregar ficheiros ---
-  msg("A identificar ficheiros...")
   files <- base::list.files(
     path       = source_path,
     pattern    = include_pattern,
@@ -191,17 +187,37 @@ processar_extracto_esistafe <- function(
   if (length(files) == 0) {
     stop(glue::glue("Nenhum ficheiro encontrado em '{source_path}' com o padrao '{include_pattern}'."))
   }
-  msg(glue::glue("{length(files)} ficheiro(s) encontrado(s). A carregar..."))
-  df <- purrr::map(files, ~readxl::read_excel(.x, col_types = "text")) |>
+  pasta <- base::basename(base::normalizePath(source_path, mustWork = FALSE))
+
+  # --- Carregar ficheiros, mostrando progresso ficheiro-a-ficheiro por pasta.
+  # O resumo detalhado e produzido por resumir_processamento_esistafe() depois
+  # de todos os periodos serem combinados. ---
+  ler_ficheiro <- function(f) readxl::read_excel(f, col_types = "text")
+  if (quiet) {
+    partes <- purrr::map(files, ler_ficheiro)
+  } else {
+    partes <- base::vector("list", length(files))
+    # Mostrar a barra imediatamente (por padrao cli espera 2s antes de a exibir).
+    old_opt <- options(cli.progress_show_after = 0)
+    on.exit(options(old_opt), add = TRUE)
+    cli::cli_progress_bar(
+      format = "A processar {pasta} \u2014 {cli::pb_current} de {cli::pb_total} ficheiro(s)",
+      total  = length(files),
+      clear  = FALSE
+    )
+    for (i in base::seq_along(files)) {
+      partes[[i]] <- ler_ficheiro(files[[i]])
+      cli::cli_progress_update()
+    }
+    cli::cli_progress_done()
+  }
+  df <- partes |>
     purrr::set_names(base::basename(files)) |>
     purrr::list_rbind(names_to = "file_name")
-  msg(glue::glue("Ficheiros carregados: {dplyr::n_distinct(df$file_name)} | Linhas: {nrow(df)}"))
 
   # --- 1b. Adicionar pasta_fonte, ano e mes ---
   # ano e mes sao derivados do nome da pasta se seguir o formato YYYYMM.
   # Caso contrario, sao NA e e emitido um aviso.
-  msg("A adicionar pasta_fonte, ano e mes...")
-  pasta <- base::basename(base::normalizePath(source_path, mustWork = FALSE))
 
   meses_pt <- c(
     "Janeiro", "Fevereiro", "Mar\u00e7o", "Abril",
@@ -236,7 +252,6 @@ processar_extracto_esistafe <- function(
   # Nota: extrair_meta_extracto() ja nao devolve ano nem mes --
   # essas colunas sao agora derivadas de pasta_fonte (Step 1b).
   if (include_file_metadata) {
-    msg("A extrair e adicionar metadados...")
     paths_meta <- extrair_meta_extracto(files) |>
       dplyr::rename_with(~ gsub("_meta$", "", .x))
     df <- df |>
@@ -245,16 +260,13 @@ processar_extracto_esistafe <- function(
   }
 
   # --- 3. Renomear colunas ---
-  msg("A limpar nomes de colunas...")
   df_limpeza_1 <- janitor::clean_names(df)
 
   # --- 4. Remover colunas percent ---
-  msg("A remover colunas percentuais...")
   df_limpeza_2 <- df_limpeza_1 |>
     dplyr::select(!dplyr::ends_with("percent"))
 
   # --- 5. Extrair codigo UGB ---
-  msg("A extrair c\u00f3digo UGB...")
   df_limpeza_3 <- df_limpeza_2 |>
     dplyr::mutate(
       dplyr::across(dotacao_inicial:liq_ad_fundos_via_directa_lafvd,
@@ -264,7 +276,6 @@ processar_extracto_esistafe <- function(
     dplyr::relocate(ugb_id, .after = ugb)
 
   # --- 6. Filtrar UGBs de educacao ---
-  msg("A filtrar UGB's de educa\u00e7\u00e3o...")
   vec_ugb <- df_ugb_lookup |>
     dplyr::distinct(codigo_ugb) |>
     dplyr::pull()
@@ -274,14 +285,12 @@ processar_extracto_esistafe <- function(
     dplyr::select(-mec_ugb_class)
 
   # --- 7. Remover linhas com CED e funcao/programa/FR em branco ---
-  msg("A remover linhas com CED e campos-chave em branco...")
   df_limpeza_5 <- df_limpeza_4 |>
     dplyr::filter(!base::is.na(ced) | (!base::is.na(funcao) & !base::is.na(programa) & !base::is.na(fr))) |>
     dplyr::mutate(data_tipo = dplyr::if_else(base::is.na(ced), "Metrica", "Valor")) |>
     dplyr::relocate(data_tipo, .before = ced)
 
   # --- 8. Classificar grupos CED e remover grupo D ---
-  msg("A classificar grupos CED e remover grupo D...")
   df_limpeza_6 <- df_limpeza_5 |>
     dplyr::mutate(
       ced_group = dplyr::case_when(
@@ -295,7 +304,6 @@ processar_extracto_esistafe <- function(
     dplyr::filter(base::is.na(ced_group) | ced_group != "D")
 
   # --- 9. Criar variaveis hierarquicas ---
-  msg("A criar vari\u00e1veis hier\u00e1rquicas...")
   df_limpeza_7 <- df_limpeza_6 |>
     dplyr::mutate(
       ced_4     = stringr::str_sub(ced, 1, 4),
@@ -316,12 +324,10 @@ processar_extracto_esistafe <- function(
     base::names()
 
   # --- 10b. Separar linhas Metrica antes da subtraccao hierarquica ---
-  msg("A separar linhas Metrica e Valor...")
   df_metrica <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Metrica")
 
   # --- 11. Subtracao hierarquica: Passo 1 (A -> B dentro de ced_b4) ---
-  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 1 (A \u2192 B)...")
   df_step1 <- df_limpeza_7 |>
     dplyr::filter(data_tipo == "Valor") |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_4) |>
@@ -334,7 +340,6 @@ processar_extracto_esistafe <- function(
     dplyr::ungroup()
 
   # --- 12. Subtracao hierarquica: Passo 2 (B ajustado -> C dentro de ced_b3) ---
-  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 2 (B \u2192 C)...")
   df_step2 <- df_step1 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_3) |>
     dplyr::mutate(
@@ -346,7 +351,6 @@ processar_extracto_esistafe <- function(
     dplyr::ungroup()
 
   # --- 13. Subtracao hierarquica: Passo 3 (A directo -> C dentro de ced_b3) ---
-  msg("A executar subtra\u00e7\u00e3o hier\u00e1rquica \u2014 Passo 3 (A directo \u2192 C)...")
   df_limpeza_9 <- df_step2 |>
     dplyr::group_by(ugb_funcao_prog_fr, ced_3) |>
     dplyr::mutate(
@@ -359,7 +363,6 @@ processar_extracto_esistafe <- function(
 
   # --- 13b. Reincluir linhas Metrica se solicitado ---
   if (include_metrica) {
-    msg("A reincluir linhas Metrica...")
     df_limpeza_9 <- dplyr::bind_rows(df_limpeza_9, df_metrica)
   }
 
@@ -368,7 +371,6 @@ processar_extracto_esistafe <- function(
   # ano e mes sao sempre retidos (podem ser NA se pasta_fonte nao for YYYYMM).
   # data_tipo e sempre incluido, posicionado antes de ugb.
   # percent e file_name sao incluidos ou excluidos conforme os argumentos.
-  msg("A finalizar estrutura do dataset...")
   final_cols <- c(
     # metadados de ficheiro (removidos se include_file_metadata = FALSE)
     "file_name",
@@ -510,28 +512,11 @@ processar_extracto_esistafe <- function(
       dplyr::select(-.row_id) |>
       dplyr::relocate(c(valor_corregido, valor_negativo), .after = ugb_funcao_prog_fr)
 
-    # -- 17g. Mensagem de resumo (sempre visivel) --
-    pct_negativos <- if (total_sum_valor != 0) {
-      scales::percent(soma_negativos / abs(total_sum_valor), accuracy = 0.01)
-    } else {
-      "N/A (soma total == 0)"
-    }
-    message(glue::glue(
-      "Correccao de negativos: {length(ugb_com_negativos)} ugb_funcao_prog_fr(s) identificado(s) e corrigido(s).\n",
-      "  Soma absoluta dos valores negativos convertidos a zero: {scales::comma(soma_negativos)} ({pct_negativos} da soma total de colunas numericas [data_tipo == 'Valor'])."
-    ))
-
   } # fim do bloco correct_negatives
 
-  # --- Resumo final ---
-  n_files   <- length(files)
-  file_list <- base::paste(base::paste0("  - ", base::basename(files)), collapse = "\n")
-  message(glue::glue(
-    "Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n{file_list}"
-  ))
-
-  # --- Verificar completude de UGBs ---
-  verificar_ugb_completude(df_limpeza_final, df_ugb_lookup, quiet = quiet)
+  # --- Completude de UGBs ---
+  # A verificacao de completude foi movida para resumir_processamento_esistafe(),
+  # que produz um resumo consolidado depois de todos os periodos serem combinados.
 
   return(df_limpeza_final)
 }
