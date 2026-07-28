@@ -69,3 +69,5 @@ reference:
     desc: "Funções para apoiar as verificações de qualidade"
     contents:
       - verificar_ugb_completude
+      - resumir_processamento_esistafe
+      - ugb_incompletas_esistafe
