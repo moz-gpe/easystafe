@@ -59,10 +59,11 @@ negative was \eqn{\geq 1}). If \code{FALSE}, this entire block is
 skipped: negative values are left as-is, no \code{"Corregido"} rows are
 added, and the two flag columns are not created.}
 
-\item{quiet}{Logical. If \code{TRUE} (default), progress messages are
-suppressed. If \code{FALSE}, a message is emitted for each processing
-step. Regardless of this parameter, a final message with the number of
-processed files is always emitted.}
+\item{quiet}{Logical. If \code{TRUE} (default), no messages are emitted. If
+\code{FALSE}, a single progress line is emitted per folder with the folder
+name and number of files found. Detailed per-period summaries (completude,
+negatives, etc.) are produced separately by
+\code{\link{resumir_processamento_esistafe}} after all folders are combined.}
 }
 \value{
 Um tibble com uma linha por entrada CED deduplificada, contendo

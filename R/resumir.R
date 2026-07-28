@@ -25,6 +25,8 @@
 #'       (\code{NULL} se \code{correct_negatives = FALSE} no processamento).
 #'     \item \code{ugb_ausentes}: UGBs do lookup que nao aparecem em nenhum
 #'       periodo dos dados.
+#'     \item \code{ugb_incompletas}: detalhe por periodo x UGB das lacunas de
+#'       completude (ver \code{\link{ugb_incompletas_esistafe}}).
 #'   }
 #'
 #' @details
@@ -54,9 +56,10 @@
 #' @importFrom tibble tibble
 #' @importFrom scales comma percent
 #' @importFrom purrr keep
-#' @importFrom cli cli_h1 cli_h2 cli_rule cli_alert_info cli_alert_warning cli_alert_success cli_text
+#' @importFrom cli cli_h1 cli_rule cli_verbatim cli_alert_info cli_alert_warning cli_alert_success
 #'
-#' @seealso \code{\link{verificar_ugb_completude}}
+#' @seealso \code{\link{verificar_ugb_completude}},
+#'   \code{\link{ugb_incompletas_esistafe}}
 #' @export
 resumir_processamento_esistafe <- function(df, lookup_ugb, quiet = FALSE) {
 
@@ -89,11 +92,12 @@ resumir_processamento_esistafe <- function(df, lookup_ugb, quiet = FALSE) {
       n_ugb_lookup  = dplyr::n(),
       n_sem_dotacao = sum(!has_dotacao),
       n_sem_afdp    = sum(!has_afdp),
-      ugb_sem_dotacao = paste(sort(codigo_ugb[!has_dotacao]), collapse = ", "),
-      ugb_sem_afdp    = paste(sort(codigo_ugb[!has_afdp]),    collapse = ", "),
       .groups       = "drop"
     ) |>
     dplyr::arrange(periodo)
+
+  # Detalhe por UGB (codigos concretos que sao truncados na tabela-resumo)
+  ugb_incompletas <- ugb_incompletas_esistafe(df, lookup_ugb)
 
   # --- C. UGBs ausentes (nunca aparecem nos dados) -----------------------
   codigos_lookup <- lookup_ugb |>
@@ -166,21 +170,28 @@ resumir_processamento_esistafe <- function(df, lookup_ugb, quiet = FALSE) {
         "Pastas sem formato YYYYMM (ano/mes/periodo = NA): {paste(pastas_sem_formato, collapse = ', ')}"
       )
     }
+    message("")
 
-    cli::cli_h2("Ficheiros e linhas por periodo")
+    cli::cli_rule(left = "Ficheiros e linhas por periodo")
     print(overview)
+    cat("\n")
 
-    cli::cli_h2("Completude de UGBs (Funcionamento) por periodo")
+    cli::cli_rule(left = "Completude de UGBs (Funcionamento) por periodo")
     print(completude)
+    cli::cli_alert_info(
+      "Detalhe dos codigos por UGB: ugb_incompletas_esistafe() ou $ugb_incompletas ({nrow(ugb_incompletas)} linha[s])."
+    )
+    cat("\n")
 
-    cli::cli_h2("Correccao de valores negativos por periodo")
+    cli::cli_rule(left = "Correccao de valores negativos por periodo")
     if (tem_correccao) {
       print(negativos)
     } else {
       cli::cli_alert_info("Correccao de negativos desactivada (correct_negatives = FALSE).")
     }
+    cat("\n")
 
-    cli::cli_h2("UGBs do lookup ausentes dos dados")
+    cli::cli_rule(left = "UGBs do lookup ausentes dos dados")
     if (nrow(ugb_ausentes) > 0) {
       cli::cli_alert_warning(
         "{nrow(ugb_ausentes)} UGB(s) no lookup nunca aparecem nos dados: {paste(ugb_ausentes$codigo_ugb, collapse = ', ')}"
@@ -188,13 +199,15 @@ resumir_processamento_esistafe <- function(df, lookup_ugb, quiet = FALSE) {
     } else {
       cli::cli_alert_success("Todas as UGBs do lookup aparecem nos dados.")
     }
+    cat("\n")
     cli::cli_rule()
   }
 
   invisible(list(
-    overview     = overview,
-    completude   = completude,
-    negativos    = negativos,
-    ugb_ausentes = ugb_ausentes
+    overview        = overview,
+    completude      = completude,
+    negativos       = negativos,
+    ugb_ausentes    = ugb_ausentes,
+    ugb_incompletas = ugb_incompletas
   ))
 }

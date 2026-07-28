@@ -29,6 +29,8 @@ Invisivelmente, uma lista nomeada de tibbles:
 (\code{NULL} se \code{correct_negatives = FALSE} no processamento).
 \item \code{ugb_ausentes}: UGBs do lookup que nao aparecem em nenhum
 periodo dos dados.
+\item \code{ugb_incompletas}: detalhe por periodo x UGB das lacunas de
+completude (ver \code{\link{ugb_incompletas_esistafe}}).
 }
 }
 \description{
@@ -62,5 +64,6 @@ resumir_processamento_esistafe(df_esistafe, lookups$ugb)
 
 }
 \seealso{
-\code{\link{verificar_ugb_completude}}
+\code{\link{verificar_ugb_completude}},
+\code{\link{ugb_incompletas_esistafe}}
 }

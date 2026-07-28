@@ -74,6 +74,49 @@ verificar_ugb_completude <- function(df_esistafe, lookup_ugb, quiet = TRUE) {
 }
 
 
+#' Detalhe de UGBs incompletas por periodo
+#'
+#' Devolve um tibble com as UGBs de educacao que, em cada periodo, nao possuem
+#' registos de Funcionamento com valor > 0 em pelo menos uma das variaveis
+#' financeiras chave (\code{dotacao_actualizada_da} e
+#' \code{ad_fundos_desp_paga_vd_afdp}). Complementa
+#' \code{\link{resumir_processamento_esistafe}}, cuja tabela-resumo mostra apenas
+#' as contagens; esta funcao expoe os codigos concretos, que de outra forma
+#' seriam truncados na consola.
+#'
+#' @param df O dataframe combinado do processamento e-SISTAFE. Deve conter as
+#'   colunas \code{periodo}, \code{reporte_tipo}, \code{ugb_id},
+#'   \code{dotacao_actualizada_da} e \code{ad_fundos_desp_paga_vd_afdp}.
+#' @param lookup_ugb Dataframe com a tabela de referencia das UGBs de educacao
+#'   (coluna \code{codigo_ugb}).
+#'
+#' @return Um tibble com uma linha por combinacao \code{periodo} x
+#'   \code{codigo_ugb} que tem pelo menos uma lacuna, com as colunas logicas
+#'   \code{sem_dotacao} e \code{sem_afdp}.
+#'
+#' @examples
+#' \dontrun{
+#' ugb_incompletas_esistafe(df_esistafe, lookups$ugb)
+#' }
+#'
+#' @importFrom dplyr mutate filter arrange transmute
+#'
+#' @seealso \code{\link{resumir_processamento_esistafe}},
+#'   \code{\link{verificar_ugb_completude}}
+#' @export
+ugb_incompletas_esistafe <- function(df, lookup_ugb) {
+  .calcular_ugb_completude(df, lookup_ugb, por_periodo = TRUE) |>
+    dplyr::transmute(
+      periodo,
+      codigo_ugb,
+      sem_dotacao = !has_dotacao,
+      sem_afdp    = !has_afdp
+    ) |>
+    dplyr::filter(sem_dotacao | sem_afdp) |>
+    dplyr::arrange(periodo, codigo_ugb)
+}
+
+
 #' Calcular completude de UGBs (helper interno)
 #'
 #' Determina, para cada UGB do lookup, se possui pelo menos um registo de

@@ -6,5 +6,5 @@ utils::globalVariables(c(
   "pasta_fonte", "periodo", "reporte_tipo", "codigo_ugb",
   "dotacao_actualizada_da", "ad_fundos_desp_paga_vd_afdp",
   "has_dotacao", "has_afdp", "total_valor", "n_ugb_corrigidos",
-  "soma_negativos"
+  "soma_negativos", "sem_dotacao", "sem_afdp"
 ))
