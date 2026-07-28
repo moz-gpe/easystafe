@@ -177,10 +177,6 @@ processar_extracto_esistafe <- function(
     correct_negatives  = TRUE,
     quiet              = TRUE
 ) {
-  # --- Mensagens internas ---
-  msg <- function(...) {
-    if (!quiet) message(...)
-  }
 
   # --- 1. Identificar e carregar ficheiros ---
   files <- base::list.files(
@@ -191,18 +187,37 @@ processar_extracto_esistafe <- function(
   if (length(files) == 0) {
     stop(glue::glue("Nenhum ficheiro encontrado em '{source_path}' com o padrao '{include_pattern}'."))
   }
-  df <- purrr::map(files, ~readxl::read_excel(.x, col_types = "text")) |>
+  pasta <- base::basename(base::normalizePath(source_path, mustWork = FALSE))
+
+  # --- Carregar ficheiros, mostrando progresso ficheiro-a-ficheiro por pasta.
+  # O resumo detalhado e produzido por resumir_processamento_esistafe() depois
+  # de todos os periodos serem combinados. ---
+  ler_ficheiro <- function(f) readxl::read_excel(f, col_types = "text")
+  if (quiet) {
+    partes <- purrr::map(files, ler_ficheiro)
+  } else {
+    partes <- base::vector("list", length(files))
+    # Mostrar a barra imediatamente (por padrao cli espera 2s antes de a exibir).
+    old_opt <- options(cli.progress_show_after = 0)
+    on.exit(options(old_opt), add = TRUE)
+    cli::cli_progress_bar(
+      format = "A processar {pasta} \u2014 {cli::pb_current} de {cli::pb_total} ficheiro(s)",
+      total  = length(files),
+      clear  = FALSE
+    )
+    for (i in base::seq_along(files)) {
+      partes[[i]] <- ler_ficheiro(files[[i]])
+      cli::cli_progress_update()
+    }
+    cli::cli_progress_done()
+  }
+  df <- partes |>
     purrr::set_names(base::basename(files)) |>
     purrr::list_rbind(names_to = "file_name")
 
   # --- 1b. Adicionar pasta_fonte, ano e mes ---
   # ano e mes sao derivados do nome da pasta se seguir o formato YYYYMM.
   # Caso contrario, sao NA e e emitido um aviso.
-  pasta <- base::basename(base::normalizePath(source_path, mustWork = FALSE))
-
-  # Uma unica linha de progresso por pasta (o resumo detalhado e produzido
-  # por resumir_processamento_esistafe() apos todos os periodos serem combinados).
-  msg(glue::glue("A processar {pasta} \u2014 {length(files)} ficheiro(s)"))
 
   meses_pt <- c(
     "Janeiro", "Fevereiro", "Mar\u00e7o", "Abril",
