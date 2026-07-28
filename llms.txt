@@ -148,6 +148,10 @@ Funções para apoiar as verificações de qualidade
 
 - [`verificar_ugb_completude()`](https://moz-gpe.github.io/easystafe/reference/verificar_ugb_completude.md)
   : Verificar completude de UGBs no extracto e-SISTAFE
+- [`resumir_processamento_esistafe()`](https://moz-gpe.github.io/easystafe/reference/resumir_processamento_esistafe.md)
+  : Resumo consolidado do processamento de extractos e-SISTAFE
+- [`ugb_incompletas_esistafe()`](https://moz-gpe.github.io/easystafe/reference/ugb_incompletas_esistafe.md)
+  : Detalhe de UGBs incompletas por periodo
 
 # Articles
 

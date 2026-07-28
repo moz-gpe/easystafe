@@ -80,10 +80,12 @@ processar_extracto_esistafe(
 
 - quiet:
 
-  Logical. If `TRUE` (default), progress messages are suppressed. If
-  `FALSE`, a message is emitted for each processing step. Regardless of
-  this parameter, a final message with the number of processed files is
-  always emitted.
+  Logical. If `TRUE` (default), no messages are emitted. If `FALSE`, a
+  single progress line is emitted per folder with the folder name and
+  number of files found. Detailed per-period summaries (completude,
+  negatives, etc.) are produced separately by
+  [`resumir_processamento_esistafe`](https://moz-gpe.github.io/easystafe/reference/resumir_processamento_esistafe.md)
+  after all folders are combined.
 
 ## Value
 

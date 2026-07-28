@@ -206,9 +206,30 @@ df_esistafe <- paths_esistafe |>
   list_rbind()
 ```
 
+Nas versões anteriores, a verificação de completude de UGBs era emitida
+repetidamente para cada pasta durante o processamento. Agora essa
+verificação foi movida para uma única função de resumo (Passo 5),
+executada depois de todos os períodos serem combinados.
+
 ------------------------------------------------------------------------
 
-## Passo 5: Enriquecer com Metadados Descritivos
+## Passo 5: Rever o Resumo do Processamento
+
+Depois de combinar todos os períodos,
+[`resumir_processamento_esistafe()`](https://moz-gpe.github.io/easystafe/reference/resumir_processamento_esistafe.md)
+apresenta um resumo consolidado num único conjunto de tabelas: períodos
+e ficheiros processados, intervalo de datas, completude de UGBs por
+período, correcção de valores negativos por período, e UGBs do lookup
+que não aparecem nos dados.
+
+``` r
+
+resumir_processamento_esistafe(df_esistafe, lookups$ugb)
+```
+
+------------------------------------------------------------------------
+
+## Passo 6: Enriquecer com Metadados Descritivos
 
 Após combinar todos os meses, a função
 [`adicionar_lookups_esistafe()`](https://moz-gpe.github.io/easystafe/reference/adicionar_lookups_esistafe.md)
@@ -222,7 +243,7 @@ df_esistafe <- df_esistafe |>
 
 ------------------------------------------------------------------------
 
-## Passo 6: Gravar o Resultado
+## Passo 7: Gravar o Resultado
 
 A função
 [`gravar_esistafe()`](https://moz-gpe.github.io/easystafe/reference/gravar_esistafe.md)
@@ -294,7 +315,13 @@ df_esistafe <- paths_esistafe %>%
     correct_negatives      = TRUE,
     quiet                  = FALSE
   )) |>
-list_rbind() |>
+list_rbind()
+
+# REVER RESUMO CONSOLIDADO DO PROCESSAMENTO
+resumir_processamento_esistafe(df_esistafe, lookups$ugb)
+
+# ENRIQUECER COM METADADOS DESCRITIVOS
+df_esistafe <- df_esistafe |>
   adicionar_lookups_esistafe(lookups)
 
 # GRAVAR FICHEIRO FINAL AO DISCO

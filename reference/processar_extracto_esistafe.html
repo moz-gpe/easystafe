@@ -129,10 +129,11 @@ added, and the two flag columns are not created.</p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
-<dd><p>Logical. If <code>TRUE</code> (default), progress messages are
-suppressed. If <code>FALSE</code>, a message is emitted for each processing
-step. Regardless of this parameter, a final message with the number of
-processed files is always emitted.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), no messages are emitted. If
+<code>FALSE</code>, a single progress line is emitted per folder with the folder
+name and number of files found. Detailed per-period summaries (completude,
+negatives, etc.) are produced separately by
+<code><a href="resumir_processamento_esistafe.html">resumir_processamento_esistafe</a></code> after all folders are combined.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -252,7 +253,7 @@ da soma total <code>"Valor"</code>.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

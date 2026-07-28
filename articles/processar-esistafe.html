@@ -280,26 +280,43 @@ todos os argumentos disponíveis, execute
 <span>    quiet                 <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Nas versões anteriores, a verificação de completude de UGBs era
+emitida repetidamente para cada pasta durante o processamento. Agora
+essa verificação foi movida para uma única função de resumo (Passo 5),
+executada depois de todos os períodos serem combinados.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="passo-5-enriquecer-com-metadados-descritivos">Passo 5: Enriquecer com Metadados Descritivos<a class="anchor" aria-label="anchor" href="#passo-5-enriquecer-com-metadados-descritivos"></a>
+<h2 id="passo-5-rever-o-resumo-do-processamento">Passo 5: Rever o Resumo do Processamento<a class="anchor" aria-label="anchor" href="#passo-5-rever-o-resumo-do-processamento"></a>
+</h2>
+<p>Depois de combinar todos os períodos,
+<code><a href="../reference/resumir_processamento_esistafe.html">resumir_processamento_esistafe()</a></code> apresenta um resumo
+consolidado num único conjunto de tabelas: períodos e ficheiros
+processados, intervalo de datas, completude de UGBs por período,
+correcção de valores negativos por período, e UGBs do lookup que não
+aparecem nos dados.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/resumir_processamento_esistafe.html">resumir_processamento_esistafe</a></span><span class="op">(</span><span class="va">df_esistafe</span>, <span class="va">lookups</span><span class="op">$</span><span class="va">ugb</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="passo-6-enriquecer-com-metadados-descritivos">Passo 6: Enriquecer com Metadados Descritivos<a class="anchor" aria-label="anchor" href="#passo-6-enriquecer-com-metadados-descritivos"></a>
 </h2>
 <p>Após combinar todos os meses, a função
 <code><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe()</a></code> junta metadados descritivos ao
 dataset.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_esistafe</span> <span class="op">&lt;-</span> <span class="va">df_esistafe</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe</a></span><span class="op">(</span><span class="va">lookups</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="passo-6-gravar-o-resultado">Passo 6: Gravar o Resultado<a class="anchor" aria-label="anchor" href="#passo-6-gravar-o-resultado"></a>
+<h2 id="passo-7-gravar-o-resultado">Passo 7: Gravar o Resultado<a class="anchor" aria-label="anchor" href="#passo-7-gravar-o-resultado"></a>
 </h2>
 <p>A função <code><a href="../reference/gravar_esistafe.html">gravar_esistafe()</a></code> grava o dataset final em dois
 formatos simultaneamente: Parquet (para armazenamento eficiente) e Excel
 (para partilha e revisão manual).</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gravar_esistafe.html">gravar_esistafe</a></span><span class="op">(</span></span>
 <span>  df            <span class="op">=</span> <span class="va">df_esistafe</span>,</span>
 <span>  output_folder <span class="op">=</span> <span class="st">"Dataout/"</span>,</span>
@@ -318,7 +335,7 @@ base nos dados presentes no dataset.</p>
 </h2>
 <p>O código encadeado completo para processar oito meses de extractos do
 e-SISTAFE cabe em menos de 50 linhas de código:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># CARREGAR DEPENDÊNCIAS DO PACOTE</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
@@ -357,7 +374,13 @@ e-SISTAFE cabe em menos de 50 linhas de código:</p>
 <span>    correct_negatives      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    quiet                  <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># REVER RESUMO CONSOLIDADO DO PROCESSAMENTO</span></span>
+<span><span class="fu"><a href="../reference/resumir_processamento_esistafe.html">resumir_processamento_esistafe</a></span><span class="op">(</span><span class="va">df_esistafe</span>, <span class="va">lookups</span><span class="op">$</span><span class="va">ugb</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># ENRIQUECER COM METADADOS DESCRITIVOS</span></span>
+<span><span class="va">df_esistafe</span> <span class="op">&lt;-</span> <span class="va">df_esistafe</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/adicionar_lookups_esistafe.html">adicionar_lookups_esistafe</a></span><span class="op">(</span><span class="va">lookups</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># GRAVAR FICHEIRO FINAL AO DISCO</span></span>
@@ -385,7 +408,7 @@ consulte a documentação com <code><a href="../reference/processar_extracto_esi
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
