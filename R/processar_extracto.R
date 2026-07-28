@@ -530,8 +530,9 @@ processar_extracto_esistafe <- function(
     "Processamento concluido: {n_files} ficheiro(s) processado(s) com sucesso.\n{file_list}"
   ))
 
-  # --- Verificar completude de UGBs ---
-  verificar_ugb_completude(df_limpeza_final, df_ugb_lookup, quiet = quiet)
+  # --- Completude de UGBs ---
+  # A verificacao de completude foi movida para resumir_processamento_esistafe(),
+  # que produz um resumo consolidado depois de todos os periodos serem combinados.
 
   return(df_limpeza_final)
 }
