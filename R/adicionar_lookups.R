@@ -24,8 +24,9 @@
 #'
 #' @return Uma lista nomeada com oito elementos:
 #' \describe{
-#'   \item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{provincia},
-#'     \code{distrito}, \code{ambito}, colunas com prefixo \code{adm},
+#'   \item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{ugb_nome}
+#'     (nome padronizado da UGB), \code{provincia}, \code{distrito},
+#'     \code{ambito}, colunas com prefixo \code{adm},
 #'     \code{nivel_da_instituicao} e \code{descricao}. Linhas com
 #'     \code{codigo_ugb == "Total"} sao removidas.}
 #'   \item{funcao}{Dataframe com colunas \code{funcao} e \code{funcao_nivel}.
@@ -102,6 +103,7 @@ carregar_lookups_esistafe <- function(path) {
       janitor::clean_names() |>
       dplyr::select(
         codigo_ugb,
+        ugb_nome = nome_ugb_padronizado,
         provincia,
         distrito,
         ambito,
@@ -314,6 +316,7 @@ adicionar_lookups_esistafe <- function(df, lookups) {
       relationship = "many-to-one"
     ) |>
     dplyr::select(-programa_ambito_fr) |>
+    dplyr::relocate(dplyr::any_of("ugb_nome"), .after = ugb_id) |>
     dplyr::relocate(funcao_nivel, .after = funcao) |>
     dplyr::relocate(
       ced_nome,
@@ -346,7 +349,9 @@ adicionar_lookups_esistafe <- function(df, lookups) {
 #'
 #' @return A tibble filtered to \code{data_tipo == "Valor"} rows, containing
 #'   the following columns when present: \code{reporte_tipo}, \code{periodo},
-#'   \code{ugb_id}, \code{funcao}, \code{funcao_nivel}, \code{programa},
+#'   \code{ugb_id}, \code{ugb} (canonical UGB name, no code prefix, from the
+#'   lookup's \code{nome_ugb_padronizado}), \code{funcao}, \code{funcao_nivel},
+#'   \code{programa},
 #'   \code{fr}, \code{ced}, \code{ced_nome}, \code{ced_nivel},
 #'   \code{ced_2_nome}, \code{ced_3_nome}, \code{provincia}, \code{distrito},
 #'   \code{ambito}, \code{nivel_da_instituicao}, \code{descricao},
@@ -371,7 +376,7 @@ adicionar_lookups_esistafe <- function(df, lookups) {
 #'   config_para_duckdb()
 #' }
 #'
-#' @importFrom dplyr filter select any_of
+#' @importFrom dplyr filter select any_of rename
 #'
 #' @export
 config_para_duckdb <- function(df) {
@@ -379,6 +384,7 @@ config_para_duckdb <- function(df) {
     "reporte_tipo",
     "periodo",
     "ugb_id",
+    "ugb_nome",
     "funcao",
     "funcao_nivel",
     "programa",
@@ -411,7 +417,9 @@ config_para_duckdb <- function(df) {
 
   df |>
     dplyr::filter(data_tipo == "Valor") |>
-    dplyr::select(dplyr::any_of(keep_cols))
+    dplyr::select(dplyr::any_of(keep_cols)) |>
+    # canonical UGB name (no code prefix), keyed to ugb_id; exposed as `ugb`
+    dplyr::rename(dplyr::any_of(c(ugb = "ugb_nome")))
 }
 
 
