@@ -243,6 +243,13 @@
 
         </dt>
         <dd>Detalhe de UGBs incompletas por periodo</dd>
+
+        <dt>
+
+          <code><a href="sitrep_processamento_esistafe.html">sitrep_processamento_esistafe()</a></code>
+
+        </dt>
+        <dd>Detecta e reporta lacunas de enriquecimento no dataframe produzido por <code>processar_extracto_esistafe() |&gt; adicionar_lookups_esistafe()</code>: casos onde os <em>left joins</em> silenciosamente produziram <code>NA</code> por falta de correspondencia no ficheiro de lookup. Imprime um resumo em portugues com instrucoes de remediacao (qual folha actualizar, por que ordem), e grava um ficheiro Excel em disco com o detalhe de cada lacuna. Tambem apresenta um quadro de completude de UGBs (Funcionamento).</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

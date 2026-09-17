@@ -78,7 +78,20 @@ Funções para apoiar as verificações de qualidade
 
 - [`verificar_ugb_completude()`](https://moz-gpe.github.io/easystafe/reference/verificar_ugb_completude.md)
   : Verificar completude de UGBs no extracto e-SISTAFE
+
 - [`resumir_processamento_esistafe()`](https://moz-gpe.github.io/easystafe/reference/resumir_processamento_esistafe.md)
   : Resumo consolidado do processamento de extractos e-SISTAFE
+
 - [`ugb_incompletas_esistafe()`](https://moz-gpe.github.io/easystafe/reference/ugb_incompletas_esistafe.md)
   : Detalhe de UGBs incompletas por periodo
+
+- [`sitrep_processamento_esistafe()`](https://moz-gpe.github.io/easystafe/reference/sitrep_processamento_esistafe.md)
+  :
+
+  Detecta e reporta lacunas de enriquecimento no dataframe produzido por
+  `processar_extracto_esistafe() |> adicionar_lookups_esistafe()`: casos
+  onde os *left joins* silenciosamente produziram `NA` por falta de
+  correspondencia no ficheiro de lookup. Imprime um resumo em portugues
+  com instrucoes de remediacao (qual folha actualizar, por que ordem), e
+  grava um ficheiro Excel em disco com o detalhe de cada lacuna. Tambem
+  apresenta um quadro de completude de UGBs (Funcionamento).

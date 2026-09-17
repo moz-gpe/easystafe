@@ -26,9 +26,10 @@ Uma lista nomeada com oito elementos:
 
 - ugb:
 
-  Dataframe com colunas `codigo_ugb`, `provincia`, `distrito`, `ambito`,
-  colunas com prefixo `adm`, `nivel_da_instituicao` e `descricao`.
-  Linhas com `codigo_ugb == "Total"` sao removidas.
+  Dataframe com colunas `codigo_ugb`, `ugb_nome` (nome padronizado da
+  UGB), `provincia`, `distrito`, `ambito`, colunas com prefixo `adm`,
+  `nivel_da_instituicao` e `descricao`. Linhas com
+  `codigo_ugb == "Total"` sao removidas.
 
 - funcao:
 

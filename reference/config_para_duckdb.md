@@ -27,11 +27,12 @@ config_para_duckdb(df)
 
 A tibble filtered to `data_tipo == "Valor"` rows, containing the
 following columns when present: `reporte_tipo`, `periodo`, `ugb_id`,
-`funcao`, `funcao_nivel`, `programa`, `fr`, `ced`, `ced_nome`,
-`ced_nivel`, `ced_2_nome`, `ced_3_nome`, `provincia`, `distrito`,
-`ambito`, `nivel_da_instituicao`, `descricao`, `programa_tipo`, and the
-11 numeric budget execution columns from `dotacao_inicial` to
-`liq_ad_fundos_via_directa_lafvd`.
+`ugb` (canonical UGB name, no code prefix, from the lookup's
+`nome_ugb_padronizado`), `funcao`, `funcao_nivel`, `programa`, `fr`,
+`ced`, `ced_nome`, `ced_nivel`, `ced_2_nome`, `ced_3_nome`, `provincia`,
+`distrito`, `ambito`, `nivel_da_instituicao`, `descricao`,
+`programa_tipo`, and the 11 numeric budget execution columns from
+`dotacao_inicial` to `liq_ad_fundos_via_directa_lafvd`.
 
 ## Details
 
