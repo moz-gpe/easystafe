@@ -15,8 +15,9 @@ Excel que contem as folhas de lookup. Deve conter as folhas \code{"ugb"},
 \value{
 Uma lista nomeada com oito elementos:
 \describe{
-\item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{provincia},
-\code{distrito}, \code{ambito}, colunas com prefixo \code{adm},
+\item{ugb}{Dataframe com colunas \code{codigo_ugb}, \code{ugb_nome}
+(nome padronizado da UGB), \code{provincia}, \code{distrito},
+\code{ambito}, colunas com prefixo \code{adm},
 \code{nivel_da_instituicao} e \code{descricao}. Linhas com
 \code{codigo_ugb == "Total"} sao removidas.}
 \item{funcao}{Dataframe com colunas \code{funcao} e \code{funcao_nivel}.

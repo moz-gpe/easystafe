@@ -14,7 +14,9 @@ followed by \code{adicionar_lookups_esistafe()}. Must contain the column
 \value{
 A tibble filtered to \code{data_tipo == "Valor"} rows, containing
 the following columns when present: \code{reporte_tipo}, \code{periodo},
-\code{ugb_id}, \code{funcao}, \code{funcao_nivel}, \code{programa},
+\code{ugb_id}, \code{ugb} (canonical UGB name, no code prefix, from the
+lookup's \code{nome_ugb_padronizado}), \code{funcao}, \code{funcao_nivel},
+\code{programa},
 \code{fr}, \code{ced}, \code{ced_nome}, \code{ced_nivel},
 \code{ced_2_nome}, \code{ced_3_nome}, \code{provincia}, \code{distrito},
 \code{ambito}, \code{nivel_da_instituicao}, \code{descricao},
