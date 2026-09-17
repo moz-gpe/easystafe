@@ -17,77 +17,95 @@ export(processar_extracto_absa)
 export(processar_extracto_esistafe)
 export(processar_extracto_razao_c)
 export(resumir_processamento_esistafe)
+export(sitrep_processamento_esistafe)
 export(ugb_incompletas_esistafe)
 export(verificar_ugb_completude)
 importFrom(arrow,write_parquet)
-importFrom(cli,cli_alert_info)
-importFrom(cli,cli_alert_success)
-importFrom(cli,cli_alert_warning)
-importFrom(cli,cli_h1)
-importFrom(cli,cli_rule)
-importFrom(cli,cli_verbatim)
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,any_of)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,coalesce)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,first)
-importFrom(dplyr,group_by)
-importFrom(dplyr,if_else)
-importFrom(dplyr,join_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,n_distinct)
-importFrom(dplyr,pick)
-importFrom(dplyr,pull)
-importFrom(dplyr,relocate)
-importFrom(dplyr,row_number)
-importFrom(dplyr,select)
-importFrom(dplyr,starts_with)
-importFrom(dplyr,summarise)
-importFrom(dplyr,transmute)
-importFrom(dplyr,ungroup)
+importFrom(cli,
+  cli_alert_info,
+  cli_alert_success,
+  cli_alert_warning,
+  cli_h1,
+  cli_rule,
+  cli_verbatim
+)
+importFrom(dplyr,
+  across,
+  all_of,
+  any_of,
+  arrange,
+  bind_rows,
+  case_when,
+  coalesce,
+  distinct,
+  filter,
+  first,
+  group_by,
+  if_else,
+  join_by,
+  left_join,
+  mutate,
+  n,
+  n_distinct,
+  pick,
+  pull,
+  relocate,
+  rename,
+  row_number,
+  select,
+  starts_with,
+  summarise,
+  transmute,
+  ungroup
+)
 importFrom(glue,glue)
 importFrom(janitor,clean_names)
-importFrom(lubridate,ceiling_date)
-importFrom(lubridate,days)
-importFrom(lubridate,dmy)
-importFrom(lubridate,floor_date)
-importFrom(lubridate,month)
-importFrom(lubridate,year)
+importFrom(lubridate,
+  ceiling_date,
+  days,
+  dmy,
+  floor_date,
+  month,
+  year
+)
 importFrom(pdftools,pdf_data)
-importFrom(purrr,discard)
-importFrom(purrr,keep)
-importFrom(purrr,list_rbind)
-importFrom(purrr,map)
-importFrom(purrr,map_dfr)
-importFrom(purrr,map_int)
-importFrom(purrr,set_names)
-importFrom(purrr,walk)
-importFrom(readxl,excel_sheets)
-importFrom(readxl,read_excel)
-importFrom(readxl,read_xlsx)
-importFrom(scales,comma)
-importFrom(scales,percent)
-importFrom(stringr,regex)
-importFrom(stringr,str_c)
-importFrom(stringr,str_detect)
-importFrom(stringr,str_ends)
-importFrom(stringr,str_extract)
-importFrom(stringr,str_extract_all)
-importFrom(stringr,str_pad)
-importFrom(stringr,str_remove)
-importFrom(stringr,str_remove_all)
-importFrom(stringr,str_sub)
-importFrom(stringr,str_subset)
-importFrom(stringr,str_trim)
+importFrom(purrr,
+  discard,
+  keep,
+  list_rbind,
+  map,
+  map_dfr,
+  map_int,
+  set_names,
+  walk
+)
+importFrom(readxl,
+  excel_sheets,
+  read_excel,
+  read_xlsx
+)
+importFrom(scales,
+  comma,
+  percent
+)
+importFrom(stringr,
+  regex,
+  str_c,
+  str_detect,
+  str_ends,
+  str_extract,
+  str_extract_all,
+  str_pad,
+  str_remove,
+  str_remove_all,
+  str_sub,
+  str_subset,
+  str_trim
+)
 importFrom(tibble,tibble)
-importFrom(tidyr,crossing)
-importFrom(tidyr,replace_na)
-importFrom(tidyr,unite)
+importFrom(tidyr,
+  crossing,
+  replace_na,
+  unite
+)
 importFrom(writexl,write_xlsx)
